@@ -394,3 +394,9 @@ Public Sub DefinirBordures(CurrentCell As Range, AddTopBorder As Boolean)
 	oCellRange.BottomBorder.LineWidth = 26
 		
 End Sub
+
+Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As String)
+
+   ' Do Nothing
+
+End Sub
