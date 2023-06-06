@@ -89,7 +89,7 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
     ' FileFilter, FiltrerIndex, Title
     On Error Resume Next
     Fichier_De_Sauvegarde = Application.GetOpenFilename( _
-        "Fichiers compatibles (*.xlsx;*.xls;*.ods;*.xlsm),*.xlsx;*.xls;*.ods;*.xlsm,Excel 2003-2007 (*.xls),*.xls,Excel (*.xlsx),*.xlsx, Libre Office (*.ods),*.ods, Excel avec macro (*.xlsm),*.xlsm", _
+        "Fichiers compatibles (*.xlsx;*.xls;*.xlsm),*.xlsx;*.xls;*.xlsm,Excel 2003-2007 (*.xls),*.xls,Excel (*.xlsx),*.xlsx, Excel avec macro (*.xlsm),*.xlsm", _
         0, _
         "Choisir le fichier à importer" _
     )
@@ -188,7 +188,9 @@ Public Function importData(FileName As String) As Boolean
     ' copy data
     prepareFichier ThisWorkbook, PreviousNBSalarie, PreviousNBChantiers
     CopyPreviousValues oldWorkbook, ThisWorkbook, PreviousRevision
+    On Error Resume Next
     MettreAJourBudgetGlobal ThisWorkbook
+    On Error GoTo 0
     
     ' copie des onglets avant la copie des données pour éviter les autres erreurs
     ImportSheets oldWorkbook, ThisWorkbook
