@@ -260,3 +260,43 @@ Public Sub DefinirBordures(CurrentCell As Range, AddTopBorder As Boolean)
         .Borders(xlInsideHorizontal).LineStyle = xlNone
     End With
 End Sub
+
+Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As String)
+
+    Dim NewChargesSheet As Worksheet
+    Dim OldChargesSheet As Worksheet
+    Dim CurShape As Shape
+    
+    On Error Resume Next
+    Set OldChargesSheet = oldWorkbook.Worksheets(Name)
+    On Error GoTo 0
+    If OldChargesSheet Is Nothing Then
+        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas été trouvée dans " & oldWorkbook.Name
+        Exit Sub
+    End If
+    
+    On Error Resume Next
+    Set NewChargesSheet = NewWorkbook.Worksheets(Name)
+    On Error GoTo 0
+    If NewChargesSheet Is Nothing Then
+        MsgBox "'" & Name & "' n'a pas été trouvée dans " & NewWorkbook.Name
+        Exit Sub
+    End If
+    
+    OldChargesSheet.Activate
+    OldChargesSheet.Select
+    For Each CurShape In OldChargesSheet.Shapes
+        ' msoPicture = 13
+         If CurShape.Type = msoPicture Then
+            CurShape.Copy
+            NewChargesSheet.Activate
+            NewChargesSheet.Select
+            NewChargesSheet.Range(CurShape.TopLeftCell.address).Select
+            NewChargesSheet.Paste
+            ' Selection.Placement = xlMoveAndSize
+            OldChargesSheet.Activate
+            OldChargesSheet.Select
+        End If
+    Next CurShape
+
+End Sub
