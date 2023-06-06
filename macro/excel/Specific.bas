@@ -300,3 +300,48 @@ Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As S
     Next CurShape
 
 End Sub
+
+Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Boolean)
+    
+    Dim Arr1
+    Dim Arr2
+    
+    If NoBorderOnRightAndLeft Then
+        Arr1 = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
+        Arr2 = Array(xlEdgeLeft, xlEdgeTop, xlEdgeRight, xlEdgeBottom)
+    Else
+        Arr1 = Array(xlEdgeLeft, xlEdgeRight, xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
+        Arr2 = Array(xlEdgeTop, xlEdgeBottom)
+    End If
+
+    ' Format cell
+    For IndexBis = 1 To 4
+        With CurrentCell.Cells(1, IndexBis)
+            For Each VarTmp In Arr1
+                .Borders(VarTmp).LineStyle = xlNone
+            Next VarTmp
+            For Each VarTmp In Arr2
+                With .Borders(VarTmp)
+                    .LineStyle = xlContinuous
+                    .ColorIndex = 1
+                    .TintAndShade = 0
+                    .Weight = xlThin
+                End With
+            Next VarTmp
+            With .Font
+                .Name = "Calibri"
+                .FontStyle = "Normal"
+                .Size = 8
+                .Strikethrough = False
+                .Superscript = False
+                .Subscript = False
+                .OutlineFont = False
+                .Shadow = False
+                .Underline = xlUnderlineStyleNone
+                .ColorIndex = xlAutomatic
+                .TintAndShade = 0
+                .ThemeFont = xlThemeFontNone
+            End With
+        End With
+    Next IndexBis
+End Sub

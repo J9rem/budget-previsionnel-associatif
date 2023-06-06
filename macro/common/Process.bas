@@ -1,4 +1,4 @@
-﻿Rem Attribute VBA_ModuleType=VBAModule
+Rem Attribute VBA_ModuleType=VBAModule
 Option VBASupport 1
 
 ' SPDX-License-Identifier: EUPL-1.2
@@ -484,7 +484,7 @@ Public Function GetNbChantiers(wb As Workbook, Optional BaseRow As Integer = 3)
         GetNbChantiers = -1
         Exit Function
     End If
-    Set BaseCell = FindNextNotEmpty(ChantierSheet.Cells(BaseRow, 1),False)
+    Set BaseCell = FindNextNotEmpty(ChantierSheet.Cells(BaseRow, 1), False)
     If BaseCell.Column > 1000 Then
         GetNbChantiers = -2
         Exit Function
@@ -1613,36 +1613,7 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
                 CurrentCell.Cells(1, 2).value = Data.Charges(Index).PreviousN2YearValue
                 CurrentCell.Cells(1, 3).value = Data.Charges(Index).PreviousYearValue
                 CurrentCell.Cells(1, 4).value = Data.Charges(Index).CurrentYearValue
-                ' Format cell
-                For IndexBis = 1 To 4
-                    With CurrentCell.Cells(1, IndexBis)
-                        For Each VarTmp In Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
-                            .Borders(VarTmp).LineStyle = xlNone
-                        Next VarTmp
-                        For Each VarTmp In Array(xlEdgeLeft, xlEdgeTop, xlEdgeRight, xlEdgeBottom)
-                            With .Borders(VarTmp)
-                                .LineStyle = xlContinuous
-                                .ColorIndex = 1
-                                .TintAndShade = 0
-                                .Weight = xlThin
-                            End With
-                        Next VarTmp
-                        With .Font
-                            .Name = "Calibri"
-                            .FontStyle = "Normal"
-                            .Size = 8
-                            .Strikethrough = False
-                            .Superscript = False
-                            .Subscript = False
-                            .OutlineFont = False
-                            .Shadow = False
-                            .Underline = xlUnderlineStyleNone
-                            .ColorIndex = xlAutomatic
-                            .TintAndShade = 0
-                            .ThemeFont = xlThemeFontNone
-                        End With
-                    End With
-                Next IndexBis
+                formatChargeCell CurrentCell, True
                 
             End If
         Next Index
@@ -1654,36 +1625,7 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
         CurrentCell.Cells(2, 1).EntireRow.Insert Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
         
         Set CurrentCell = CurrentCell.Cells(2, 1)
-        ' Format cell
-        For IndexBis = 1 To 4
-            With CurrentCell.Cells(1, IndexBis)
-                For Each VarTmp In Array(xlEdgeLeft, xlEdgeRight, xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
-                    .Borders(VarTmp).LineStyle = xlNone
-                Next VarTmp
-                For Each VarTmp In Array(xlEdgeTop, xlEdgeBottom)
-                    With .Borders(VarTmp)
-                        .LineStyle = xlContinuous
-                        .ColorIndex = 1
-                        .TintAndShade = 0
-                        .Weight = xlThin
-                    End With
-                Next VarTmp
-                With .Font
-                    .Name = "Calibri"
-                    .FontStyle = "Normal"
-                    .Size = 8
-                    .Strikethrough = False
-                    .Superscript = False
-                    .Subscript = False
-                    .OutlineFont = False
-                    .Shadow = False
-                    .Underline = xlUnderlineStyleNone
-                    .ColorIndex = xlAutomatic
-                    .TintAndShade = 0
-                    .ThemeFont = xlThemeFontNone
-                End With
-            End With
-        Next IndexBis
+        formatChargeCell CurrentCell, False
         
         
         ' increase searched index
