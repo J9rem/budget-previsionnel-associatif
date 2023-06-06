@@ -3,6 +3,7 @@ Attribute VB_Name = "Process"
 ' Pour forcer la déclaration de toutes les variables
 Option Explicit
 
+
 ' Macro pour mettre à jour le budget update
 Public Sub MettreAJourBudgetGlobal(wb As Workbook)
 
@@ -237,7 +238,6 @@ EndSub:
 
 End Sub
 
-
 Public Function InsertLineAndFormat(BaseCell As Range, HeadCell As Range) As Range
     If BaseCell.Cells(2, 1).value = "" Then
         Set BaseCell = BaseCell.Cells(2, 1)
@@ -255,6 +255,7 @@ Public Function InsertLineAndFormat(BaseCell As Range, HeadCell As Range) As Ran
     
     Set InsertLineAndFormat = BaseCell
 End Function
+
 Public Function SearchRangeForEmployeesSalary(wb As Workbook) As Range
     Dim CoutJSalaireSheet As Worksheet
     Dim BaseCell As Range
@@ -342,7 +343,7 @@ Public Function GetNbSalaries(wb As Workbook)
         Exit Function
     End If
     
-    Set TmpRange = BaseCell.Cells(2, 1).End(xlDown)
+    Set TmpRange = FindNextNotEmpty(BaseCell.Cells(2, 1), True)
     If TmpRange.value = "Prénom" Or TmpRange.value = Label_Cout_J_Salaire_Part_B Then
         GetNbSalaries = -6
         Exit Function
@@ -369,7 +370,7 @@ Public Function GetNbSalariesV0(wb As Workbook) As NBAndRange
         GoTo FinFunction
     End If
     Set TmpRange = BaseCell
-    Set BaseCell = CoutJSalaireSheet.Cells(1, 1).End(xlDown).End(xlDown)
+    Set BaseCell = FindNextNotEmpty(FindNextNotEmpty(CoutJSalaireSheet.Cells(1, 1), True), True)
     If BaseCell.value <> Label_Cout_J_Salaire_Part_A Then
         Result.NB = -3
         GoTo FinFunction
@@ -794,13 +795,13 @@ Public Sub AjoutFinancement(wb As Workbook, _
     
 End Sub
 
-Public Sub AddValidationDossier(CurrentRange As Range)
+Public Sub AddValidationDossier(currentRange As Range)
     Dim Index As Integer
-    For Index = 1 To CurrentRange.Count
-        DefinirBordures CurrentRange(Index), True
+    For Index = 1 To currentRange.Count
+        DefinirBordures currentRange(Index), True
     Next Index
     
-    With CurrentRange.Validation
+    With currentRange.Validation
         .Delete
         .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
         xlBetween, Formula1:="=STATUT_DOSSIER"
@@ -1613,4 +1614,39 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
         
     Wend
 End Sub
+
+Public Function FindNextNotEmpty(BaseCell As Range, directionDown As Boolean) As Range
+
+    Dim NB As Integer
+    Dim currentRange As Range
+    Dim NextRange As Range
+    
+    ' Init
+    NB = 0
+    Set currentRange = BaseCell
+    
+    If BaseCell.value = "" Then
+        While currentRange.value = "" And NB < 1000
+            If directionDown Then
+                Set currentRange = currentRange.Cells(2, 1)
+            Else
+                Set currentRange = currentRange.Cells(1, 2)
+            End If
+            NB = NB + 1
+        Wend
+    Else
+        Set NextRange = currentRange
+        While NextRange.value <> "" And NB < 1000
+            Set currentRange = NextRange
+            If directionDown Then
+                Set NextRange = currentRange.Cells(2, 1)
+            Else
+                Set NextRange = currentRange.Cells(1, 2)
+            End If
+            NB = NB + 1
+        Wend
+    End If
+    Set FindNextNotEmpty = currentRange
+
+End Function
 
