@@ -12,6 +12,7 @@ Public Const BackupDefaultExtension As String = ".ods"
 Public Const intoOds As Boolean = True
 
 Public ODialog
+Public publicDoc
 
 ' types
 Type Financement
@@ -222,11 +223,6 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range)
     
     oSheet = ThisComponent.Sheets.getByName(BaseCell.Worksheet.Name)
     
-    
-    Dim TmpVar As Variant
-    Dim VarTmp As Variant
-    Dim Border
-    
     For IndexBis = 1 To 3
     	oCellRange = oSheet.getCellByPosition(BaseCell.Column+IndexBis-2,BaseCell.Row-1)
     	oCellRange.CharFontStyleName = ""
@@ -285,6 +281,9 @@ Public Sub Validate_Click(document)
     currentType = GetType(parentWindow)
     
     Nom = ""
+    On Error Resume Next
+    Nom = publicDoc.Source.Text
+    On Error GoTo 0
     
     If CurrentType <> "" Then
     	TypeFinancement = FindTypeFinancementIndex(CurrentType)
@@ -295,6 +294,10 @@ Public Sub Validate_Click(document)
  	oDialog.endExecute()
     If Nom = "" Or Nom = Empty Then
         MsgBox "Le nom ne peut être vide !"
+        Exit Sub
+    End If
+    If TypeFinancement = 0 Then
+        MsgBox "Un type de financement doit être choisit !"
         Exit Sub
     End If
     
@@ -347,3 +350,47 @@ Public Function GetType(parentWindow) As String
 	Next currentWindow
 
 End Function
+
+Public Sub SaveDoc(document)
+	publicDoc = document
+End Sub
+
+Public Sub DefinirBordures(CurrentCell As Range, AddTopBorder As Boolean)
+
+    Dim oSheet
+    Dim oCellRange
+    
+    oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
+    oCellRange = oSheet.getCellByPosition(CurrentCell.Column-1,CurrentCell.Row-1)
+    
+   	oCellRange.LeftBorder.Color = 0
+	oCellRange.LeftBorder.InnerLineWidth = 0
+	oCellRange.LeftBorder.OuterLineWidth = 26
+	oCellRange.LeftBorder.LineDistance = 0
+	oCellRange.LeftBorder.LineStyle = 0
+	oCellRange.LeftBorder.LineWidth = 26
+	oCellRange.RightBorder.Color = 0
+	oCellRange.RightBorder.InnerLineWidth = 0
+	oCellRange.RightBorder.OuterLineWidth = 26
+	oCellRange.RightBorder.LineDistance = 0
+	oCellRange.RightBorder.LineStyle = 0
+	oCellRange.RightBorder.LineWidth = 26
+	oCellRange.TopBorder.Color = 0
+	oCellRange.TopBorder.InnerLineWidth = 0
+    If AddTopBorder Then
+		oCellRange.TopBorder.OuterLineWidth = 40
+		oCellRange.TopBorder.LineWidth = 40
+    Else
+		oCellRange.TopBorder.OuterLineWidth = 26
+		oCellRange.TopBorder.LineWidth = 26
+    End If
+	oCellRange.TopBorder.LineDistance = 0
+	oCellRange.TopBorder.LineStyle = 0
+	oCellRange.BottomBorder.Color = 0
+	oCellRange.BottomBorder.InnerLineWidth = 0
+	oCellRange.BottomBorder.OuterLineWidth = 26
+	oCellRange.BottomBorder.LineDistance = 0
+	oCellRange.BottomBorder.LineStyle = 0
+	oCellRange.BottomBorder.LineWidth = 26
+		
+End Sub
