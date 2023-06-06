@@ -408,8 +408,8 @@ Public Function FindTypeChargeIndexFromCode(value As Integer) As Integer
     TypesCharges = TypesDeCharges().Values
     IndexFound = 0
     For Index = 1 To UBound(TypesCharges)
-        TypeCharge = TypesCharges(Index)
-        currentIndex = TypeCharge.Index
+    	TypeCharge = TypesCharges(Index)
+    	currentIndex = TypeCharge.Index
         If IndexFound = 0 And currentIndex = value Then
             IndexFound = Index
         End If

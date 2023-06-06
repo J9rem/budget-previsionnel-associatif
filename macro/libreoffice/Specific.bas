@@ -46,7 +46,7 @@ Public Function choisirNomFicherASauvegarderSansMacro(ByRef FilePath As String) 
     ' InitialFileName, FileFilter, FiltrerIndex, Title
     Fichier_De_Sauvegarde = GetSaveAsFilename( _
         Nom_de_Fichier_Par_Defaut, _
-        Array(Array("Libre Office (*.ods)","*.ods")), _
+        Array(Array("Libre Office (*.ods)","*.ods"),Array("Excel (*.xls)","*.xls")), _
         "Choisir le fichier à exporter", _
         Adresse_dossier_courant)
     On Error GoTo 0
@@ -101,9 +101,9 @@ Public Function saveWorkBookAsCopyNoMacro(FilePath As String, FileName As String
     
     On Error Resume Next
     Set Wb = Workbooks.Open(FileName:=DestFolder & FileName, ReadOnly:=False)
-    On Error GoTo 0
     returnToCurrentPath
     Kill FilePath
+    On Error GoTo 0
     Wb.SaveAs FileName:=FilePath
     If Not (Wb Is Nothing) Then
     	OpenedWorkbook = Wb
