@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:style-id="2" dlg:id="UserForm1" dlg:left="0" dlg:top="0" dlg:width="187" dlg:height="94" dlg:closeable="true" dlg:moveable="true" dlg:title="Nouveau financeur">
+ <dlg:styles>
+  <dlg:style dlg:style-id="0" dlg:background-color="0xece9d8" dlg:text-color="0x0" dlg:font-name="Tahoma" dlg:font-height="8" dlg:font-charset="ansi" dlg:font-weight="100"/>
+  <dlg:style dlg:style-id="1" dlg:background-color="0xffffff" dlg:text-color="0x0" dlg:font-name="Tahoma" dlg:font-height="8" dlg:font-charset="ansi" dlg:font-weight="100"/>
+  <dlg:style dlg:style-id="2" dlg:background-color="0xece9d8"/>
+ </dlg:styles>
+ <dlg:bulletinboard>
+  <dlg:text dlg:style-id="0" dlg:id="Label1" dlg:tab-index="0" dlg:left="8" dlg:top="4" dlg:width="16" dlg:height="8" dlg:value="Nom" dlg:valign="top" dlg:multiline="true" dlg:tabstop="false"/>
+  <dlg:textfield dlg:style-id="1" dlg:id="NomFinancement" dlg:tab-index="1" dlg:left="32" dlg:top="4" dlg:width="140" dlg:height="12" dlg:tabstop="true"/>
+  <dlg:text dlg:style-id="0" dlg:id="Label2" dlg:tab-index="2" dlg:left="4" dlg:top="20" dlg:width="24" dlg:height="8" dlg:value="Type" dlg:valign="top" dlg:multiline="true" dlg:tabstop="false"/>
+  <dlg:radiogroup>
+   <dlg:radio dlg:style-id="0" dlg:control-implementation="stardiv.one.form.component.RadioButton" dlg:id="TypeEtat" dlg:tab-index="3" dlg:left="32" dlg:top="20" dlg:width="26" dlg:height="12" dlg:tabstop="true" dlg:value="État" dlg:valign="center" dlg:image-position="top-center" dlg:multiline="true" dlg:group-name="autoGroup_"/>
+   <dlg:radio dlg:style-id="0" dlg:control-implementation="stardiv.one.form.component.RadioButton" dlg:id="TypeRegion" dlg:tab-index="4" dlg:left="32" dlg:top="32" dlg:width="26" dlg:height="12" dlg:tabstop="true" dlg:value="Région" dlg:valign="center" dlg:image-position="top-center" dlg:multiline="true" dlg:group-name="autoGroup_"/>
+   <dlg:radio dlg:style-id="0" dlg:control-implementation="stardiv.one.form.component.RadioButton" dlg:id="TypeASP" dlg:tab-index="5" dlg:left="96" dlg:top="44" dlg:width="63" dlg:height="12" dlg:tabstop="true" dlg:value="ASP (emplois aidés)" dlg:valign="center" dlg:image-position="top-center" dlg:multiline="true" dlg:group-name="autoGroup_"/>
+   <dlg:radio dlg:style-id="0" dlg:control-implementation="stardiv.one.form.component.RadioButton" dlg:id="TypeComIntercom" dlg:tab-index="6" dlg:left="32" dlg:top="44" dlg:width="55" dlg:height="17" dlg:tabstop="true" dlg:value="Communes et intercommunalités" dlg:valign="center" dlg:image-position="top-center" dlg:multiline="true" dlg:group-name="autoGroup_"/>
+   <dlg:radio dlg:style-id="0" dlg:control-implementation="stardiv.one.form.component.RadioButton" dlg:id="TypeAutre" dlg:tab-index="7" dlg:left="96" dlg:top="60" dlg:width="26" dlg:height="12" dlg:tabstop="true" dlg:value="Autres" dlg:valign="center" dlg:image-position="top-center" dlg:multiline="true" dlg:group-name="autoGroup_"/>
+   <dlg:radio dlg:style-id="0" dlg:control-implementation="stardiv.one.form.component.RadioButton" dlg:id="TypeFondEuro" dlg:tab-index="8" dlg:left="96" dlg:top="32" dlg:width="64" dlg:height="12" dlg:tabstop="true" dlg:value="Fonds européens" dlg:valign="center" dlg:image-position="top-center" dlg:multiline="true" dlg:group-name="autoGroup_"/>
+   <dlg:radio dlg:style-id="0" dlg:control-implementation="stardiv.one.form.component.RadioButton" dlg:id="TypeOrgaSociaux" dlg:tab-index="9" dlg:left="96" dlg:top="20" dlg:width="81" dlg:height="12" dlg:tabstop="true" dlg:value="Organismes sociaux" dlg:valign="center" dlg:image-position="top-center" dlg:multiline="true" dlg:group-name="autoGroup_"/>
+   <dlg:radio dlg:style-id="0" dlg:control-implementation="stardiv.one.form.component.RadioButton" dlg:id="TypeEtPubic" dlg:tab-index="10" dlg:left="32" dlg:top="64" dlg:width="61" dlg:height="12" dlg:tabstop="true" dlg:value="Établissements publics" dlg:valign="center" dlg:image-position="top-center" dlg:multiline="true" dlg:group-name="autoGroup_"/>
+   <dlg:radio dlg:style-id="0" dlg:control-implementation="stardiv.one.form.component.RadioButton" dlg:id="TypeFondation" dlg:tab-index="11" dlg:left="32" dlg:top="80" dlg:width="61" dlg:height="12" dlg:tabstop="true" dlg:value="Fondation" dlg:valign="center" dlg:image-position="top-center" dlg:multiline="true" dlg:group-name="autoGroup_"/>
+  </dlg:radiogroup>
+  <dlg:button dlg:style-id="0" dlg:id="Validate" dlg:tab-index="12" dlg:left="96" dlg:top="72" dlg:width="48" dlg:height="16" dlg:tabstop="true" dlg:value="Valider" dlg:valign="center" dlg:image-position="top-center">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:Standard.Specific.Validate_Click?language=Basic&amp;location=document" script:language="Script"/>
+  </dlg:button>
+ </dlg:bulletinboard>
+</dlg:window>
