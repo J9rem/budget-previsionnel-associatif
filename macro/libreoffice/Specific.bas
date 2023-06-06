@@ -46,7 +46,7 @@ Public Function choisirNomFicherASauvegarderSansMacro(ByRef FilePath As String) 
     ' InitialFileName, FileFilter, FiltrerIndex, Title
     Fichier_De_Sauvegarde = GetSaveAsFilename( _
         Nom_de_Fichier_Par_Defaut, _
-        Array(Array("Libre Office (*.ods)","*.ods")), _
+        Array(Array("Libre Office (*.ods)","*.ods"),Array("Excel (*.xls)","*.xls")), _
         "Choisir le fichier à exporter", _
         Adresse_dossier_courant)
     On Error GoTo 0
@@ -101,9 +101,9 @@ Public Function saveWorkBookAsCopyNoMacro(FilePath As String, FileName As String
     
     On Error Resume Next
     Set Wb = Workbooks.Open(FileName:=DestFolder & FileName, ReadOnly:=False)
-    On Error GoTo 0
     returnToCurrentPath
     Kill FilePath
+    On Error GoTo 0
     Wb.SaveAs FileName:=FilePath
     If Not (Wb Is Nothing) Then
     	OpenedWorkbook = Wb
@@ -405,41 +405,44 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
 
     Dim oSheet
     Dim oCellRange
+    Dim IndexBis
     
     oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
-    oCellRange = oSheet.getCellByPosition(CurrentCell.Column-1,CurrentCell.Row-1)
-    
-   	oCellRange.LeftBorder.Color = 0
-	oCellRange.LeftBorder.InnerLineWidth = 0
-	oCellRange.LeftBorder.LineDistance = 0
-	oCellRange.LeftBorder.LineStyle = 0
-	oCellRange.RightBorder.Color = 0
-	oCellRange.RightBorder.InnerLineWidth = 0
-	oCellRange.RightBorder.LineDistance = 0
-	oCellRange.RightBorder.LineStyle = 0
-	oCellRange.TopBorder.Color = 0
-	oCellRange.TopBorder.InnerLineWidth = 0
-	oCellRange.TopBorder.OuterLineWidth = 26
-	oCellRange.TopBorder.LineWidth = 26
-	oCellRange.TopBorder.LineDistance = 0
-	oCellRange.TopBorder.LineStyle = 0
-	oCellRange.BottomBorder.Color = 0
-	oCellRange.BottomBorder.InnerLineWidth = 0
-	oCellRange.BottomBorder.OuterLineWidth = 26
-	oCellRange.BottomBorder.LineDistance = 0
-	oCellRange.BottomBorder.LineStyle = 0
-	oCellRange.BottomBorder.LineWidth = 26
-    
-    If NoBorderOnRightAndLeft Then
-		oCellRange.LeftBorder.OuterLineWidth = 0
-		oCellRange.LeftBorder.LineWidth = 0
-		oCellRange.RightBorder.OuterLineWidth = 0
-		oCellRange.RightBorder.LineWidth = 0
-    Else
-		oCellRange.LeftBorder.OuterLineWidth = 26
-		oCellRange.LeftBorder.LineWidth = 26
-		oCellRange.RightBorder.OuterLineWidth = 26
-		oCellRange.RightBorder.LineWidth = 26
-    End If
+    For IndexBis = 1 To 4
+	    oCellRange = oSheet.getCellByPosition(CurrentCell.Column+IndexBis-2,CurrentCell.Row-1)
+	    
+	   	oCellRange.LeftBorder.Color = 0
+		oCellRange.LeftBorder.InnerLineWidth = 0
+		oCellRange.LeftBorder.LineDistance = 0
+		oCellRange.LeftBorder.LineStyle = 0
+		oCellRange.RightBorder.Color = 0
+		oCellRange.RightBorder.InnerLineWidth = 0
+		oCellRange.RightBorder.LineDistance = 0
+		oCellRange.RightBorder.LineStyle = 0
+		oCellRange.TopBorder.Color = 0
+		oCellRange.TopBorder.InnerLineWidth = 0
+		oCellRange.TopBorder.OuterLineWidth = 26
+		oCellRange.TopBorder.LineWidth = 26
+		oCellRange.TopBorder.LineDistance = 0
+		oCellRange.TopBorder.LineStyle = 0
+		oCellRange.BottomBorder.Color = 0
+		oCellRange.BottomBorder.InnerLineWidth = 0
+		oCellRange.BottomBorder.OuterLineWidth = 26
+		oCellRange.BottomBorder.LineDistance = 0
+		oCellRange.BottomBorder.LineStyle = 0
+		oCellRange.BottomBorder.LineWidth = 26
+	    
+	    If NoBorderOnRightAndLeft Then
+			oCellRange.LeftBorder.OuterLineWidth = 0
+			oCellRange.LeftBorder.LineWidth = 0
+			oCellRange.RightBorder.OuterLineWidth = 0
+			oCellRange.RightBorder.LineWidth = 0
+	    Else
+			oCellRange.LeftBorder.OuterLineWidth = 26
+			oCellRange.LeftBorder.LineWidth = 26
+			oCellRange.RightBorder.OuterLineWidth = 26
+			oCellRange.RightBorder.LineWidth = 26
+	    End If
+	Next IndexBis
 
 End Sub
