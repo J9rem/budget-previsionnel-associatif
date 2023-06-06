@@ -113,7 +113,7 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Dim Charges() As Charge
     Dim tmpTypeCharge As TypeCharge
         
-	SetSilent
+    SetSilent
     
     rev = DetecteVersion(wb)
     Data = extraireDonneesVersion1(wb, rev)
@@ -150,7 +150,7 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
         HeadCell.Cells(1, 3).value = 0
         Charges = Data.Charges
         For Index = 1 To UBound(Charges)
-        	currentCharge = Charges(Index)
+            currentCharge = Charges(Index)
             If currentCharge.IndexTypeCharge = IndexFound Then
                 
                 Set BaseCell = InsertLineAndFormat(BaseCell, HeadCell)
@@ -428,7 +428,7 @@ Public Function GetNbSalaries(wb As Workbook)
         Exit Function
     End If
     
-    Set TmpRange = FindNextNotEmpty(BaseCell.Cells(2, 1),True)
+    Set TmpRange = FindNextNotEmpty(BaseCell.Cells(2, 1), True)
     If TmpRange.value = "Prénom" Or TmpRange.value = Label_Cout_J_Salaire_Part_B Then
         GetNbSalaries = -6
         Exit Function
@@ -455,7 +455,7 @@ Public Function GetNbSalariesV0(wb As Workbook) As NBAndRange
         GoTo FinFunction
     End If
     Set TmpRange = BaseCell
-    Set BaseCell = FindNextNotEmpty(FindNextNotEmpty(CoutJSalaireSheet.Cells(1, 1),True),True)
+    Set BaseCell = FindNextNotEmpty(FindNextNotEmpty(CoutJSalaireSheet.Cells(1, 1), True), True)
     If BaseCell.value <> Label_Cout_J_Salaire_Part_A Then
         Result.NB = -3
         GoTo FinFunction
@@ -729,7 +729,7 @@ Public Sub AjoutFinancement(wb As Workbook, _
     Dim IsEmptyLine As Boolean
     Dim RowTypeFinanceur As Integer
     Dim NBExtraCols As Integer
-    Dim TmpFinancement as Financement
+    Dim TmpFinancement As Financement
     
     NBExtraCols = 6
     
@@ -839,7 +839,7 @@ Public Sub AjoutFinancement(wb As Workbook, _
     End If
     
     BaseCell.Cells(1, NBChantiers + 3).Formula = "=SUM(" & Range(BaseCell.Cells(1, 3), BaseCell.Cells(1, NBChantiers + 2)) _
-        .Address(False, False, xlA1) & ")"
+        .address(False, False, xlA1) & ")"
     
     If (TypeFinancementStr <> "") Then
         BaseCell.value = TypeFinancementStr
@@ -860,10 +860,10 @@ Public Sub AjoutFinancement(wb As Workbook, _
             AddValidationDossier Range(BaseCell.Cells(2, 3), BaseCell.Cells(2, 2 + NBChantiers))
         End If
     Else
-    	TmpFinancement = NewFinancementInChantier.Financements(1)
+        TmpFinancement = NewFinancementInChantier.Financements(1)
         BaseCell.Cells(1, 2).value = TmpFinancement.Nom
         For Index = 1 To UBound(NewFinancementInChantier.Financements)
-    		TmpFinancement = NewFinancementInChantier.Financements(Index)
+            TmpFinancement = NewFinancementInChantier.Financements(Index)
             If TmpFinancement.Valeur <> 0 Then
                 BaseCell.Cells(1, 2 + Index) = TmpFinancement.Valeur
             End If
@@ -880,13 +880,13 @@ Public Sub AjoutFinancement(wb As Workbook, _
     
 End Sub
 
-Public Sub AddValidationDossier(CurrentRange As Range)
+Public Sub AddValidationDossier(currentRange As Range)
     Dim Index As Integer
-    For Index = 1 To CurrentRange.Count
-        DefinirBordures CurrentRange(Index), True
+    For Index = 1 To currentRange.Count
+        DefinirBordures currentRange(Index), True
     Next Index
     
-    With CurrentRange.Validation
+    With currentRange.Validation
         .Delete
         .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
         xlBetween, Formula1:="=STATUT_DOSSIER"
@@ -931,7 +931,7 @@ Public Sub DefinirFormatConditionnelPourLesDossier(CurrentCells As Range)
         Set CurrentFormatCondition = CurrentCells.FormatConditions.Add( _
             Type:=xlExpression, _
             Formula1:= _
-                "=SI(" & FirstCellSecondLine.Address( _
+                "=SI(" & FirstCellSecondLine.address( _
                     RowAbsolute:=False, _
                     ColumnAbsolute:=False, _
                     ReferenceStyle:=xlA1 _
@@ -1151,7 +1151,7 @@ Public Function extraireFinancementChantier(BaseCellChantier As Range, NBChantie
     
     If ForV0 Then
         Set BaseCell = TrouveBaseCellFinancementV0(BaseCellChantier)
-        If BaseCell.Address = BaseCellChantier.Address Then
+        If BaseCell.address = BaseCellChantier.address Then
             GoTo FinFunction
         End If
     Else
@@ -1302,15 +1302,15 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
         If NBNewCharges > 0 Then
             PreviousIndex = UBound(Charges)
             If PreviousIndex < 0 Then
-            	PreviousIndex = 0
+                PreviousIndex = 0
             End If
             If PreviousIndex = 0 Then
-            	Charges = getChargesDefault(NBNewCharges)
+                Charges = getChargesDefault(NBNewCharges)
             Else
-            	Charges = getChargesDefaultPreserve(Charges,PreviousIndex + NBNewCharges)
+                Charges = getChargesDefaultPreserve(Charges, PreviousIndex + NBNewCharges)
             End If
             For Index = 1 To NBNewCharges
-    			TmpCharge = getDefaultCharge()
+                TmpCharge = getDefaultCharge()
                 TmpCharge.Nom = CurrentCell.Cells(1 + Index, 1).value
                 TmpCharge.IndexTypeCharge = CurrentIndexTypeCharge
                 If Has3Years Then
@@ -1476,7 +1476,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                             Else
                                 TauxAutre = Data.Chantiers(IndexChantier).AutoFinancementAutres / TotalCell.Cells(1, 1 + IndexChantier).value
                             End If
-                            BaseCell.Cells(2, 1 + IndexChantier).Formula = "=" & Replace(WorksheetFunction.Round(TauxAutre, 3), ",", ".") & "*" & TotalCell.Cells(1, 1 + IndexChantier).Address(False, False, xlA1, False)
+                            BaseCell.Cells(2, 1 + IndexChantier).Formula = "=" & Replace(WorksheetFunction.Round(TauxAutre, 3), ",", ".") & "*" & TotalCell.Cells(1, 1 + IndexChantier).address(False, False, xlA1, False)
                             BaseCell.Cells(6, 1 + IndexChantier).value = Data.Chantiers(IndexChantier).AutoFinancementStructureAnneesPrecedentes
                             BaseCell.Cells(7, 1 + IndexChantier).value = Data.Chantiers(IndexChantier).AutoFinancementAutresAnneesPrecedentes
                             BaseCell.Cells(8, 1 + IndexChantier).value = Data.Chantiers(IndexChantier).CAanneesPrecedentes
@@ -1693,44 +1693,46 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
         CurrentIndexTypeCharge = FindTypeChargeIndex(CurrentCell.value)
         
         ' add formula
-        HeadCell.Cells(1, 2).Formula = "=SUM(" & Range(HeadCell.Cells(2, 2), CurrentCell.Cells(0, 2)).Address(False, False, xlA1) & ")"
-        HeadCell.Cells(1, 3).Formula = "=SUM(" & Range(HeadCell.Cells(2, 3), CurrentCell.Cells(0, 3)).Address(False, False, xlA1) & ")"
-        HeadCell.Cells(1, 4).Formula = "=SUM(" & Range(HeadCell.Cells(2, 4), CurrentCell.Cells(0, 4)).Address(False, False, xlA1) & ")"
+        HeadCell.Cells(1, 2).Formula = "=SUM(" & Range(HeadCell.Cells(2, 2), CurrentCell.Cells(0, 2)).address(False, False, xlA1) & ")"
+        HeadCell.Cells(1, 3).Formula = "=SUM(" & Range(HeadCell.Cells(2, 3), CurrentCell.Cells(0, 3)).address(False, False, xlA1) & ")"
+        HeadCell.Cells(1, 4).Formula = "=SUM(" & Range(HeadCell.Cells(2, 4), CurrentCell.Cells(0, 4)).address(False, False, xlA1) & ")"
         
     Wend
 End Sub
 
-Public Function FindNextNotEmpty(BaseCell As Range, directionDown as Boolean) As Range
+Public Function FindNextNotEmpty(BaseCell As Range, directionDown As Boolean) As Range
 
-	Dim NB as Integer
-	Dim currentRange as Range
-	Dim NextRange As Range
-	
-	' Init
-	NB = 0
-	Set currentRange = BaseCell
-	
-	If BaseCell.Value = "" Then
-		While currentRange.Value = "" And NB < 1000
-			If directionDown Then
-		    	Set currentRange = currentRange.Cells(2,1)
-		    Else
-		    	Set currentRange = currentRange.Cells(1,2)
-		    End If
-		    NB = NB + 1
-		Wend
-	Else
-		Set NextRange = currentRange
-		While NextRange.Value <> "" And NB < 1000
-			Set currentRange = NextRange
-			If directionDown Then
-		    	Set NextRange = currentRange.Cells(2,1)
-		    Else
-		    	Set NextRange = currentRange.Cells(1,2)
-		    End If
-		    NB = NB + 1
-		Wend
-	End If
-	Set FindNextNotEmpty = currentRange
+    Dim NB As Integer
+    Dim currentRange As Range
+    Dim NextRange As Range
+    
+    ' Init
+    NB = 0
+    Set currentRange = BaseCell
+    
+    If BaseCell.value = "" Then
+        While currentRange.value = "" And NB < 1000
+            If directionDown Then
+                Set currentRange = currentRange.Cells(2, 1)
+            Else
+                Set currentRange = currentRange.Cells(1, 2)
+            End If
+            NB = NB + 1
+        Wend
+    Else
+        Set NextRange = currentRange
+        While NextRange.value <> "" And NB < 1000
+            Set currentRange = NextRange
+            If directionDown Then
+                Set NextRange = currentRange.Cells(2, 1)
+            Else
+                Set NextRange = currentRange.Cells(1, 2)
+            End If
+            NB = NB + 1
+        Wend
+    End If
+    Set FindNextNotEmpty = currentRange
 
 End Function
+
+
