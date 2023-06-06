@@ -428,7 +428,7 @@ Public Function GetNbSalaries(wb As Workbook)
         Exit Function
     End If
     
-    Set TmpRange = BaseCell.Cells(2, 1).End(xlDown)
+    Set TmpRange = FindNextNotEmpty(BaseCell.Cells(2, 1),True)
     If TmpRange.value = "Prénom" Or TmpRange.value = Label_Cout_J_Salaire_Part_B Then
         GetNbSalaries = -6
         Exit Function
@@ -455,7 +455,7 @@ Public Function GetNbSalariesV0(wb As Workbook) As NBAndRange
         GoTo FinFunction
     End If
     Set TmpRange = BaseCell
-    Set BaseCell = CoutJSalaireSheet.Cells(1, 1).End(xlDown).End(xlDown)
+    Set BaseCell = FindNextNotEmpty(FindNextNotEmpty(CoutJSalaireSheet.Cells(1, 1),True),True)
     If BaseCell.value <> Label_Cout_J_Salaire_Part_A Then
         Result.NB = -3
         GoTo FinFunction
@@ -1700,4 +1700,37 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Wend
 End Sub
 
+Public Function FindNextNotEmpty(BaseCell As Range, directionDown as Boolean) As Range
 
+	Dim NB as Integer
+	Dim currentRange as Range
+	Dim NextRange As Range
+	
+	' Init
+	NB = 0
+	Set currentRange = BaseCell
+	
+	If BaseCell.Value = "" Then
+		While currentRange.Value = "" And NB < 1000
+			If directionDown Then
+		    	Set currentRange = currentRange.Cells(2,1)
+		    Else
+		    	Set currentRange = currentRange.Cells(1,2)
+		    End If
+		    NB = NB + 1
+		Wend
+	Else
+		Set NextRange = currentRange
+		While NextRange.Value <> "" And NB < 1000
+			Set currentRange = NextRange
+			If directionDown Then
+		    	Set NextRange = currentRange.Cells(2,1)
+		    Else
+		    	Set NextRange = currentRange.Cells(1,2)
+		    End If
+		    NB = NB + 1
+		Wend
+	End If
+	Set FindNextNotEmpty = currentRange
+
+End Function
