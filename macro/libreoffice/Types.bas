@@ -199,7 +199,7 @@ Public Function getDefaultFinancementComplet() As FinancementComplet
     fin.Financements = ArrayTmp 
     fin.status = false
     
-    FinancementComplet = fin
+    getDefaultFinancementComplet = fin
 
 End Function
 

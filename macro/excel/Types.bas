@@ -191,7 +191,7 @@ Public Function getDefaultFinancementComplet() As FinancementComplet
     
     Dim fin As FinancementComplet
     
-    FinancementComplet = fin
+    getDefaultFinancementComplet = fin
 
 End Function
 
