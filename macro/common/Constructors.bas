@@ -32,8 +32,8 @@ Public Function TypeStatut()
 End Function
 
 Public Function TypesDeCharges() As TypesCharges
-    Dim ArrayTmp(0 To 10) As typeCharge
-    Dim TmpCharge As typeCharge
+    Dim ArrayTmp(0 To 10) As TypeCharge
+    Dim TmpCharge As TypeCharge
     Dim TmpTypesCharges As TypesCharges
     TmpTypesCharges = getDefaultTypesCharges()
     

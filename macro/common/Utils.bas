@@ -307,14 +307,14 @@ End Function
 
 Public Function FindTypeChargeIndex(value As String) As Integer
     ' return 0 if not found
-    Dim TypesCharges() As typeCharge
+    Dim TypesCharges() As TypeCharge
     Dim Index As Integer
     Dim IndexFound As Integer
     Dim SimilarIndexFound As Integer
     Dim tmpName As String
     Dim OtherName As String
-    Dim typeCh As typeCharge
-    Dim TypChIdx As typeCharge
+    Dim typeCh As TypeCharge
+    Dim TypChIdx As TypeCharge
     
     TypesCharges = TypesDeCharges().Values
     IndexFound = 0
@@ -386,17 +386,17 @@ End Function
     
 Public Function FindTypeChargeIndexFromCode(value As Integer) As Integer
     ' return 0 if not found
-    Dim TypesCharges() As typeCharge
+    Dim TypesCharges() As TypeCharge
     Dim Index As Integer
     Dim IndexFound As Integer
-    Dim typeCharge As typeCharge
+    Dim TypeCharge As TypeCharge
     Dim currentIndex As Integer
     
     TypesCharges = TypesDeCharges().Values
     IndexFound = 0
     For Index = 1 To UBound(TypesCharges)
-        typeCharge = TypesCharges(Index)
-        currentIndex = typeCharge.Index
+        TypeCharge = TypesCharges(Index)
+        currentIndex = TypeCharge.Index
         If IndexFound = 0 And currentIndex = value Then
             IndexFound = Index
         End If

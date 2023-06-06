@@ -82,14 +82,14 @@ Public Type Data
     Charges() As Charge
 End Type
 
-Public Type typeCharge
+Public Type TypeCharge
     Nom As String
     Index As Integer
     NomLong As String
 End Type
 
 Public Type TypesCharges
-    Values() As typeCharge
+    Values() As TypeCharge
 End Type
     
 Public Type NBAndRange
@@ -195,8 +195,8 @@ Public Function getDefaultFinancementComplet() As FinancementComplet
 
 End Function
 
-Public Function getDefaultTypeCharge() As typeCharge
-    Dim ch As typeCharge
+Public Function getDefaultTypeCharge() As TypeCharge
+    Dim ch As TypeCharge
     getDefaultTypeCharge = ch
 End Function
 

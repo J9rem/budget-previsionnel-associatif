@@ -25,7 +25,7 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Dim rev As WbRevision
     Dim currentCharge As Charge
     Dim Charges() As Charge
-    Dim tmpTypeCharge As typeCharge
+    Dim tmpTypeCharge As TypeCharge
         
     SetSilent
     
