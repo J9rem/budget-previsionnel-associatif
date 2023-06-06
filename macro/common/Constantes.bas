@@ -1,15 +1,17 @@
-Attribute VB_Name = "Constantes"
+ï»¿Rem Attribute VBA_ModuleType=VBAModule
+Option VBASupport 1
+
 ' SPDX-License-Identifier: EUPL-1.2
 
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dÃ©claration de toutes les variables
 Option Explicit
 
 ' constantes
 Public Const Nom_Feuille_Informations As String = "Informations"
-Public Const Nom_Feuille_Cout_J_Salaire As String = "Coût_j_salaires"
+Public Const Nom_Feuille_Cout_J_Salaire As String = "CoÃ»t_j_salaires"
 Public Const Nom_Feuille_Personnel As String = "Personnel"
 Public Const Nom_Feuille_Budget_chantiers As String = "Budget_chantiers"
-Public Const Nom_Feuille_Charges = "Coût_j_chgs_indrctes"
+Public Const Nom_Feuille_Charges = "CoÃ»t_j_chgs_indrctes"
 Public Const Nom_Feuille_Budget_global As String = "Budget_global"
 Public Const Nom_Feuille_Eupl As String = "EUPL v1.2"
 Public Const Nom_Feuille_CC_by_SA As String = "CC BY SA V3.0"
@@ -17,13 +19,14 @@ Public Const Nom_Feuille_FAQ As String = "FAQ"
 Public Const Nom_Feuille_Versions As String = "Suivi des versions"
 Public Const Label_Version As String = "Version du tableur:"
 Public Const Label_Cout_J_Salaire_Part_A = "A - Calcul des jours travaillables / an"
-Public Const Label_Cout_J_Salaire_Part_B = "B/ Calcul Unité jours salaires "
-Public Const Label_Cout_J_Salaire_Part_D = "Coût journée "
-Public Const Label_Annees = "Année courante:"
+Public Const Label_Cout_J_Salaire_Part_B = "B/ Calcul UnitÃ© jours salaires "
+Public Const Label_Cout_J_Salaire_Part_D = "CoÃ»t journÃ©e "
+Public Const Label_Annees = "AnnÃ©e courante:"
 Public Const Label_Convention_Collective = "Convention collective: "
-Public Const Label_NBConges = "Nb. Congés hors samedi:"
+Public Const Label_NBConges = "Nb. CongÃ©s hors samedi:"
 Public Const Label_NBRTT = "Nb. RTT:"
-Public Const Label_Pentecote = "Pentecôte = férié"
-Public Const Label_NB_Jours_speciaux = "Nb. Jours non travaillés supplémentaires:"
+Public Const Label_Pentecote = "PentecÃ´te = fÃ©riÃ©"
+Public Const Label_NB_Jours_speciaux = "Nb. Jours non travaillÃ©s supplÃ©mentaires:"
 Public Const Label_Autofinancement_Structure = "Autofinancmt structure"
-Public Const Label_Autofinancement_Structure_Previous = "Autofinancmt structure années précédentes"
+Public Const Label_Autofinancement_Structure_Previous = "Autofinancmt structure annÃ©es prÃ©cÃ©dentes"
+

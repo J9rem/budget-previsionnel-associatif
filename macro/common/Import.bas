@@ -1,7 +1,87 @@
-Attribute VB_Name = "Import"
+ï»¿Rem Attribute VBA_ModuleType=VBAModule
+Option VBASupport 1
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dÃ©claration de toutes les variables
 Option Explicit
+
+' Types
+Type WbRevision
+    Majeure As Integer
+    Mineure As Integer
+    Error As Boolean
+End Type
+
+Type DonneesSalarie
+    Erreur As Boolean
+    Prenom As String
+    Nom As String
+    TauxDeTempsDeTravail As Double
+    TauxDeTempsDeTravailFormula As String
+    MasseSalarialeAnnuelle As Double
+    MasseSalarialeAnnuelleFormula As String
+    TauxOperateur As Double
+    TauxOperateurFormula As String
+    JoursChantiers() As Double ' Tableau de temps de chantiers mÃªme index que le tableau Chantiers
+End Type
+
+Type DepenseChantier
+    Nom As String
+    Valeur As Double
+    BaseCell As Range
+End Type
+
+Type Chantier
+    Nom As String
+    Depenses() As DepenseChantier
+    Financements() As Financement
+    AutoFinancementStructure As Double
+    AutoFinancementAutres As Double
+    AutoFinancementStructureAnneesPrecedentes As Double
+    AutoFinancementAutresAnneesPrecedentes As Double
+    CAanneesPrecedentes As Double
+End Type
+
+Type Charge
+    Nom As String
+    IndexTypeCharge As Integer
+    CurrentYearValue As Double
+    PreviousYearValue As Double
+    PreviousN2YearValue As Double
+    ChargeCell As Range
+End Type
+
+Type Informations
+    Annee As Integer
+    AnneeFormula As String
+    ConventionCollective As String
+    NBConges As Integer
+    NBCongesFormula As String
+    Pentecote As Boolean
+    NBRTT As Integer
+    NBRTTFormula As String
+    NBJoursSpeciaux As Integer
+    NBJoursSpeciauxFormula As String
+End Type
+
+Type Financement
+    Nom As String
+    TypeFinancement As Integer ' Index in TypeFinancements
+    Valeur As Double
+    Statut As Integer ' 0 = empty
+    BaseCell As Range
+End Type
+
+Type Data
+    Salaries() As DonneesSalarie
+    Chantiers() As Chantier
+    Informations As Informations
+    Charges() As Charge
+End Type
+
+Type NBAndRange
+    NB As Integer
+    Range As Range
+End Type
 
 Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
 
@@ -11,7 +91,7 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
     Fichier_De_Sauvegarde = Application.GetOpenFilename( _
         "Fichiers compatibles (*.xlsx;*.xls;*.ods;*.xlsm),*.xlsx;*.xls;*.ods;*.xlsm,Excel 2003-2007 (*.xls),*.xls,Excel (*.xlsx),*.xlsx, Libre Office (*.ods),*.ods, Excel avec macro (*.xlsm),*.xlsm", _
         0, _
-        "Choisir le fichier à importer" _
+        "Choisir le fichier Ã  importer" _
     )
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" Or Fichier_De_Sauvegarde = Empty Or Fichier_De_Sauvegarde = "Faux" Or Fichier_De_Sauvegarde = "False" Then
@@ -33,7 +113,7 @@ Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As S
     Set OldChargesSheet = oldWorkbook.Worksheets(Name)
     On Error GoTo 0
     If OldChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas été trouvée dans " & oldWorkbook.Name
+        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas Ã©tÃ© trouvÃ©e dans " & oldWorkbook.Name
         Exit Sub
     End If
     
@@ -41,7 +121,7 @@ Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As S
     Set NewChargesSheet = NewWorkbook.Worksheets(Name)
     On Error GoTo 0
     If NewChargesSheet Is Nothing Then
-        MsgBox "'" & Name & "' n'a pas été trouvée dans " & NewWorkbook.Name
+        MsgBox "'" & Name & "' n'a pas Ã©tÃ© trouvÃ©e dans " & NewWorkbook.Name
         Exit Sub
     End If
     
@@ -53,7 +133,7 @@ Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As S
             CurShape.Copy
             NewChargesSheet.Activate
             NewChargesSheet.Select
-            NewChargesSheet.Range(CurShape.TopLeftCell.address).Select
+            NewChargesSheet.Range(CurShape.TopLeftCell.Address).Select
             NewChargesSheet.Paste
             ' Selection.Placement = xlMoveAndSize
             OldChargesSheet.Activate
@@ -140,7 +220,7 @@ Public Function importData(FileName As String) As Boolean
     ' Copie du logo
     CopieLogo oldWorkbook, ThisWorkbook, Nom_Feuille_Cout_J_Salaire
     CopieLogo oldWorkbook, ThisWorkbook, Nom_Feuille_Personnel
-    ' copie des onglets avant la copie des données pour éviter les erreurs
+    ' copie des onglets avant la copie des donnÃ©es pour Ã©viter les erreurs
     ImportSheets oldWorkbook, ThisWorkbook
      
     ' copy data
@@ -148,7 +228,7 @@ Public Function importData(FileName As String) As Boolean
     CopyPreviousValues oldWorkbook, ThisWorkbook, PreviousRevision
     MettreAJourBudgetGlobal ThisWorkbook
     
-    ' copie des onglets avant la copie des données pour éviter les autres erreurs
+    ' copie des onglets avant la copie des donnÃ©es pour Ã©viter les autres erreurs
     ImportSheets oldWorkbook, ThisWorkbook
     
     ' save file
@@ -344,18 +424,18 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
         Set CurrentSheet = oldWorkbook.Worksheets(Nom_Feuille_Personnel)
         On Error GoTo 0
         If CurrentSheet Is Nothing Then
-            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
+            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas Ã©tÃ© trouvÃ©e"
         Else
-            Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+            Set BaseCell = CurrentSheet.Range("A:A").Find("PrÃ©nom")
             If BaseCell Is Nothing Then
-                MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
+                MsgBox "'PrÃ©nom' non trouvÃ© dans '" & Nom_Feuille_Personnel & "' !"
             Else
                 NBChantiers = 0
                 On Error Resume Next
                 Set ChantierSheet = oldWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
                 On Error GoTo 0
                 If ChantierSheet Is Nothing Then
-                    MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+                    MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas Ã©tÃ© trouvÃ©e"
                 Else
                     Set BaseCellChantier = ChantierSheet.Cells(3, 1).End(xlToRight)
                     If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.value, Len("Chantier")) <> "Chantier" Then
@@ -441,7 +521,7 @@ Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbR
         Set ChantierSheet = oldWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
         On Error GoTo 0
         If ChantierSheet Is Nothing Then
-            MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+            MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas Ã©tÃ© trouvÃ©e"
         Else
             Set BaseCellChantier = ChantierSheet.Cells(2, 1).End(xlToRight)
             If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.value, Len("Chantier")) <> "Chantier" Then
@@ -505,6 +585,7 @@ Public Function getPrevious(wb As Workbook, ByRef PreviousNBSalarie As Integer, 
     End If
     getPrevious = PreviousRevision
 End Function
+
 Public Function prepareFichier(wb As Workbook, PreviousNBSalarie As Integer, PreviousNBChantiers As Integer) As Boolean
 
     Dim NBSalariesInWorkingWk As Integer
@@ -524,3 +605,4 @@ Public Function prepareFichier(wb As Workbook, PreviousNBSalarie As Integer, Pre
     
     prepareFichier = True
 End Function
+

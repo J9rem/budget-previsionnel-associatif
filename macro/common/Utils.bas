@@ -1,11 +1,25 @@
-Attribute VB_Name = "Utils"
+ï»¿Rem Attribute VBA_ModuleType=VBAModule
+Option VBASupport 1
+
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dÃ©claration de toutes les variables
 Option Explicit
 
+' Types
+Type WbRevision
+    Majeure As Integer
+    Mineure As Integer
+    Error As Boolean
+End Type
+
+Type TypeCharge
+    Nom As String
+    Index As Integer
+    NomLong As String
+End Type
 
 Public Sub NotAvailable()
-    MsgBox "Patience, cette fonction est encore en cours de développement"
+    MsgBox "Patience, cette fonction est encore en cours de dÃ©veloppement"
 End Sub
 
 Public Function FileExists(FilePath As String) As Boolean
@@ -18,7 +32,6 @@ Public Function FileExists(FilePath As String) As Boolean
         FileExists = False
     End If
 End Function
-
 
 Public Function saveWorkbookAs(wb As Workbook, FolderName As String, FileName As String) As Boolean
     Dim previousCalculation
@@ -109,9 +122,9 @@ Public Function SaveFileNoMacro(FilePath As String) As Boolean
     Set OpenedWorkbook = Nothing
 
     SaveFileNoMacro = False
-    If (FilePath = ThisWorkbook.Path) Then
-        MsgBox "Il n'est pas possible d'écraser le fichier courant" & Chr(10) & _
-          "Veuillez réessayer avec un autre emplacement ou nom de fichier"
+    If (FilePath = ThisWorkbook.path) Then
+        MsgBox "Il n'est pas possible d'Ã©craser le fichier courant" & Chr(10) & _
+          "Veuillez rÃ©essayer avec un autre emplacement ou nom de fichier"
     Else
         
         ' check extension type
@@ -128,8 +141,8 @@ Public Function SaveFileNoMacro(FilePath As String) As Boolean
         SanitizedFilePath = FolderName & NewFileName
         
         If FileExists(SanitizedFilePath) Then
-            MsgBoxResult = MsgBox("Le fichie cible existe déjà !" & Chr(10) & _
-                "Faut-il l'écraser avec le nouveau ?", _
+            MsgBoxResult = MsgBox("Le fichie cible existe dÃ©jÃ  !" & Chr(10) & _
+                "Faut-il l'Ã©craser avec le nouveau ?", _
                 vbYesNo)
             If MsgBoxResult <> vbYes And MsgBoxResult <> vbOK Then
                 Exit Function
@@ -239,16 +252,16 @@ Public Function archiveThisFile() As Boolean
     
     FileName = Left(FileName, Len(FileName) - Len(Extension) - 1) & "-backup-" & Format(Now(), "yyyymdd_hhmmss") & "." & Extension
     
-    If FileExists(ThisWorkbook.Path & "\" & FileName) Then
-        MsgBox "Impossible de sauvegarder le fichier de sauvegarde car il existe déjà"
+    If FileExists(ThisWorkbook.path & "\" & FileName) Then
+        MsgBox "Impossible de sauvegarder le fichier de sauvegarde car il existe dÃ©jÃ "
         Exit Function
     End If
     
     returnToCurrentPath
-    SaveCopyAs ThisWorkbook, FileName, ThisWorkbook.Path
+    SaveCopyAs ThisWorkbook, FileName, ThisWorkbook.path
     
-    If (InStr(ThisWorkbook.Path, "\") And FileExists(ThisWorkbook.Path & "\" & FileName)) Or _
-        (InStr(ThisWorkbook.Path, "/") And FileExists(ThisWorkbook.Path & "/" & FileName)) Then
+    If (InStr(ThisWorkbook.path, "\") And FileExists(ThisWorkbook.path & "\" & FileName)) Or _
+        (InStr(ThisWorkbook.path, "/") And FileExists(ThisWorkbook.path & "/" & FileName)) Then
         archiveThisFile = True
     End If
 End Function
@@ -262,7 +275,7 @@ Public Function DetecteVersion(wb As Workbook) As WbRevision
     Dim BaseCell As Range
     Dim ExplodedRevisions As Variant
     Dim value As String
-    Dim rev As WbRevision
+    Dim rev as WbRevision
     rev = getDefaultWbRevision()
     
     On Error Resume Next
@@ -319,21 +332,21 @@ Public Function FindTypeChargeIndex(value As String) As Integer
     TypesCharges = TypesDeCharges().Values
     IndexFound = 0
     For Index = 1 To UBound(TypesCharges)
-        typeCh = TypesCharges(Index)
+    	typeCh = TypesCharges(Index)
         tmpName = typeCh.NomLong
-        OtherName = Replace(tmpName, "É", "E")
-        OtherName = Replace(OtherName, "Ê", "E")
-        OtherName = Replace(OtherName, "È", "E")
-        OtherName = Replace(OtherName, "Ë", "E")
-        OtherName = Replace(OtherName, "Ä", "A")
-        OtherName = Replace(OtherName, "Â", "A")
-        OtherName = Replace(OtherName, "Á", "A")
-        OtherName = Replace(OtherName, "À", "A")
-        OtherName = Replace(OtherName, "Ò", "O")
-        OtherName = Replace(OtherName, "Ó", "O")
-        OtherName = Replace(OtherName, "Õ", "O")
-        OtherName = Replace(OtherName, "Ö", "O")
-        OtherName = Replace(OtherName, "Ô", "O")
+        OtherName = Replace(tmpName, "Ã‰", "E")
+        OtherName = Replace(OtherName, "ÃŠ", "E")
+        OtherName = Replace(OtherName, "Ãˆ", "E")
+        OtherName = Replace(OtherName, "Ã‹", "E")
+        OtherName = Replace(OtherName, "Ã„", "A")
+        OtherName = Replace(OtherName, "Ã‚", "A")
+        OtherName = Replace(OtherName, "Ã", "A")
+        OtherName = Replace(OtherName, "Ã€", "A")
+        OtherName = Replace(OtherName, "Ã’", "O")
+        OtherName = Replace(OtherName, "Ã“", "O")
+        OtherName = Replace(OtherName, "Ã•", "O")
+        OtherName = Replace(OtherName, "Ã–", "O")
+        OtherName = Replace(OtherName, "Ã”", "O")
         If IndexFound = 0 And Len(tmpName) > 0 And (Left(value, Len(tmpName)) = tmpName Or Left(value, Len(OtherName)) = OtherName) Then
             IndexFound = Index
         End If
@@ -342,7 +355,7 @@ Public Function FindTypeChargeIndex(value As String) As Integer
         SimilarIndexFound = 0
         typeCh = TypesCharges(IndexFound)
         For Index = 1 To UBound(TypesCharges)
-            TypChIdx = TypesCharges(Index)
+        	TypChIdx = TypesCharges(Index)
             If SimilarIndexFound = 0 And TypChIdx.Index = typeCh.Index Then
                 SimilarIndexFound = Index
             End If
@@ -422,14 +435,14 @@ Public Function openWbSafe(ByRef wb As Workbook, FilePath As String) As Boolean
         ChDir (DestFolder)
     
         If FindOpenedWorkBook(FileName & "." & Extension, OpenedWorkbook) Then
-            If OpenedWorkbook.Path & "\" = DestFolder Then
+            If OpenedWorkbook.path & "\" = DestFolder Then
                 Set wb = OpenedWorkbook
                 openWbSafe = True
             End If
         Else
             Set wb = Workbooks.Open(FileName:=FilePath)
             On Error Resume Next
-            If wb.Path & "\" = DestFolder Then
+            If wb.path & "\" = DestFolder Then
                 openWbSafe = True
             End If
             On Error GoTo 0
@@ -441,13 +454,13 @@ End Function
 Public Function removeCrossRef(wb As Workbook, oldWb As Workbook) As Boolean
     
     On Error Resume Next
-    wb.ChangeLink oldWb.Path & "\" & oldWb.Name, wb.Path & "\" & wb.Name, xlExcelLinks
-    On Error GoTo 0
+    wb.ChangeLink oldWb.path & "\" & oldWb.Name, wb.path & "\" & wb.Name, xlExcelLinks
+    On Error Goto 0
     removeCrossRef = True
 End Function
 
 Public Function returnToCurrentPath() As Boolean
-    ChDir (ThisWorkbook.Path)
+    ChDir (ThisWorkbook.path)
     returnToCurrentPath = True
 End Function
 Public Function CleanAddess(address As String) As String
@@ -460,19 +473,18 @@ Public Function CleanAddess(address As String) As String
     End If
 End Function
 
-
-Public Sub SetSilent()
+Public Sub SetSilent
     ' config to be faster
-    On Error Resume Next ' pour éviter les erreurs LibreOffice
-    Application.Calculation = xlCalculationManual
+    On Error Resume Next ' pour Ã©viter les erreurs LibreOffice
+	Application.Calculation = xlCalculationManual
     Application.CalculateBeforeSave = True
     Application.ScreenUpdating = False
     On Error GoTo 0
 End Sub
 
-Public Sub SetActive()
-    On Error Resume Next ' pour éviter les erreurs LibreOffice
-    Application.Calculation = xlCalculationAutomatic
+Public Sub SetActive
+    On Error Resume Next ' pour Ã©viter les erreurs LibreOffice
+	Application.Calculation = xlCalculationAutomatic
     Application.CalculateBeforeSave = True
     Application.ScreenUpdating = True
     On Error GoTo 0

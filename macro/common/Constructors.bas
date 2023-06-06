@@ -1,19 +1,30 @@
-Attribute VB_Name = "Constructors"
+ï»¿Rem Attribute VBA_ModuleType=VBAModule
+Option VBASupport 1
+
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dÃ©claration de toutes les variables
 Option Explicit
 
+Type TypeCharge
+    Nom As String
+    Index As Integer
+    NomLong As String
+End Type
+
+Type TypesCharges
+    Values() As TypeCharge
+End Type
 
 Public Function TypeFinancements()
     Dim ArrayTmp(0 To 9) As String
     ArrayTmp(0) = ""
-    ArrayTmp(1) = "État"
-    ArrayTmp(2) = "Région"
-    ArrayTmp(3) = "Communes et intercommunalités"
-    ArrayTmp(4) = "Établissements publics"
+    ArrayTmp(1) = "Ã‰tat"
+    ArrayTmp(2) = "RÃ©gion"
+    ArrayTmp(3) = "Communes et intercommunalitÃ©s"
+    ArrayTmp(4) = "Ã‰tablissements publics"
     ArrayTmp(5) = "Organismes sociaux"
-    ArrayTmp(6) = "Fonds européens"
-    ArrayTmp(7) = "ASP (emplois aidés)"
+    ArrayTmp(6) = "Fonds europÃ©ens"
+    ArrayTmp(7) = "ASP (emplois aidÃ©s)"
     ArrayTmp(8) = "Fondation"
     ArrayTmp(9) = "Autres"
 
@@ -23,10 +34,10 @@ End Function
 Public Function TypeStatut()
     Dim ArrayTmp(0 To 4) As String
     ArrayTmp(0) = ""
-    ArrayTmp(1) = "Dossier non encore déposé, issue et montant incertains"
-    ArrayTmp(2) = "Dossier déposé, issue et montant incertains"
-    ArrayTmp(3) = "Dossier déposé, issue favorable et montant incertain"
-    ArrayTmp(4) = "Dossier déposé, issue et montant certain"
+    ArrayTmp(1) = "Dossier non encore dÃ©posÃ©, issue et montant incertains"
+    ArrayTmp(2) = "Dossier dÃ©posÃ©, issue et montant incertains"
+    ArrayTmp(3) = "Dossier dÃ©posÃ©, issue favorable et montant incertain"
+    ArrayTmp(4) = "Dossier dÃ©posÃ©, issue et montant certain"
 
     TypeStatut = ArrayTmp
 End Function
@@ -51,19 +62,19 @@ Public Function TypesDeCharges() As TypesCharges
     ArrayTmp(1) = TmpCharge
     
     TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Services extérieurs"
+    TmpCharge.Nom = "Services extÃ©rieurs"
     TmpCharge.Index = 61
     TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
     ArrayTmp(2) = TmpCharge
     
     TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Autres services extérieurs"
+    TmpCharge.Nom = "Autres services extÃ©rieurs"
     TmpCharge.Index = 62
     TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
     ArrayTmp(3) = TmpCharge
     
     TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Impôts et taxes"
+    TmpCharge.Nom = "ImpÃ´ts et taxes"
     TmpCharge.Index = 63
     TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
     ArrayTmp(4) = TmpCharge
@@ -81,7 +92,7 @@ Public Function TypesDeCharges() As TypesCharges
     ArrayTmp(6) = TmpCharge
     
     TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Charges financières"
+    TmpCharge.Nom = "Charges financiÃ¨res"
     TmpCharge.Index = 66
     TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
     ArrayTmp(7) = TmpCharge
