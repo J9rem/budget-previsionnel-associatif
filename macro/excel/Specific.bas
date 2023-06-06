@@ -305,6 +305,7 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
     
     Dim Arr1
     Dim Arr2
+    Dim IndexBis
     
     If NoBorderOnRightAndLeft Then
         Arr1 = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
