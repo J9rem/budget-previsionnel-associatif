@@ -1,6 +1,6 @@
 Attribute VB_Name = "Import"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la dï¿½claration de toutes les variables
+' Pour forcer la déclaration de toutes les variables
 Option Explicit
 
 Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
@@ -9,9 +9,9 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
     ' FileFilter, FiltrerIndex, Title
     On Error Resume Next
     Fichier_De_Sauvegarde = Application.GetOpenFilename( _
-        "Fichiers compatibles (*.xlsx;*.xls;*.ods;*.xlsm),*.xlsx;*.xls;*.ods;*.xlsm,Excel 2003-2007 (*.xls),*.xls,Excel (*.xlsx),*.xlsx, Libre Office (*.ods),*.ods, Excel avec macro (*.xlsm),*.xlsm", _
+        "Fichiers compatibles (*.xlsx;*.xls;*.xlsm),*.xlsx;*.xls;*.xlsm,Excel 2003-2007 (*.xls),*.xls,Excel (*.xlsx),*.xlsx, Excel avec macro (*.xlsm),*.xlsm", _
         0, _
-        "Choisir le fichier ï¿½ importer" _
+        "Choisir le fichier à importer" _
     )
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" Or Fichier_De_Sauvegarde = Empty Or Fichier_De_Sauvegarde = "Faux" Or Fichier_De_Sauvegarde = "False" Then
@@ -102,15 +102,17 @@ Public Function importData(FileName As String) As Boolean
     ' Copie du logo
     CopieLogo oldWorkbook, ThisWorkbook, Nom_Feuille_Cout_J_Salaire
     CopieLogo oldWorkbook, ThisWorkbook, Nom_Feuille_Personnel
-    ' copie des onglets avant la copie des donnï¿½es pour ï¿½viter les erreurs
+    ' copie des onglets avant la copie des données pour éviter les erreurs
     ImportSheets oldWorkbook, ThisWorkbook
      
     ' copy data
     prepareFichier ThisWorkbook, PreviousNBSalarie, PreviousNBChantiers
     CopyPreviousValues oldWorkbook, ThisWorkbook, PreviousRevision
+    On Error Resume Next
     MettreAJourBudgetGlobal ThisWorkbook
+    On Error GoTo 0
     
-    ' copie des onglets avant la copie des donnï¿½es pour ï¿½viter les autres erreurs
+    ' copie des onglets avant la copie des données pour éviter les autres erreurs
     ImportSheets oldWorkbook, ThisWorkbook
     
     ' save file
@@ -306,18 +308,18 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
         Set CurrentSheet = oldWorkbook.Worksheets(Nom_Feuille_Personnel)
         On Error GoTo 0
         If CurrentSheet Is Nothing Then
-            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
         Else
-            Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
+            Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
             If BaseCell Is Nothing Then
-                MsgBox "'Prï¿½nom' non trouvï¿½ dans '" & Nom_Feuille_Personnel & "' !"
+                MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
             Else
                 NBChantiers = 0
                 On Error Resume Next
                 Set ChantierSheet = oldWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
                 On Error GoTo 0
                 If ChantierSheet Is Nothing Then
-                    MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+                    MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
                 Else
                     Set BaseCellChantier = ChantierSheet.Cells(3, 1).End(xlToRight)
                     If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.value, Len("Chantier")) <> "Chantier" Then
@@ -403,7 +405,7 @@ Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbR
         Set ChantierSheet = oldWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
         On Error GoTo 0
         If ChantierSheet Is Nothing Then
-            MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+            MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
         Else
             Set BaseCellChantier = ChantierSheet.Cells(2, 1).End(xlToRight)
             If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.value, Len("Chantier")) <> "Chantier" Then
