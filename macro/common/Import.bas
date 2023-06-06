@@ -433,8 +433,8 @@ Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbR
     
     NBSalariesAndRange = GetNbSalariesV0(oldWorkbook)
     
-    If NBSalariesAndRange.Nb > 0 Then
-        NBSalaries = NBSalariesAndRange.Nb
+    If NBSalariesAndRange.NB > 0 Then
+        NBSalaries = NBSalariesAndRange.NB
         Set BaseCell = NBSalariesAndRange.Range
         NBChantiers = 0
         On Error Resume Next
@@ -496,7 +496,7 @@ Public Function getPrevious(wb As Workbook, ByRef PreviousNBSalarie As Integer, 
     PreviousRevision = DetecteVersion(wb)
     If Not PreviousRevision.Error Then
         If PreviousRevision.Majeure = 0 Then
-            PreviousNBSalarie = GetNbSalariesV0(wb).Nb
+            PreviousNBSalarie = GetNbSalariesV0(wb).NB
             PreviousNBChantiers = GetNbChantiers(wb, 2)
         Else
             PreviousNBSalarie = GetNbSalaries(wb)

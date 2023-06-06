@@ -360,27 +360,27 @@ Public Function GetNbSalariesV0(wb As Workbook) As NBAndRange
     
     Set CoutJSalaireSheet = wb.Worksheets(Nom_Feuille_Cout_J_Salaire)
     If CoutJSalaireSheet Is Nothing Then
-        Result.Nb = -1
+        Result.NB = -1
         GoTo FinFunction
     End If
     Set BaseCell = CoutJSalaireSheet.Range("A:A").Find("TOTAL Structure ")
     If BaseCell Is Nothing Then
-        Result.Nb = -2
+        Result.NB = -2
         GoTo FinFunction
     End If
     Set TmpRange = BaseCell
     Set BaseCell = CoutJSalaireSheet.Cells(1, 1).End(xlDown).End(xlDown)
     If BaseCell.value <> Label_Cout_J_Salaire_Part_A Then
-        Result.Nb = -3
+        Result.NB = -3
         GoTo FinFunction
     End If
     Set BaseCell = BaseCell.Cells(3, 1)
     If BaseCell.Cells(1, 2).value <> "Nb de jours de travail annuel" Then
-        Result.Nb = -4
+        Result.NB = -4
         GoTo FinFunction
     End If
     
-    Result.Nb = TmpRange.Row - BaseCell.Row - 1
+    Result.NB = TmpRange.Row - BaseCell.Row - 1
     Set Result.Range = BaseCell
     
 FinFunction:

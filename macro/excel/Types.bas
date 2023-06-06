@@ -93,7 +93,7 @@ Public Type TypesCharges
 End Type
     
 Public Type NBAndRange
-    Nb As Integer
+    NB As Integer
     Range As Range
 End Type
 
@@ -210,14 +210,14 @@ Public Function getDefaulNBAndRange() As NBAndRange
     getDefaulNBAndRange = res
 End Function
 
-Public Function getDefaultDepenses(Nb As Integer) As DepenseChantier()
+Public Function getDefaultDepenses(NB As Integer) As DepenseChantier()
 
     Dim ArrayTmp() As DepenseChantier
     Dim IndexChantiers As Integer
     Dim DefaultDepenseChantier As DepenseChantier
-    ReDim ArrayTmp(1 To Nb)
+    ReDim ArrayTmp(1 To NB)
     
-    For IndexChantiers = 1 To Nb
+    For IndexChantiers = 1 To NB
         ArrayTmp(IndexChantiers) = DefaultDepenseChantier
     Next IndexChantiers
     
@@ -226,14 +226,14 @@ Public Function getDefaultDepenses(Nb As Integer) As DepenseChantier()
 End Function
 
 
-Public Function getDefaultFinancements(Nb As Integer) As Financement()
+Public Function getDefaultFinancements(NB As Integer) As Financement()
 
     Dim ArrayTmp() As Financement
     Dim Index As Integer
     Dim DefaultFinancement As Financement
-    ReDim ArrayTmp(1 To Nb)
+    ReDim ArrayTmp(1 To NB)
     
-    For Index = 1 To Nb
+    For Index = 1 To NB
         ArrayTmp(Index) = DefaultFinancement
     Next Index
     
@@ -242,14 +242,14 @@ Public Function getDefaultFinancements(Nb As Integer) As Financement()
 End Function
 
 
-Public Function getChargesDefault(Nb As Integer) As Charge()
+Public Function getChargesDefault(NB As Integer) As Charge()
 
     Dim ArrayTmp() As Charge
     Dim Index As Integer
     Dim DefaultCharge As Charge
-    ReDim ArrayTmp(1 To Nb)
+    ReDim ArrayTmp(1 To NB)
     
-    For Index = 1 To Nb
+    For Index = 1 To NB
         ArrayTmp(Index) = DefaultCharge
     Next Index
     
@@ -257,14 +257,14 @@ Public Function getChargesDefault(Nb As Integer) As Charge()
     
 End Function
 
-Public Function getChargesDefaultPreserve(PreviousCharges() As Charge, Nb As Integer) As Charge()
+Public Function getChargesDefaultPreserve(PreviousCharges() As Charge, NB As Integer) As Charge()
 
     Dim ArrayTmp() As Charge
     Dim Index As Integer
     Dim DefaultCharge As Charge
-    ReDim ArrayTmp(1 To Nb)
+    ReDim ArrayTmp(1 To NB)
     
-    For Index = 1 To Nb
+    For Index = 1 To NB
         If Index <= UBound(PreviousCharges) Then
             ArrayTmp(Index) = PreviousCharges(Index)
         Else
