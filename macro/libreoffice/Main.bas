@@ -116,8 +116,6 @@ Public Sub AjoutUnFinancement()
     Dim ws As Worksheet
     Dim FinancementFantome As FinancementComplet
     
-    NotAvailable
-    Exit Sub
     If Not throwNotOdsNotInExcel() Then
         Exit Sub
     End If

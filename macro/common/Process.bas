@@ -1,4 +1,4 @@
-Rem Attribute VBA_ModuleType=VBAModule
+﻿Rem Attribute VBA_ModuleType=VBAModule
 Option VBASupport 1
 
 ' SPDX-License-Identifier: EUPL-1.2
@@ -912,6 +912,8 @@ Public Sub DefinirFormatConditionnelPourLesDossier(CurrentCells As Range)
     ReDim ListConditions(1 To 4)
     ReDim ListColors(1 To 4)
     
+    On Error Resume Next
+    
     ListConditions(1) = "DOSSIER_OK"
     ListColors(1) = 65280
     ListConditions(2) = "DOSSIER_FAVORABLE_ISSUE_INCERTAINE"
@@ -945,6 +947,7 @@ Public Sub DefinirFormatConditionnelPourLesDossier(CurrentCells As Range)
     Next Index
     Set OldCurrentFormatCondition = FirstCellSecondLine.Cells(0, 0).FormatConditions.Item(1)
     OldCurrentFormatCondition.ModifyAppliesToRange Union(OldCurrentFormatCondition.AppliesTo, CurrentCells)
+    On Error GoTo 0
 End Sub
 Public Sub InsertRows(BaseCell As Range, PreviousNB As Integer, FinalNB As Integer, Optional AutoFitNext As Boolean = True, Optional ExtraCols As Integer = 0)
 
