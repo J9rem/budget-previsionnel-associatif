@@ -1,4 +1,4 @@
-﻿Rem Attribute VBA_ModuleType=VBAModule
+Rem Attribute VBA_ModuleType=VBAModule
 Option VBASupport 1
 
 ' SPDX-License-Identifier: EUPL-1.2
@@ -902,43 +902,6 @@ Public Sub AddValidationDossier(CurrentRange As Range)
 
 End Sub
 
-Public Sub DefinirBordures(CurrentCell As Range, AddTopBorder As Boolean)
-
-    With CurrentCell
-        .Borders(xlDiagonalDown).LineStyle = xlNone
-        .Borders(xlDiagonalUp).LineStyle = xlNone
-        With .Borders(xlEdgeLeft)
-            .LineStyle = xlContinuous
-            .ColorIndex = 0
-            .TintAndShade = 0
-            .Weight = xlMedium
-        End With
-        With .Borders(xlEdgeTop)
-            .LineStyle = xlContinuous
-            .ColorIndex = 0
-            .TintAndShade = 0
-            If AddTopBorder Then
-                .Weight = xlHairline
-            Else
-                .Weight = xlMedium
-            End If
-        End With
-        With .Borders(xlEdgeBottom)
-            .LineStyle = xlContinuous
-            .ColorIndex = 0
-            .TintAndShade = 0
-            .Weight = xlHairline
-        End With
-        With .Borders(xlEdgeRight)
-            .LineStyle = xlContinuous
-            .ColorIndex = 0
-            .TintAndShade = 0
-            .Weight = xlMedium
-        End With
-        .Borders(xlInsideVertical).LineStyle = xlNone
-        .Borders(xlInsideHorizontal).LineStyle = xlNone
-    End With
-End Sub
 Public Sub DefinirFormatConditionnelPourLesDossier(CurrentCells As Range)
     Dim FirstCellSecondLine As Range
     Dim CurrentFormatCondition As FormatCondition
