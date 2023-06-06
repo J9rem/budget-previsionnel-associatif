@@ -484,7 +484,7 @@ Public Function GetNbChantiers(wb As Workbook, Optional BaseRow As Integer = 3)
         GetNbChantiers = -1
         Exit Function
     End If
-    Set BaseCell = ChantierSheet.Cells(BaseRow, 1).End(xlToRight)
+    Set BaseCell = FindNextNotEmpty(ChantierSheet.Cells(BaseRow, 1),False)
     If BaseCell.Column > 1000 Then
         GetNbChantiers = -2
         Exit Function

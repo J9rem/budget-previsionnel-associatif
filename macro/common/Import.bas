@@ -132,6 +132,7 @@ End Sub
 Public Sub replaceContentFromWorksheet(newWorksheet As Worksheet, oldWorksheet As Worksheet)
 
     ' clear previous content
+    On Error Resume Next
     newWorksheet.Parent.Activate
     newWorksheet.Activate
     newWorksheet.Cells.Clear
@@ -150,6 +151,7 @@ Public Sub replaceContentFromWorksheet(newWorksheet As Worksheet, oldWorksheet A
         .PasteSpecial (xlPasteAll)
     
     End With
+    On Error GoTo 0
     
 End Sub
 
