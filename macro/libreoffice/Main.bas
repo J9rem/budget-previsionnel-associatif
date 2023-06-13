@@ -173,7 +173,7 @@ Public Sub InsererUneDepense()
     If ChantierSheet Is Nothing Then
         Exit Sub
     End If
-    Set BaseCell = ChantierSheet.Cells(3, 1).End(xlToRight)
+    Set BaseCell = FindNextNotEmpty(ChantierSheet.Cells(3, 1),False)
     If BaseCell.Column > 1000 Then
         Exit Sub
     End If
@@ -207,4 +207,3 @@ Public Sub InsererUneDepense()
     SetActive
     
 End Sub
-

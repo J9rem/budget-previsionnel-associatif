@@ -531,7 +531,7 @@ Public Sub ChangeChantiers(wb As Workbook, PreviousNB As Integer, FinalNB As Int
     If ChantierSheet Is Nothing Then
         Exit Sub
     End If
-    Set BaseCell = ChantierSheet.Cells(3, 1).End(xlToRight)
+    Set BaseCell = FindNextNotEmpty(ChantierSheet.Cells(3, 1),False)
     If BaseCell.Column > 1000 Then
         Exit Sub
     End If
@@ -554,7 +554,7 @@ Public Sub ChangeChantiers(wb As Workbook, PreviousNB As Integer, FinalNB As Int
             Set EndRange = BaseCell.Cells(5 + NBSalaries - 1, 1)
             Range(StartRange, EndRange.Cells(1, FinalNB)).ClearContents
             Set StartRange = EndRange.Cells(3 + NBSalaries, PreviousNB + 1)
-            Set EndRange = StartRange.EntireRow.Cells(1, 2).End(xlDown).EntireRow.Cells(0, BaseCell.Cells(1, FinalNB).Column)
+            Set EndRange = FindNextNotEmpty(StartRange.EntireRow.Cells(1, 2),True).EntireRow.Cells(0, BaseCell.Cells(1, FinalNB).Column)
             Range(StartRange, EndRange).ClearContents
         End If
     Else
@@ -633,7 +633,7 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     End If
     
     ' Part B
-    Set BaseCell = BaseCell.Cells(1 + RealFinalNB + 1, 1).End(xlDown)
+    Set BaseCell = FindNextNotEmpty(BaseCell.Cells(1 + RealFinalNB + 1, 1),True)
     If BaseCell.value <> Label_Cout_J_Salaire_Part_B Then
         Exit Sub
     End If
@@ -707,8 +707,8 @@ Public Sub ChangeNBSalariesDansChantier(wb As Workbook, PreviousNB As Integer, F
         End If
     End If
     If FinalNB <= 1 And PreviousNB > 1 Then
-        Range(BaseCell.Cells(3, 1), BaseCell.End(xlToRight).Cells(3, 1)).ClearContents
-        Range(BaseCell.Cells(3 + RealFinalNB + 1, 1), BaseCell.End(xlToRight).Cells(3 + RealFinalNB + 1, 1)).ClearContents
+        Range(BaseCell.Cells(3, 1), FindNextNotEmpty(BaseCell,False).Cells(3, 1)).ClearContents
+        Range(BaseCell.Cells(3 + RealFinalNB + 1, 1), FindNextNotEmpty(BaseCell,False).Cells(3 + RealFinalNB + 1, 1)).ClearContents
     End If
     
 End Sub
@@ -951,14 +951,17 @@ Public Sub DefinirFormatConditionnelPourLesDossier(CurrentCells As Range)
 End Sub
 Public Sub InsertRows(BaseCell As Range, PreviousNB As Integer, FinalNB As Integer, Optional AutoFitNext As Boolean = True, Optional ExtraCols As Integer = 0)
 
+	Dim endR as Range
+	
+	Set endR = FindNextNotEmpty(BaseCell,False)
     ' Insert Cells
-    Range(BaseCell.Cells(1 + PreviousNB, 1), BaseCell.End(xlToRight).Cells(1 + PreviousNB, 1 + ExtraCols)).Copy
-    Range(BaseCell.Cells(1 + PreviousNB, 1), BaseCell.End(xlToRight).Cells(1 + FinalNB - 1, 1 + ExtraCols)).Insert _
+    Range(BaseCell.Cells(1 + PreviousNB, 1),endR.Cells(1 + PreviousNB, 1 + ExtraCols)).Copy
+    Range(BaseCell.Cells(1 + PreviousNB, 1), endR.Cells(1 + FinalNB - 1, 1 + ExtraCols)).Insert _
         Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
     
     ' Copy All
-    Range(BaseCell.Cells(1 + FinalNB, 1), BaseCell.End(xlToRight).Cells(1 + FinalNB, 1 + ExtraCols)).Copy
-    Range(BaseCell.Cells(1 + PreviousNB, 1), BaseCell.End(xlToRight).Cells(1 + FinalNB - 1, 1 + ExtraCols)).PasteSpecial _
+    Range(BaseCell.Cells(1 + FinalNB, 1), endR.Cells(1 + FinalNB, 1 + ExtraCols)).Copy
+    Range(BaseCell.Cells(1 + PreviousNB, 1), endR.Cells(1 + FinalNB - 1, 1 + ExtraCols)).PasteSpecial _
         Paste:=xlAll
         
     ' Row AutoFit
@@ -974,7 +977,7 @@ End Sub
 Public Sub RemoveRows(BaseCell As Range, PreviousNB As Integer, FinalNB As Integer, Optional ExtraCols As Integer = 0, Optional AutoFitNext As Boolean = False)
 
     ' Remove Cells
-    Range(BaseCell.Cells(1 + FinalNB + 1, 1), BaseCell.End(xlToRight).Cells(1 + PreviousNB, 1 + ExtraCols)).Delete _
+    Range(BaseCell.Cells(1 + FinalNB + 1, 1), FindNextNotEmpty(BaseCell,False).Cells(1 + PreviousNB, 1 + ExtraCols)).Delete _
         Shift:=xlShiftUp
     
     ' Row AutoFit
@@ -1023,6 +1026,7 @@ Public Sub ChangeNBSalarieDansPersonnel(wb As Workbook, PreviousNB As Integer, F
     Dim CurrentSheet As Worksheet
     Dim BaseCell As Range
     Dim RealFinalNB As Integer
+    Dim endR as Range
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Personnel)
     If CurrentSheet Is Nothing Then
@@ -1042,6 +1046,8 @@ Public Sub ChangeNBSalarieDansPersonnel(wb As Workbook, PreviousNB As Integer, F
         RealFinalNB = FinalNB
     End If
     
+    Set endR = FindNextNotEmpty(BaseCell,False)
+    
     If PreviousNB > RealFinalNB Then
         ' Remove Lines
         Range(BaseCell.Cells(1 + RealFinalNB + 1, 1).EntireRow, BaseCell.Cells(1 + PreviousNB, 1).EntireRow).Delete _
@@ -1053,14 +1059,14 @@ Public Sub ChangeNBSalarieDansPersonnel(wb As Workbook, PreviousNB As Integer, F
                 Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
             
             ' Copy Format
-            Range(BaseCell.Cells(2, 1), BaseCell.End(xlToRight).Cells(2, 1)).Copy
-            Range(BaseCell.Cells(2, 1), BaseCell.End(xlToRight).Cells(FinalNB + 1, 1)).PasteSpecial _
+            Range(BaseCell.Cells(2, 1), endR.Cells(2, 1)).Copy
+            Range(BaseCell.Cells(2, 1), endR.Cells(FinalNB + 1, 1)).PasteSpecial _
                 Paste:=xlPasteFormats
         End If
     End If
     
     If FinalNB <= 1 And PreviousNB > 1 Then
-        Range(BaseCell.Cells(3, 1), BaseCell.End(xlToRight).Cells(3, 1)).ClearContents
+        Range(BaseCell.Cells(3, 1), endR.Cells(3, 1)).ClearContents
     End If
 
 End Sub
@@ -1088,7 +1094,7 @@ Public Function extraireDepensesChantier( _
     If BaseCell Is Nothing Then
         Set BaseCell = BaseCellChantier.Cells(6 + 2 * NBSalaries, 1).EntireRow.Cells(1, 2)
     End If
-    NBDepenses = Range(BaseCell, BaseCell.End(xlDown).Cells(0, 1)).Rows.Count
+    NBDepenses = Range(BaseCell, FindNextNotEmpty(BaseCell,True).Cells(0, 1)).Rows.Count
     
     For IndexChantiers = 1 To NBChantiers
         Chantiers(IndexChantiers) = getDefaultChantier(Chantiers(IndexChantiers))
@@ -1380,7 +1386,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                 If ChantierSheet Is Nothing Then
                     Set BaseCellChantier = Nothing
                 Else
-                    Set BaseCellChantier = ChantierSheet.Cells(3, 1).End(xlToRight)
+                    Set BaseCellChantier = FindNextNotEmpty(ChantierSheet.Cells(3, 1),False)
                     If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.value, Len("Chantier")) <> "Chantier" Then
                         Set BaseCellChantier = Nothing
                     Else
@@ -1495,7 +1501,7 @@ End Sub
 
 Public Sub ChangeDepenses(BaseCell As Range, NBSalaries As Integer, NewNBDepenses As Integer, NBChantiers As Integer)
     Dim PreviousNBDepenses As Integer
-    PreviousNBDepenses = Range(BaseCell, BaseCell.End(xlDown).Cells(0, 1)).Rows.Count
+    PreviousNBDepenses = Range(BaseCell, FindNextNotEmpty(BaseCell,True).Cells(0, 1)).Rows.Count
                     
     If PreviousNBDepenses > NewNBDepenses Then
         ' Remove Lines
@@ -1613,7 +1619,7 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
                 CurrentCell.Cells(1, 2).value = Data.Charges(Index).PreviousN2YearValue
                 CurrentCell.Cells(1, 3).value = Data.Charges(Index).PreviousYearValue
                 CurrentCell.Cells(1, 4).value = Data.Charges(Index).CurrentYearValue
-                formatChargeCell CurrentCell, True
+        		formatChargeCell CurrentCell, True
                 
             End If
         Next Index
@@ -1676,5 +1682,4 @@ Public Function FindNextNotEmpty(BaseCell As Range, directionDown As Boolean) As
     Set FindNextNotEmpty = currentRange
 
 End Function
-
 
