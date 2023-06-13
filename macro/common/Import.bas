@@ -321,7 +321,7 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
                 If ChantierSheet Is Nothing Then
                     MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
                 Else
-                    Set BaseCellChantier = ChantierSheet.Cells(3, 1).End(xlToRight)
+                    Set BaseCellChantier = FindNextNotEmpty(ChantierSheet.Cells(3, 1), False)
                     If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.value, Len("Chantier")) <> "Chantier" Then
                         Set BaseCellChantier = Nothing
                     Else
@@ -407,7 +407,7 @@ Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbR
         If ChantierSheet Is Nothing Then
             MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
         Else
-            Set BaseCellChantier = ChantierSheet.Cells(2, 1).End(xlToRight)
+            Set BaseCellChantier = FindNextNotEmpty(ChantierSheet.Cells(2, 1), False)
             If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.value, Len("Chantier")) <> "Chantier" Then
                 Set BaseCellChantier = Nothing
             Else
@@ -469,6 +469,7 @@ Public Function getPrevious(wb As Workbook, ByRef PreviousNBSalarie As Integer, 
     End If
     getPrevious = PreviousRevision
 End Function
+
 Public Function prepareFichier(wb As Workbook, PreviousNBSalarie As Integer, PreviousNBChantiers As Integer) As Boolean
 
     Dim NBSalariesInWorkingWk As Integer
@@ -488,3 +489,5 @@ Public Function prepareFichier(wb As Workbook, PreviousNBSalarie As Integer, Pre
     
     prepareFichier = True
 End Function
+
+
