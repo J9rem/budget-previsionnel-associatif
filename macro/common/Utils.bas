@@ -33,6 +33,7 @@ Public Function FileExists(FilePath As String) As Boolean
     End If
 End Function
 
+
 Public Function saveWorkbookAs(wb As Workbook, FolderName As String, FileName As String) As Boolean
     Dim previousCalculation
     Dim ShortFileName As String
@@ -122,7 +123,7 @@ Public Function SaveFileNoMacro(FilePath As String) As Boolean
     Set OpenedWorkbook = Nothing
 
     SaveFileNoMacro = False
-    If (FilePath = ThisWorkbook.path) Then
+    If (FilePath = ThisWorkbook.Path) Then
         MsgBox "Il n'est pas possible d'écraser le fichier courant" & Chr(10) & _
           "Veuillez réessayer avec un autre emplacement ou nom de fichier"
     Else
@@ -252,16 +253,16 @@ Public Function archiveThisFile() As Boolean
     
     FileName = Left(FileName, Len(FileName) - Len(Extension) - 1) & "-backup-" & Format(Now(), "yyyymdd_hhmmss") & "." & Extension
     
-    If FileExists(ThisWorkbook.path & "\" & FileName) Then
+    If FileExists(ThisWorkbook.Path & "\" & FileName) Then
         MsgBox "Impossible de sauvegarder le fichier de sauvegarde car il existe déjà"
         Exit Function
     End If
     
     returnToCurrentPath
-    SaveCopyAs ThisWorkbook, FileName, ThisWorkbook.path
+    SaveCopyAs ThisWorkbook, FileName, ThisWorkbook.Path
     
-    If (InStr(ThisWorkbook.path, "\") And FileExists(ThisWorkbook.path & "\" & FileName)) Or _
-        (InStr(ThisWorkbook.path, "/") And FileExists(ThisWorkbook.path & "/" & FileName)) Then
+    If (InStr(ThisWorkbook.Path, "\") And FileExists(ThisWorkbook.Path & "\" & FileName)) Or _
+        (InStr(ThisWorkbook.Path, "/") And FileExists(ThisWorkbook.Path & "/" & FileName)) Then
         archiveThisFile = True
     End If
 End Function
@@ -275,7 +276,7 @@ Public Function DetecteVersion(wb As Workbook) As WbRevision
     Dim BaseCell As Range
     Dim ExplodedRevisions As Variant
     Dim value As String
-    Dim rev as WbRevision
+    Dim rev As WbRevision
     rev = getDefaultWbRevision()
     
     On Error Resume Next
@@ -332,7 +333,7 @@ Public Function FindTypeChargeIndex(value As String) As Integer
     TypesCharges = TypesDeCharges().Values
     IndexFound = 0
     For Index = 1 To UBound(TypesCharges)
-    	typeCh = TypesCharges(Index)
+        typeCh = TypesCharges(Index)
         tmpName = typeCh.NomLong
         OtherName = Replace(tmpName, "É", "E")
         OtherName = Replace(OtherName, "Ê", "E")
@@ -355,7 +356,7 @@ Public Function FindTypeChargeIndex(value As String) As Integer
         SimilarIndexFound = 0
         typeCh = TypesCharges(IndexFound)
         For Index = 1 To UBound(TypesCharges)
-        	TypChIdx = TypesCharges(Index)
+            TypChIdx = TypesCharges(Index)
             If SimilarIndexFound = 0 And TypChIdx.Index = typeCh.Index Then
                 SimilarIndexFound = Index
             End If
@@ -408,8 +409,8 @@ Public Function FindTypeChargeIndexFromCode(value As Integer) As Integer
     TypesCharges = TypesDeCharges().Values
     IndexFound = 0
     For Index = 1 To UBound(TypesCharges)
-    	TypeCharge = TypesCharges(Index)
-    	currentIndex = TypeCharge.Index
+        TypeCharge = TypesCharges(Index)
+        currentIndex = TypeCharge.Index
         If IndexFound = 0 And currentIndex = value Then
             IndexFound = Index
         End If
@@ -435,14 +436,14 @@ Public Function openWbSafe(ByRef wb As Workbook, FilePath As String) As Boolean
         ChDir (DestFolder)
     
         If FindOpenedWorkBook(FileName & "." & Extension, OpenedWorkbook) Then
-            If OpenedWorkbook.path & "\" = DestFolder Then
+            If OpenedWorkbook.Path & "\" = DestFolder Then
                 Set wb = OpenedWorkbook
                 openWbSafe = True
             End If
         Else
             Set wb = Workbooks.Open(FileName:=FilePath)
             On Error Resume Next
-            If wb.path & "\" = DestFolder Then
+            If wb.Path & "\" = DestFolder Then
                 openWbSafe = True
             End If
             On Error GoTo 0
@@ -454,13 +455,13 @@ End Function
 Public Function removeCrossRef(wb As Workbook, oldWb As Workbook) As Boolean
     
     On Error Resume Next
-    wb.ChangeLink oldWb.path & "\" & oldWb.Name, wb.path & "\" & wb.Name, xlExcelLinks
-    On Error Goto 0
+    wb.ChangeLink oldWb.Path & "\" & oldWb.Name, wb.Path & "\" & wb.Name, xlExcelLinks
+    On Error GoTo 0
     removeCrossRef = True
 End Function
 
 Public Function returnToCurrentPath() As Boolean
-    ChDir (ThisWorkbook.path)
+    ChDir (ThisWorkbook.Path)
     returnToCurrentPath = True
 End Function
 Public Function CleanAddess(address As String) As String
@@ -473,10 +474,11 @@ Public Function CleanAddess(address As String) As String
     End If
 End Function
 
+
 Public Sub SetSilent
     ' config to be faster
     On Error Resume Next ' pour éviter les erreurs LibreOffice
-	Application.Calculation = xlCalculationManual
+    Application.Calculation = xlCalculationManual
     Application.CalculateBeforeSave = True
     Application.ScreenUpdating = False
     On Error GoTo 0
@@ -484,7 +486,7 @@ End Sub
 
 Public Sub SetActive
     On Error Resume Next ' pour éviter les erreurs LibreOffice
-	Application.Calculation = xlCalculationAutomatic
+    Application.Calculation = xlCalculationAutomatic
     Application.CalculateBeforeSave = True
     Application.ScreenUpdating = True
     On Error GoTo 0
