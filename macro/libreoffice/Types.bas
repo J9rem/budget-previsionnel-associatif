@@ -128,8 +128,9 @@ Public Function getDefaultData(Data As Data) As Data
     getDefaultData = Data
 End Function
 
-Public Function getDefaultDonneesSalarie(Donnees As DonneesSalarie) As DonneesSalarie
+Public Function getDefaultDonneesSalarie() As DonneesSalarie
 
+	Dim Donnees As New DonneesSalarie
     Dim EmptyArray() As Double
     
     ReDim EmptyArray(0)
