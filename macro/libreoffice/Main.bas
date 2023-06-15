@@ -60,8 +60,6 @@ Public Sub ImporterDesDonnees()
     Dim continue As Boolean
     
     Erreur = True
-    NotAvailable
-    Exit Sub
     
     If throwNotOdsNotInExcel() Then
         If choisirFichierAImporter(FilePath) Then

@@ -372,7 +372,7 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
     Dim JoursChantiers() As Double
     
     Data = getDefaultData(Data)
-    DonneesSalarie = getDefaultDonneesSalarie(DonneesSalarie)
+    DonneesSalarie = getDefaultDonneesSalarie()
     
     ReDim DonneesSalaries(0 To 0)
     DonneesSalaries(0) = DonneesSalarie
@@ -410,7 +410,7 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
                     
                     ReDim DonneesSalaries(1 To NBSalaries)
                     For Index = 1 To NBSalaries
-                        DonneesSalarie = getDefaultDonneesSalarie(DonneesSalarie)
+                        DonneesSalarie = getDefaultDonneesSalarie()
                         DonneesSalarie.Erreur = False
                         DonneesSalarie.Prenom = BaseCell.Cells(1 + Index, 1).value
                         DonneesSalarie.Nom = BaseCell.Cells(1 + Index, 2).value
@@ -469,7 +469,7 @@ Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbR
     Dim JoursChantiers() As Double
     
     Data = getDefaultData(Data)
-    DonneesSalarie = getDefaultDonneesSalarie(DonneesSalarie)
+    DonneesSalarie = getDefaultDonneesSalarie()
     
     ReDim DonneesSalaries(0 To 0)
     DonneesSalaries(0) = DonneesSalarie
@@ -498,7 +498,7 @@ Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbR
             NBJoursTot = BaseCell.Worksheet.Cells(1, 7).EntireColumn.Find("Nb jours travaillables").Cells(1, 2).value
             ' NBJoursTot = BaseCell.Cells(1 + NBSalaries + 1, 8).Value
             For Index = 1 To NBSalaries
-                DonneesSalarie = getDefaultDonneesSalarie(DonneesSalarie)
+                DonneesSalarie = getDefaultDonneesSalarie()
                 DonneesSalarie.Erreur = False
                 DonneesSalarie.Prenom = BaseCell.Cells(1 + Index, 1).value
                 DonneesSalarie.Nom = ""
@@ -569,6 +569,3 @@ Public Function prepareFichier(wb As Workbook, PreviousNBSalarie As Integer, Pre
     
     prepareFichier = True
 End Function
-
-
-
