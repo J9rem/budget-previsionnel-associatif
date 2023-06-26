@@ -489,4 +489,3 @@ Public Function geDefaultJoursChantiers(NBChantiers As Integer)
     geDefaultJoursChantiers = newArray
 End Function
 
-
