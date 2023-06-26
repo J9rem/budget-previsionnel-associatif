@@ -369,7 +369,6 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
     Dim ChantierSheet As Worksheet
     Dim BaseCellChantier As Range
     Dim DonneesSalaries() As DonneesSalarie
-    Dim JoursChantiers() As Double
     
     Data = getDefaultData(Data)
     DonneesSalarie = getDefaultDonneesSalarie()
@@ -427,11 +426,10 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
                             DonneesSalarie.TauxOperateurFormula = BaseCell.Cells(1 + Index, 5).Formula
                         End If
                         If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
-                            ReDim JoursChantiers(1 To NBChantiers)
+                        	DonneesSalarie.JoursChantiers = geDefaultJoursChantiers(NBChantiers)
                             For IndexChantiers = 1 To NBChantiers
-                                JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(4 + Index, IndexChantiers).value
+                                DonneesSalarie.JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(4 + Index, IndexChantiers).value
                             Next IndexChantiers
-                            DonneesSalarie.JoursChantiers = JoursChantiers
                         End If
                         DonneesSalaries(Index) = DonneesSalarie
                     Next Index

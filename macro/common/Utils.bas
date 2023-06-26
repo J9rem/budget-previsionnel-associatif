@@ -491,3 +491,14 @@ Public Sub SetActive
     Application.ScreenUpdating = True
     On Error GoTo 0
 End Sub
+
+Public Function geDefaultJoursChantiers(NBChantiers as Integer)
+	Dim newArray() as Double
+	Dim idx as Integer
+	
+	ReDim newArray(1 to NBChantiers)
+    For idx = 1 To NBChantiers
+        newArray(idx) = 0.0
+    Next idx
+    geDefaultJoursChantiers = newArray
+End Function
