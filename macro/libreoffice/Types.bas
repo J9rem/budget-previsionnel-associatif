@@ -150,8 +150,9 @@ Public Function getDefaultDonneesSalarie() As DonneesSalarie
 
 End Function
 
-Public Function getDefaultChantier(Chantier As Chantier) As Chantier
+Public Function getDefaultChantier() As Chantier
 
+	Dim Chantier As New Chantier
     Dim EmptyArrayDepenses() As DepenseChantier
     ReDim EmptyArrayDepenses(0)
     Dim EmptyFinancements() As Financement
@@ -281,4 +282,18 @@ Public Function getChargesDefaultPreserve(PreviousCharges() as Charge, Nb As Int
     
     getChargesDefaultPreserve = ArrayTmp
     
+End Function
+
+Public Function getDefaultChantiers(NBChantiers As Integer)
+
+    Dim newArray() As Chantier
+    Dim idx As Integer
+    
+    ReDim newArray(1 To NBChantiers)
+    
+    For idx = 1 To NBChantiers
+        newArray(idx) = getDefaultChantier()
+    Next idx
+    getDefaultChantiers = newArray
+
 End Function

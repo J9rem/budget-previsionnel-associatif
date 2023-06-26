@@ -1086,7 +1086,7 @@ Public Function extraireDepensesChantier( _
     Dim NewFormatForAutofinancement As Boolean
     Dim BaseCellLocal As Range
     
-    ReDim Chantiers(1 To NBChantiers)
+    Chantiers = getDefaultChantiers(NBChantiers)
     
     Data = getDefaultData(Data)
     
@@ -1097,7 +1097,7 @@ Public Function extraireDepensesChantier( _
     NBDepenses = Range(BaseCell, FindNextNotEmpty(BaseCell, True).Cells(0, 1)).Rows.Count
     
     For IndexChantiers = 1 To NBChantiers
-        Chantiers(IndexChantiers) = getDefaultChantier(Chantiers(IndexChantiers))
+        Chantiers(IndexChantiers) = getDefaultChantier()
         Chantiers(IndexChantiers).Depenses = getDefaultDepenses(NBDepenses)
     Next IndexChantiers
     
@@ -1682,3 +1682,5 @@ Public Function FindNextNotEmpty(BaseCell As Range, directionDown As Boolean) As
     Set FindNextNotEmpty = currentRange
 
 End Function
+
+
