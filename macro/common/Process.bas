@@ -1085,8 +1085,7 @@ Public Function extraireDepensesChantier( _
     Dim NBDepenses As Integer
     Dim NewFormatForAutofinancement As Boolean
     Dim BaseCellLocal As Range
-    
-    Chantiers = getDefaultChantiers(NBChantiers)
+    Dim ChantierTmp
     
     Data = getDefaultData(Data)
     
@@ -1096,23 +1095,21 @@ Public Function extraireDepensesChantier( _
     End If
     NBDepenses = Range(BaseCell, FindNextNotEmpty(BaseCell, True).Cells(0, 1)).Rows.Count
     
-    For IndexChantiers = 1 To NBChantiers
-        Chantiers(IndexChantiers) = getDefaultChantier()
-        Chantiers(IndexChantiers).Depenses = getDefaultDepenses(NBDepenses)
-    Next IndexChantiers
-    
+    Chantiers = getDefaultChantiers(NBChantiers,NBDepenses)
+
     For IndexDepense = 1 To NBDepenses
-        Chantiers(1).Depenses(IndexDepense).Nom = BaseCell.Cells(IndexDepense, 1).value
+    	updateNameDepense Chantiers,1,IndexDepense,BaseCell.Cells(IndexDepense, 1).value
     Next IndexDepense
     
     For IndexChantiers = 1 To NBChantiers
-        Chantiers(IndexChantiers).Nom = BaseCellChantier.Cells(2, IndexChantiers).value
+    	ChantierTmp = Chantiers(IndexChantiers)
+        ChantierTmp.Nom = BaseCellChantier.Cells(2, IndexChantiers).value
         For IndexDepense = 1 To NBDepenses
             If IndexChantiers > 1 Then
-                Chantiers(IndexChantiers).Depenses(IndexDepense).Nom = Chantiers(1).Depenses(IndexDepense).Nom
+    			updateNameDepense Chantiers,IndexChantiers,IndexDepense,Chantiers(1).Depenses(IndexDepense).Nom
             End If
-            Chantiers(IndexChantiers).Depenses(IndexDepense).Valeur = BaseCell.Cells(IndexDepense, IndexChantiers + 1).value
-            Set Chantiers(IndexChantiers).Depenses(IndexDepense).BaseCell = BaseCell.Cells(IndexDepense, IndexChantiers + 1)
+    		updateValDepense Chantiers,IndexChantiers,IndexDepense,BaseCell.Cells(IndexDepense, IndexChantiers + 1).value
+    		updateBaseCellDepense Chantiers,IndexChantiers,IndexDepense,BaseCell.Cells(IndexDepense, IndexChantiers + 1)
         Next IndexDepense
     Next IndexChantiers
     
@@ -1682,5 +1679,38 @@ Public Function FindNextNotEmpty(BaseCell As Range, directionDown As Boolean) As
     Set FindNextNotEmpty = currentRange
 
 End Function
+
+Public Sub updateNameDepense(Chantiers, IdxChantiers As Integer, IdxDepense As Integer, newName As String)
+    Dim ChantierTmp As Chantier
+    Dim DepensesTmp() As DepenseChantier
+    Dim TmpDepense As DepenseChantier
+    
+    ChantierTmp = Chantiers(IdxChantiers)
+    DepensesTmp = ChantierTmp.Depenses
+    TmpDepense = DepensesTmp(IdxDepense)
+    TmpDepense.Nom = newName
+End Sub
+
+Public Sub updateValDepense(Chantiers, IdxChantiers As Integer, IdxDepense As Integer, newVal)
+    Dim ChantierTmp As Chantier
+    Dim DepensesTmp() As DepenseChantier
+    Dim TmpDepense As DepenseChantier
+    
+    ChantierTmp = Chantiers(IdxChantiers)
+    DepensesTmp = ChantierTmp.Depenses
+    TmpDepense = DepensesTmp(IdxDepense)
+    TmpDepense.Valeur = newVal
+End Sub
+
+Public Sub updateBaseCellDepense(Chantiers, IdxChantiers As Integer, IdxDepense As Integer, newRange as Range)
+    Dim ChantierTmp As Chantier
+    Dim DepensesTmp() As DepenseChantier
+    Dim TmpDepense As DepenseChantier
+    
+    ChantierTmp = Chantiers(IdxChantiers)
+    DepensesTmp = ChantierTmp.Depenses
+    TmpDepense = DepensesTmp(IdxDepense)
+    Set TmpDepense.BaseCell = newRange
+End Sub
 
 

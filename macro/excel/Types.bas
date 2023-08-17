@@ -1,6 +1,6 @@
 Attribute VB_Name = "Types"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dï¿½claration de toutes les variables
 Option Explicit
 
 ' Types
@@ -63,7 +63,7 @@ Public Type DonneesSalarie
     MasseSalarialeAnnuelleFormula As String
     TauxOperateur As Double
     TauxOperateurFormula As String
-    JoursChantiers() As Double ' Tableau de temps de chantiers même index que le tableau Chantiers
+    JoursChantiers() As Double ' Tableau de temps de chantiers mï¿½me index que le tableau Chantiers
 End Type
 
 Public Type Charge
@@ -147,15 +147,14 @@ Public Function getDefaultDonneesSalarie() As DonneesSalarie
 
 End Function
 
-Public Function getDefaultChantier(Chantier As Chantier) As Chantier
+Public Function getDefaultChantier(NbDefaultDepenses As Integer) As Chantier
 
-    Dim EmptyArrayDepenses() As DepenseChantier
-    ReDim EmptyArrayDepenses(0)
+    Dim Chantier As Chantier
     Dim EmptyFinancements() As Financement
     ReDim EmptyFinancements(0)
     
     Chantier.Nom = ""
-    Chantier.Depenses = EmptyArrayDepenses
+    Chantier.Depenses = getDefaultDepenses(NbDefaultDepenses)
     Chantier.Financements = EmptyFinancements
     Chantier.AutoFinancementStructure = 0
     Chantier.AutoFinancementStructureAnneesPrecedentes = 0

@@ -475,7 +475,7 @@ Public Function CleanAddess(address As String) As String
 End Function
 
 
-Public Sub SetSilent
+Public Sub SetSilent()
     ' config to be faster
     On Error Resume Next ' pour éviter les erreurs LibreOffice
     Application.Calculation = xlCalculationManual
@@ -484,7 +484,7 @@ Public Sub SetSilent
     On Error GoTo 0
 End Sub
 
-Public Sub SetActive
+Public Sub SetActive()
     On Error Resume Next ' pour éviter les erreurs LibreOffice
     Application.Calculation = xlCalculationAutomatic
     Application.CalculateBeforeSave = True
