@@ -112,6 +112,7 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Dim currentCharge As Charge
     Dim Charges() As Charge
     Dim tmpTypeCharge As TypeCharge
+    Dim TmpChantier
         
     SetSilent
     
@@ -226,7 +227,8 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     
     Set HeadCell = BaseCell
     HeadCell.Cells(1, 3).value = 0
-    For Index = 1 To UBound(Data.Chantiers(1).Financements)
+    TmpChantier = Data.Chantiers(1)
+    For Index = 1 To UBound(TmpChantier.Financements)
         If Data.Chantiers(1).Financements(Index).TypeFinancement = 0 Then
             
             Set BaseCell = InsertLineAndFormat(BaseCell, HeadCell)
@@ -288,7 +290,8 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
         Next Index
         HeadCell.Cells(1, 3).Formula = HeadCell.Cells(1, 3).Formula & "+" & CleanAddess(BaseCell.Cells(1, 3).address(False, False, xlA1))
         Set HeadCellFinancement = BaseCell
-        For Index = 1 To UBound(Data.Chantiers(1).Financements)
+        TmpChantier = Data.Chantiers(1)
+        For Index = 1 To UBound(TmpChantier.Financements)
             If Data.Chantiers(1).Financements(Index).TypeFinancement = IndexTypeFinancement Then
                 Set BaseCell = InsertLineAndFormat(BaseCell, HeadCellFinancement)
                 BaseCell.Cells(1, 2).Formula = "=" & CleanAddess(Data.Chantiers(1).Financements(Index).BaseCell.Cells(1, 0).address(False, False, xlA1, True))
@@ -1363,6 +1366,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
     Dim FinancementsTmp() As Financement
     Dim TauxAutre As Double
     Dim TotalCell As Range
+    Dim TmpChantier
     
     importerInfos NewWorkbook, Data.Informations
     
@@ -1428,9 +1432,10 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                 If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) And UBound(Data.Chantiers) > 1 Then
                     ' nom des dépenses
                     Set BaseCell = BaseCellChantier.Cells(6 + 2 * NBSalaries, 1).EntireRow.Cells(1, 2)
-                    ChangeDepenses BaseCell, NBSalaries, UBound(Data.Chantiers(1).Depenses), NBChantiers
+                    TmpChantier = Data.Chantiers(1)
+                    ChangeDepenses BaseCell, NBSalaries, UBound(TmpChantier.Depenses), NBChantiers
                     
-                    For Index = 1 To UBound(Data.Chantiers(1).Depenses)
+                    For Index = 1 To UBound(TmpChantier.Depenses)
                         If Data.Chantiers(1).Depenses(Index).Nom = "0" Then
                             BaseCell.Cells(Index, 1).value = ""
                         Else
@@ -1445,7 +1450,8 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                             BaseCellChantier.Cells(2, IndexChantier).value = Data.Chantiers(IndexChantier).Nom
                         End If
                         
-                        For Index = 1 To UBound(Data.Chantiers(IndexChantier).Depenses)
+                        TmpChantier = Data.Chantiers(IndexChantier)
+                        For Index = 1 To UBound(TmpChantier.Depenses)
                             If Data.Chantiers(IndexChantier).Depenses(Index).Valeur = 0 Then
                                 BaseCell.Cells(Index, 1 + IndexChantier).value = ""
                             Else
@@ -1453,12 +1459,13 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                             End If
                         Next Index
                     Next IndexChantier
-                    Set TotalCell = BaseCell.Cells(UBound(Data.Chantiers(1).Depenses) + 1, 1)
+                    TmpChantier = Data.Chantiers(1)
+                    Set TotalCell = BaseCell.Cells(UBound(TmpChantier.Depenses) + 1, 1)
                     
                     ' Financements
-                    If UBound(Data.Chantiers) > 0 And UBound(Data.Chantiers(1).Financements) > 0 Then
+                    If UBound(Data.Chantiers) > 0 And UBound(TmpChantier.Financements) > 0 Then
                         ReDim FinancementsTmp(1 To UBound(Data.Chantiers))
-                        For Index = 1 To UBound(Data.Chantiers(1).Financements)
+                        For Index = 1 To UBound(TmpChantier.Financements)
                             For IndexChantier = 1 To UBound(Data.Chantiers)
                                 FinancementsTmp(IndexChantier) = Data.Chantiers(IndexChantier).Financements(Index)
                             Next IndexChantier
@@ -1712,5 +1719,6 @@ Public Sub updateBaseCellDepense(Chantiers, IdxChantiers As Integer, IdxDepense 
     TmpDepense = DepensesTmp(IdxDepense)
     Set TmpDepense.BaseCell = newRange
 End Sub
+
 
 
