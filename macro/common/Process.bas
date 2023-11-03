@@ -1098,21 +1098,21 @@ Public Function extraireDepensesChantier( _
     End If
     NBDepenses = Range(BaseCell, FindNextNotEmpty(BaseCell, True).Cells(0, 1)).Rows.Count
     
-    Chantiers = getDefaultChantiers(NBChantiers,NBDepenses)
+    Chantiers = getDefaultChantiers(NBChantiers, NBDepenses)
 
     For IndexDepense = 1 To NBDepenses
-    	updateNameDepense Chantiers,1,IndexDepense,BaseCell.Cells(IndexDepense, 1).value
+        updateNameDepense Chantiers, 1, IndexDepense, BaseCell.Cells(IndexDepense, 1).value
     Next IndexDepense
     
     For IndexChantiers = 1 To NBChantiers
-    	ChantierTmp = Chantiers(IndexChantiers)
+        ChantierTmp = Chantiers(IndexChantiers)
         ChantierTmp.Nom = BaseCellChantier.Cells(2, IndexChantiers).value
         For IndexDepense = 1 To NBDepenses
             If IndexChantiers > 1 Then
-    			updateNameDepense Chantiers,IndexChantiers,IndexDepense,Chantiers(1).Depenses(IndexDepense).Nom
+                updateNameDepense Chantiers, IndexChantiers, IndexDepense, Chantiers(1).Depenses(IndexDepense).Nom
             End If
-    		updateValDepense Chantiers,IndexChantiers,IndexDepense,BaseCell.Cells(IndexDepense, IndexChantiers + 1).value
-    		updateBaseCellDepense Chantiers,IndexChantiers,IndexDepense,BaseCell.Cells(IndexDepense, IndexChantiers + 1)
+            updateValDepense Chantiers, IndexChantiers, IndexDepense, BaseCell.Cells(IndexDepense, IndexChantiers + 1).value
+            updateBaseCellDepense Chantiers, IndexChantiers, IndexDepense, BaseCell.Cells(IndexDepense, IndexChantiers + 1)
         Next IndexDepense
     Next IndexChantiers
     
@@ -1709,7 +1709,7 @@ Public Sub updateValDepense(Chantiers, IdxChantiers As Integer, IdxDepense As In
     TmpDepense.Valeur = newVal
 End Sub
 
-Public Sub updateBaseCellDepense(Chantiers, IdxChantiers As Integer, IdxDepense As Integer, newRange as Range)
+Public Sub updateBaseCellDepense(Chantiers, IdxChantiers As Integer, IdxDepense As Integer, newRange As Range)
     Dim ChantierTmp As Chantier
     Dim DepensesTmp() As DepenseChantier
     Dim TmpDepense As DepenseChantier
