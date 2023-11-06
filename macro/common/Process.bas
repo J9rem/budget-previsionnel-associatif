@@ -113,6 +113,7 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Dim Charges() As Charge
     Dim tmpTypeCharge As TypeCharge
     Dim TmpChantier
+    Dim TmpFinancement
         
     SetSilent
     
@@ -292,10 +293,11 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
         Set HeadCellFinancement = BaseCell
         TmpChantier = Data.Chantiers(1)
         For Index = 1 To UBound(TmpChantier.Financements)
-            If Data.Chantiers(1).Financements(Index).TypeFinancement = IndexTypeFinancement Then
+            TmpFinancement = TmpChantier.Financements(Index)
+            If TmpFinancement.TypeFinancement = IndexTypeFinancement Then
                 Set BaseCell = InsertLineAndFormat(BaseCell, HeadCellFinancement)
-                BaseCell.Cells(1, 2).Formula = "=" & CleanAddess(Data.Chantiers(1).Financements(Index).BaseCell.Cells(1, 0).address(False, False, xlA1, True))
-                BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(Data.Chantiers(1).Financements(Index).BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
+                BaseCell.Cells(1, 2).Formula = "=" & CleanAddess(TmpFinancement.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
+                BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(TmpFinancement.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
             End If
         Next Index
         If BaseCell.Row > HeadCellFinancement.Row Then
@@ -1582,6 +1584,7 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Dim Index As Integer
     Dim IndexBis As Integer
     Dim VarTmp As Variant
+    Dim TmpCharge
 
     On Error Resume Next
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
@@ -1602,7 +1605,8 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     While CurrentIndexTypeCharge = SearchedIndex And SearchedIndex > 0 And SearchedIndex < 9
         Set HeadCell = CurrentCell
         For Index = 1 To UBound(Data.Charges)
-            If Data.Charges(Index).IndexTypeCharge = SearchedIndex Then
+            TmpCharge = Data.Charges(Index)
+            If TmpCharge.IndexTypeCharge = SearchedIndex Then
                 ' prepare cells
                 If FindTypeChargeIndex(CurrentCell.Cells(2, 1).value) > 0 Or CurrentCell.Cells(2, 1).value = "TOTAL" Then
                     ' insert line
@@ -1619,10 +1623,10 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
                     Set CurrentCell = CurrentCell.Cells(2, 1)
                 End If
                 ' Add value
-                CurrentCell.Cells(1, 1).value = Data.Charges(Index).Nom
-                CurrentCell.Cells(1, 2).value = Data.Charges(Index).PreviousN2YearValue
-                CurrentCell.Cells(1, 3).value = Data.Charges(Index).PreviousYearValue
-                CurrentCell.Cells(1, 4).value = Data.Charges(Index).CurrentYearValue
+                CurrentCell.Cells(1, 1).value = TmpCharge.Nom
+                CurrentCell.Cells(1, 2).value = TmpCharge.PreviousN2YearValue
+                CurrentCell.Cells(1, 3).value = TmpCharge.PreviousYearValue
+                CurrentCell.Cells(1, 4).value = TmpCharge.CurrentYearValue
                 formatChargeCell CurrentCell, True
                 
             End If
