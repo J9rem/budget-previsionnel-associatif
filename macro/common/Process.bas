@@ -114,6 +114,7 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Dim tmpTypeCharge As TypeCharge
     Dim TmpChantier
     Dim TmpFinancement
+    Dim TmpDepense
         
     SetSilent
     
@@ -165,10 +166,11 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
         Depenses = TmpChantier.Depenses
         NBChantiers = UBound(Data.Chantiers)
         For Index = 1 To UBound(Depenses)
-            If Left(Depenses(Index).Nom, 2) = CStr(CodeIndex) Then
+        	TmpDepense = Depenses(Index)
+            If Left(TmpDepense.Nom, 2) = CStr(CodeIndex) Then
                 Set BaseCell = InsertLineAndFormat(BaseCell, HeadCell)
-                BaseCell.Cells(1, 2).Formula = "=" & CleanAddess(Depenses(Index).BaseCell.Cells(1, 0).address(False, False, xlA1, True))
-                BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(Depenses(Index).BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
+                BaseCell.Cells(1, 2).Formula = "=" & CleanAddess(TmpDepense.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
+                BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(TmpDepense.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
             End If
         Next Index
         If CodeIndex = 64 Then
