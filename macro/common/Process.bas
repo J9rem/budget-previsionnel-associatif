@@ -161,7 +161,8 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
                 BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(currentCharge.ChargeCell.Cells(1, 4).address(False, False, xlA1, True))
             End If
         Next Index
-        Depenses = Data.Chantiers(1).Depenses
+        TmpChantier = Data.Chantiers(1)
+        Depenses = TmpChantier.Depenses
         NBChantiers = UBound(Data.Chantiers)
         For Index = 1 To UBound(Depenses)
             If Left(Depenses(Index).Nom, 2) = CStr(CodeIndex) Then
@@ -230,11 +231,11 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     HeadCell.Cells(1, 3).value = 0
     TmpChantier = Data.Chantiers(1)
     For Index = 1 To UBound(TmpChantier.Financements)
-        If Data.Chantiers(1).Financements(Index).TypeFinancement = 0 Then
-            
+    	TmpFinancement = TmpChantier.Financements(Index)
+        If TmpFinancement.TypeFinancement = 0 Then
             Set BaseCell = InsertLineAndFormat(BaseCell, HeadCell)
-            BaseCell.Cells(1, 2).Formula = "=" & CleanAddess(Data.Chantiers(1).Financements(Index).BaseCell.Cells(1, 0).address(False, False, xlA1, True))
-            BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(Data.Chantiers(1).Financements(Index).BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
+            BaseCell.Cells(1, 2).Formula = "=" & CleanAddess(TmpFinancement.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
+            BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(TmpFinancement.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
         End If
     Next Index
     
