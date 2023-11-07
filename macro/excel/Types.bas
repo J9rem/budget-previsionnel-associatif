@@ -275,3 +275,17 @@ Public Function getChargesDefaultPreserve(PreviousCharges() As Charge, NB As Int
     getChargesDefaultPreserve = ArrayTmp
     
 End Function
+
+Public Function getDefaultChantiers(NBChantiers As Integer) As Chantier()
+
+    Dim newArray() As Chantier
+    Dim idx As Integer
+    
+    ReDim newArray(1 To NBChantiers)
+    
+    For idx = 1 To NBChantiers
+        newArray(idx) = getDefaultChantier()
+    Next idx
+    getDefaultChantiers = newArray
+
+End Function
