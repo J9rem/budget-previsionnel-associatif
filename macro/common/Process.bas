@@ -253,6 +253,7 @@ Public Function InsertLineAndFormat(BaseCell As Range, HeadCell As Range) As Ran
         ' insert line
         BaseCell.Worksheet.Activate
         BaseCell.Select
+        BaseCell.Copy
         Range(BaseCell.Cells(2, 1), BaseCell.Cells(2, 3)).Insert Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
         
         Set BaseCell = BaseCell.Cells(2, 1)
