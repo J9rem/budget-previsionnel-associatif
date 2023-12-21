@@ -880,12 +880,12 @@ Public Sub InsertRows(BaseCell As Range, PreviousNB As Integer, FinalNB As Integ
     Set endR = FindNextNotEmpty(BaseCell, False)
     ' Insert Cells
     Range(BaseCell.Cells(1 + PreviousNB, 1), endR.Cells(1 + PreviousNB, 1 + ExtraCols)).Copy
-    Range(BaseCell.Cells(1 + PreviousNB, 1), endR.Cells(1 + FinalNB - 1, 1 + ExtraCols)).Insert _
+    Range(BaseCell.Cells(1 + PreviousNB + 1, 1), endR.Cells(1 + FinalNB, 1 + ExtraCols)).Insert _
         Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
     
     ' Copy All
-    Range(BaseCell.Cells(1 + FinalNB, 1), endR.Cells(1 + FinalNB, 1 + ExtraCols)).Copy
-    Range(BaseCell.Cells(1 + PreviousNB, 1), endR.Cells(1 + FinalNB - 1, 1 + ExtraCols)).PasteSpecial _
+    Range(BaseCell.Cells(1 + PreviousNB, 1), endR.Cells(1 + PreviousNB, 1 + ExtraCols)).Copy
+    Range(BaseCell.Cells(1 + PreviousNB + 1, 1), endR.Cells(1 + FinalNB, 1 + ExtraCols)).PasteSpecial _
         Paste:=xlAll
         
     ' Row AutoFit
