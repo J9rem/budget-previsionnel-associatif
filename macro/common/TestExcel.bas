@@ -1,4 +1,6 @@
-Attribute VB_Name = "TestExcel"
+Rem Attribute VBA_ModuleType=VBAModule
+Option VBASupport 1
+
 ' SPDX-License-Identifier: EUPL-1.2
 ' Module pour tester si la macro s'exécute en Excel ou non
 
