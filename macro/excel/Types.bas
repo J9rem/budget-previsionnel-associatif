@@ -154,13 +154,13 @@ End Function
 Public Function getDefaultChantier(NbDefaultDepenses As Integer) As Chantier
 
     Dim Chantier As Chantier
-    Dim EmptyArrayDepenses() As DepenseChantier
-    ReDim EmptyArrayDepenses(0)
+    Dim ArrayDepenses() As DepenseChantier
+    ReDim ArrayDepenses(1 To NbDefaultDepenses)
     Dim EmptyFinancements() As Financement
     ReDim EmptyFinancements(0)
     
     Chantier.Nom = ""
-    Chantier.Depenses = EmptyArrayDepenses
+    Chantier.Depenses = ArrayDepenses
     Chantier.Financements = EmptyFinancements
     Chantier.AutoFinancementStructure = 0
     Chantier.AutoFinancementStructureAnneesPrecedentes = 0
