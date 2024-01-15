@@ -1,6 +1,6 @@
-Attribute VB_Name = "Process"
+ï»¿Attribute VB_Name = "Process"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dÃ©claration de toutes les variables
 Option Explicit
 
 Public Sub CleanDepenses(BaseCell)
@@ -118,8 +118,8 @@ Public Function AddDepenses(wb As Workbook, Data As Data, BaseCell As Range) As 
             If CodeValue = 64 Then
                 ' ajouter les d?penses de personnel
                 Set CurrentCell = InsertLineAndFormat(CurrentCell, HeadCell, False)
-                CurrentCell.Value = ""
-                CurrentCell.Cells(1, 2).Value = "Rémunération des personnels"
+                CurrentCell.value = ""
+                CurrentCell.Cells(1, 2).value = "RÃ©munÃ©ration des personnels"
                 CurrentCell.Cells(1, 2).Font.Bold = True
                 CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress(SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True)) & "/1.5"
                 Set CurrentCell = InsertLineAndFormat(CurrentCell, HeadCell, False)
@@ -225,7 +225,7 @@ Public Function AddFinancements(wb As Workbook, Data As Data, StartCell As Range
     AddFinancements = True
 End Function
 
-' Macro pour mettre à jour le budget update
+' Macro pour mettre Ã  jour le budget update
 Public Sub MettreAJourBudgetGlobal(wb As Workbook)
 
     Dim Data As Data
@@ -240,12 +240,12 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Data = extraireDonneesVersion1(wb, rev)
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_global)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_global & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Budget_global & "' n'a pas Ã©tÃ© trouvÃ©e"
         GoTo EndSub
     End If
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas Ã©tÃ© trouvÃ©e"
         GoTo EndSub
     End If
     
@@ -323,7 +323,7 @@ Public Function SearchRangeForEmployeesSalary(wb As Workbook) As Range
         GoTo EndFunction
     End If
     
-    Set BaseCell = CoutJSalaireSheet.Cells.Find("Masse salariale des " & Chr(10) & "opérateurs : ")
+    Set BaseCell = CoutJSalaireSheet.Cells.Find("Masse salariale des " & Chr(10) & "opÃ©rateurs : ")
     If BaseCell Is Nothing Then
         GoTo EndFunction
     End If
@@ -342,14 +342,14 @@ Public Sub EgaliserLesColonnes(ws As Worksheet)
     Dim BaseCell As Range
     Dim HeadCell
     
-    Set EndFirstCol = ws.Cells.Find("Total Dépenses (1) + (2)")
+    Set EndFirstCol = ws.Cells.Find("Total DÃ©penses (1) + (2)")
     Set EndSecondCol = ws.Cells.Find("Total Financements (1) + (2)+ (3)")
     Ecart = EndFirstCol.Row - EndSecondCol.Row
     
     If Ecart > 0 Then
         Set BaseCell = ws.Cells(1, 5).EntireColumn.Find(75).Cells(0, 1)
     Else
-        Set BaseCell = ws.Cells.Find("Total Dépenses (1)").Cells(0, 1)
+        Set BaseCell = ws.Cells.Find("Total DÃ©penses (1)").Cells(0, 1)
         Ecart = -Ecart
     End If
     
@@ -375,7 +375,7 @@ Public Function GetNbSalaries(wb As Workbook)
         GetNbSalaries = -1
         Exit Function
     End If
-    Set BaseCell = CoutJSalaireSheet.Range("A:A").Find("Prénom")
+    Set BaseCell = CoutJSalaireSheet.Range("A:A").Find("PrÃ©nom")
     If BaseCell Is Nothing Then
         GetNbSalaries = -2
         Exit Function
@@ -385,7 +385,7 @@ Public Function GetNbSalaries(wb As Workbook)
         Exit Function
     End If
     ' TODO find dynamically the right row
-    If BaseCell.Value <> "Prénom" Then
+    If BaseCell.value <> "PrÃ©nom" Then
         GetNbSalaries = -4
         Exit Function
     End If
@@ -395,7 +395,7 @@ Public Function GetNbSalaries(wb As Workbook)
     End If
     
     Set TmpRange = FindNextNotEmpty(BaseCell.Cells(2, 1), True)
-    If TmpRange.Value = "Prénom" Or TmpRange.Value = Label_Cout_J_Salaire_Part_B Then
+    If TmpRange.value = "PrÃ©nom" Or TmpRange.value = Label_Cout_J_Salaire_Part_B Then
         GetNbSalaries = -6
         Exit Function
     End If
@@ -589,10 +589,10 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Cout_J_Salaire)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas Ã©tÃ© trouvÃ©e"
         Exit Sub
     End If
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("PrÃ©nom")
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -619,7 +619,7 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     If BaseCell.Value <> Label_Cout_J_Salaire_Part_B Then
         Exit Sub
     End If
-    If BaseCell.Cells(3, 1).Value <> "Prénom" Then
+    If BaseCell.Cells(3, 1).value <> "PrÃ©nom" Then
         Exit Sub
     End If
     Set BaseCell = BaseCell.Cells(3, 1)
@@ -637,7 +637,7 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     If BaseCell Is Nothing Then
         Exit Sub
     End If
-    If BaseCell.Cells(5, 1).Value <> "Prénom" Then
+    If BaseCell.Cells(5, 1).value <> "PrÃ©nom" Then
         Exit Sub
     End If
     Set BaseCell = BaseCell.Cells(5, 1)
@@ -659,10 +659,10 @@ Public Sub ChangeNBSalariesDansChantier(wb As Workbook, PreviousNB As Integer, F
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas Ã©tÃ© trouvÃ©e"
         Exit Sub
     End If
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Salarié")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("SalariÃ©")
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -818,7 +818,7 @@ Public Function PrepareAjoutFinancement( _
     
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas Ã©tÃ© trouvÃ©e"
         Exit Function
     End If
     Set SetOfRange.ChantierSheet = ChantierSheet
@@ -1240,13 +1240,13 @@ Public Sub ChangeNBSalarieDansPersonnel(wb As Workbook, PreviousNB As Integer, F
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Personnel)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas Ã©tÃ© trouvÃ©e"
         Exit Sub
     End If
     
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("PrÃ©nom")
     If BaseCell Is Nothing Then
-        MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
+        MsgBox "'PrÃ©nom' non trouvÃ© dans '" & Nom_Feuille_Personnel & "' !"
         Exit Sub
     End If
     
@@ -1501,7 +1501,7 @@ Public Function extraireFinancementChantier( _
             FinancementsTmp = ChantierTmp.Financements
             FinancementTmp = FinancementsTmp(IndexFinancement)
             FinancementTmp1 = FinancementsTmp1(IndexFinancement)
-            ' récupération du type depuis le chantier 1
+            ' rÃ©cupÃ©ration du type depuis le chantier 1
             If IndexChantiers > 1 Then
                 FinancementTmp.Nom = FinancementTmp1.Nom
                 FinancementTmp.TypeFinancement = FinancementTmp1.TypeFinancement
@@ -1576,7 +1576,7 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     On Error GoTo 0
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas Ã©tÃ© trouvÃ©e"
         GoTo FinFunction
     End If
 
@@ -1715,11 +1715,11 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
     If NBSalaries > 0 Then
         Set CurrentSheet = NewWorkbook.Worksheets(Nom_Feuille_Personnel)
         If CurrentSheet Is Nothing Then
-            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
+            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas Ã©tÃ© trouvÃ©e"
         Else
-            Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+            Set BaseCell = CurrentSheet.Range("A:A").Find("PrÃ©nom")
             If BaseCell Is Nothing Then
-                MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
+                MsgBox "'PrÃ©nom' non trouvÃ© dans '" & Nom_Feuille_Personnel & "' !"
             Else
                 On Error Resume Next
                 Set ChantierSheet = NewWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
@@ -1771,7 +1771,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                     End If
                 Next IndexTab
                 If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) And UBound(Data.Chantiers) > 1 Then
-                    ' nom des dépenses
+                    ' nom des dÃ©penses
                     SetOfRange = GetCellsForDepense(ChantierSheet)
                     If SetOfRange.Status Then
                         Set BaseCell = SetOfRange.HeadCell.Cells(2, 2)
@@ -2169,7 +2169,7 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     On Error GoTo 0
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas Ã©tÃ© trouvÃ©e"
         Exit Sub
     End If
 
@@ -2217,7 +2217,7 @@ Public Sub CreerLigneCharge()
     Set wb = ThisWorkbook
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas Ã©tÃ© trouvÃ©e"
         Exit Sub
     End If
 
@@ -2225,13 +2225,13 @@ Public Sub CreerLigneCharge()
     FormattedValue = Trim(Value)
 
     If FormattedValue = "" Then
-        MsgBox "Erreur : Le nom fourni pour la charge ne peut pas être vide"
+        MsgBox "Erreur : Le nom fourni pour la charge ne peut pas Ãªtre vide"
         Exit Sub
     End If
 
     ExtractedValue = CInt(Left(FormattedValue, 2))
     If ExtractedValue < 60 Or ExtractedValue > 68 Then
-        MsgBox "Erreur : les deux premiers caractères du nom doivent être compris entre 60 et 68 inclus."
+        MsgBox "Erreur : les deux premiers caractÃ¨res du nom doivent Ãªtre compris entre 60 et 68 inclus."
         Exit Sub
     End If
 
@@ -2248,10 +2248,10 @@ Public Sub CreerLigneCharge()
             Ajout1LigneCharge SetOfRange.EndCell.Cells(Offset, 1), False, FormattedValue, 0, 0, 0, 1
             UpdateChargeFormula SetOfRange
         Else
-            MsgBox "Erreur : impossible de retrouver les différents types de paiement (60 à 68)"
+            MsgBox "Erreur : impossible de retrouver les diffÃ©rents types de paiement (60 Ã  68)"
         End If
     Else
-        MsgBox "Erreur : impossible d'associer cette ligne à un type de paiement (entre 60 et 68)"
+        MsgBox "Erreur : impossible d'associer cette ligne Ã  un type de paiement (entre 60 et 68)"
     End If
 
 End Sub
@@ -2273,7 +2273,7 @@ Public Sub RetirerLigneCharge()
     Set wb = ThisWorkbook
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas Ã©tÃ© trouvÃ©e"
         Exit Sub
     End If
     SetOfCellsCategories = GetRowsOfCategoriesOfCharges(ChargesSheet)
@@ -2292,7 +2292,7 @@ Public Sub RetirerLigneCharge()
 
     NewLine = InputLineBetween( _
         "Supprimer la charge de la ligne ?", _
-        "Ligne de charge à supprimer", _
+        "Ligne de charge Ã  supprimer", _
         MinRow + 1, _
         MaxRow _
     )
@@ -2312,7 +2312,7 @@ Public Sub RetirerLigneCharge()
     End If
     
     If Not IsOK Then
-        MsgBox "La ligne entrée n'est pas la ligne d'une charge"
+        MsgBox "La ligne entrÃ©e n'est pas la ligne d'une charge"
         Exit Sub
     End If
 
@@ -2689,13 +2689,13 @@ Public Sub RetirerUnFinanceur()
 
     NewLine = InputLineBetween( _
         "Supprimer le financement de la ligne ?", _
-        "Ligne du financement à supprimer", _
+        "Ligne du financement Ã  supprimer", _
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.EndCell.Row _
     )
 
     If NewLine = 0 Then
-        MsgBox "La ligne entrée n'est pas la ligne d'un financement"
+        MsgBox "La ligne entrÃ©e n'est pas la ligne d'un financement"
         Exit Sub
     End If
     
@@ -2754,14 +2754,14 @@ Public Sub RetirerUneDepense()
     NBChantier = GetNbChantiers(wb)
 
     NewLine = InputLineBetween( _
-        "Supprimer la dépense de la ligne ?", _
-        "Ligne de la dépense à supprimer", _
+        "Supprimer la dÃ©pense de la ligne ?", _
+        "Ligne de la dÃ©pense Ã  supprimer", _
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.ResultCell.Row - 1 _
     )
 
     If NewLine = 0 Then
-        MsgBox "La ligne entrée n'est pas la ligne d'une dépense"
+        MsgBox "La ligne entrÃ©e n'est pas la ligne d'une dÃ©pense"
         Exit Sub
     End If
     

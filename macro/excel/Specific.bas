@@ -1,6 +1,6 @@
 Attribute VB_Name = "Specific"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dÃ©claration de toutes les variables
 Option Explicit
 
 ' constantes
@@ -26,14 +26,14 @@ Public Function choisirNomFicherASauvegarderSansMacro(ByRef FilePath As String) 
     Adresse_dossier_courant = ThisWorkbook.Path
     ChDir (Adresse_dossier_courant)
     
-    ' Fenêtre pour demander le nom du fichier de sauvegarde
+    ' FenÃªtre pour demander le nom du fichier de sauvegarde
     On Error Resume Next
     ' InitialFileName, FileFilter, FiltrerIndex, Title
     Fichier_De_Sauvegarde = Application.GetSaveAsFilename( _
         Default_File_Name, _
         "Excel 2003-2007 (*.xls),*.xls,Excel (*.xlsx),*.xlsx", _
         2, _
-        "Choisir le fichier à exporter")
+        "Choisir le fichier Ã  exporter")
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" Or Fichier_De_Sauvegarde = Empty Or Fichier_De_Sauvegarde = "Faux" Or Fichier_De_Sauvegarde = "False" Then
         choisirNomFicherASauvegarderSansMacro = False
@@ -259,7 +259,7 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As 
             .VerticalAlignment = xlTop
             
             If IndexBis = 3 Then
-                .NumberFormat = "#,##0.00"" €"""
+                .NumberFormat = "#,##0.00"" â‚¬"""
             Else
                 .NumberFormat = "General"
             End If
@@ -357,7 +357,7 @@ Public Sub DefinirFormatPourChantier( _
             .ThemeFont = xlThemeFontNone
         End With
         If CurrencyFormat Then
-            .NumberFormat = "#,##0.00"" €"""
+            .NumberFormat = "#,##0.00"" â‚¬"""
         Else
             .NumberFormat = "General"
         End If
@@ -377,7 +377,7 @@ Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As S
     Set OldChargesSheet = oldWorkbook.Worksheets(Name)
     On Error GoTo 0
     If OldChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas été trouvée dans " & oldWorkbook.Name
+        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas Ã©tÃ© trouvÃ©e dans " & oldWorkbook.Name
         Exit Sub
     End If
     
@@ -385,7 +385,7 @@ Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As S
     Set NewChargesSheet = NewWorkbook.Worksheets(Name)
     On Error GoTo 0
     If NewChargesSheet Is Nothing Then
-        MsgBox "'" & Name & "' n'a pas été trouvée dans " & NewWorkbook.Name
+        MsgBox "'" & Name & "' n'a pas Ã©tÃ© trouvÃ©e dans " & NewWorkbook.Name
         Exit Sub
     End If
     
@@ -463,7 +463,7 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
                 Or IndexBis = ColumnOfSecondPartInCharge Then
                 .NumberFormat = "General"
             Else
-                .NumberFormat = "#,##0.00"" €"""
+                .NumberFormat = "#,##0.00"" â‚¬"""
             End If
         End With
     Next IndexBis
