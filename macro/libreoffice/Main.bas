@@ -11,8 +11,13 @@ Type Financement
     Nom As String
     TypeFinancement As Integer ' Index in TypeFinancements
     Valeur As Double
+    ValeurReal As Double
+    Formula As String
+    FormulaReal As String
     Statut As Integer ' 0 = empty
     BaseCell As Range
+    BaseCellReal As Range
+    IndexInProvisions As Integer ' 0 = not concerned
 End Type
 
 Type FinancementComplet
