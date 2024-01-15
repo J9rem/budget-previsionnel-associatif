@@ -91,7 +91,7 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
         If CodeIndex = 64 Then
             ' ajouter les d?penses de personnel
             Set BaseCell = InsertLineAndFormat(BaseCell, HeadCell)
-            BaseCell.Cells(1, 2).value = "R?mun?ration des personnels"
+            BaseCell.Cells(1, 2).value = "Rémunération des personnels"
             BaseCell.Cells(1, 2).Font.Bold = True
             BaseCell.Cells(1, 3).Formula = "=" & CleanAddress(SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True)) & "/1.5"
             Set BaseCell = InsertLineAndFormat(BaseCell, HeadCell)
