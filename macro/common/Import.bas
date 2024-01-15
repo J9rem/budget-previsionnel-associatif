@@ -4,6 +4,85 @@ Option VBASupport 1
 ' Pour forcer la déclaration de toutes les variables
 Option Explicit
 
+' Types
+Type WbRevision
+    Majeure As Integer
+    Mineure As Integer
+    Error As Boolean
+End Type
+
+Type DonneesSalarie
+    Erreur As Boolean
+    Prenom As String
+    Nom As String
+    TauxDeTempsDeTravail As Double
+    TauxDeTempsDeTravailFormula As String
+    MasseSalarialeAnnuelle As Double
+    MasseSalarialeAnnuelleFormula As String
+    TauxOperateur As Double
+    TauxOperateurFormula As String
+    JoursChantiers() As Double ' Tableau de temps de chantiers même index que le tableau Chantiers
+End Type
+
+Type DepenseChantier
+    Nom As String
+    Valeur As Double
+    BaseCell As Range
+End Type
+
+Type Chantier
+    Nom As String
+    Depenses() As DepenseChantier
+    Financements() As Financement
+    AutoFinancementStructure As Double
+    AutoFinancementAutres As Double
+    AutoFinancementStructureAnneesPrecedentes As Double
+    AutoFinancementAutresAnneesPrecedentes As Double
+    CAanneesPrecedentes As Double
+End Type
+
+Type Charge
+    Nom As String
+    IndexTypeCharge As Integer
+    CurrentYearValue As Double
+    PreviousYearValue As Double
+    PreviousN2YearValue As Double
+    ChargeCell As Range
+End Type
+
+Type Informations
+    Annee As Integer
+    AnneeFormula As String
+    ConventionCollective As String
+    NBConges As Integer
+    NBCongesFormula As String
+    Pentecote As Boolean
+    NBRTT As Integer
+    NBRTTFormula As String
+    NBJoursSpeciaux As Integer
+    NBJoursSpeciauxFormula As String
+End Type
+
+Type Financement
+    Nom As String
+    TypeFinancement As Integer ' Index in TypeFinancements
+    Valeur As Double
+    Statut As Integer ' 0 = empty
+    BaseCell As Range
+End Type
+
+Type Data
+    Salaries() As DonneesSalarie
+    Chantiers() As Chantier
+    Informations As Informations
+    Charges() As Charge
+End Type
+
+Type NBAndRange
+    NB As Integer
+    Range As Range
+End Type
+
 Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
 
     Dim Fichier_De_Sauvegarde
