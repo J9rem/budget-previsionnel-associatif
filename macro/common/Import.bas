@@ -1,4 +1,5 @@
-Attribute VB_Name = "Import"
+Rem Attribute VBA_ModuleType=VBAModule
+Option VBASupport 1
 ' SPDX-License-Identifier: EUPL-1.2
 ' Pour forcer la declaration de toutes les variables
 Option Explicit
