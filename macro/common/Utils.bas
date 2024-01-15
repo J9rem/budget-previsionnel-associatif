@@ -5,6 +5,18 @@ Option VBASupport 1
 ' Pour forcer la déclaration de toutes les variables
 Option Explicit
 
+' Types
+Type WbRevision
+    Majeure As Integer
+    Mineure As Integer
+    Error As Boolean
+End Type
+
+Type TypeCharge
+    Nom As String
+    Index As Integer
+    NomLong As String
+End Type
 
 Public Sub NotAvailable()
     MsgBox "Patience, cette fonction est encore en cours de développement"
