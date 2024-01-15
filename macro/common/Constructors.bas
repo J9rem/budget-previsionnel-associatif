@@ -1,4 +1,6 @@
-Attribute VB_Name = "Constructors"
+Rem Attribute VBA_ModuleType=VBAModule
+Option VBASupport 1
+
 ' SPDX-License-Identifier: EUPL-1.2
 ' Pour forcer la déclaration de toutes les variables
 Option Explicit
