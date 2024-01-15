@@ -1000,19 +1000,16 @@ Public Function extraireDepensesChantier( _
         NBSalaries As Integer, _
         NBChantiers As Integer, _
         Optional BaseCell As Range _
-    ) As Data
+    ) As SetOfChantiers
         
     Dim Chantiers() As Chantier
     Dim SetOfChantiers As SetOfChantiers
-    Dim Data As Data
     Dim IndexChantiers As Integer
     Dim IndexDepense As Integer
     Dim NBDepenses As Integer
     Dim NewFormatForAutofinancement As Boolean
     Dim BaseCellLocal As Range
     Dim ChantierTmp As Chantier
-    
-    Data = getDefaultData(Data)
     
     ' Depenses
     If BaseCell Is Nothing Then
@@ -1053,17 +1050,23 @@ Public Function extraireDepensesChantier( _
                 Chantiers(IndexChantiers).AutoFinancementAutresAnneesPrecedentes = BaseCellLocal.Cells(7, 1 + IndexChantiers).value
                 Chantiers(IndexChantiers).CAanneesPrecedentes = BaseCellLocal.Cells(8, 1 + IndexChantiers).value
             End If
+            SetOfChantiers.Chantiers = Chantiers
         Next IndexChantiers
     End If
     
-    Data.Chantiers = SetOfChantiers.Chantiers
-    
-    extraireDepensesChantier = Data
+    extraireDepensesChantier = SetOfChantiers
 
 End Function
 
-Public Function extraireFinancementChantier(BaseCellChantier As Range, NBChantiers As Integer, Data As Data, Optional ForV0 As Boolean = False) As Data
+Public Function extraireFinancementChantier( _
+        BaseCellChantier As Range, _
+        NBChantiers As Integer, _
+        Data As Data, _
+        Optional ForV0 As Boolean = False _
+        ) As SetOfChantiers
     Dim Chantiers() As Chantier
+    Dim SetOfChantiers As SetOfChantiers
+    Dim ChantierTmp As Chantier
     Dim BaseCell As Range
     Dim IndexChantiers As Integer
     Dim IndexFinancement As Integer
@@ -1073,11 +1076,14 @@ Public Function extraireFinancementChantier(BaseCellChantier As Range, NBChantie
     Dim TypesStatuts As Variant
     Dim IndexTypeName As Integer
     Dim ColCounter As Integer
+    Dim FinancementTmp As Financement
+    Dim FinancementsTmp() As Financement
     
     TypesFinancements = TypeFinancementsFromWb(BaseCellChantier.Worksheet.Parent)
     TypesStatuts = TypeStatut()
     
     Chantiers = Data.Chantiers
+    SetOfChantiers.Chantiers = Chantiers
     
     If ForV0 Then
         Set BaseCell = TrouveBaseCellFinancementV0(BaseCellChantier)
@@ -1105,68 +1111,83 @@ Public Function extraireFinancementChantier(BaseCellChantier As Range, NBChantie
     NBFinancements = ColCounter
     
     For IndexChantiers = 1 To NBChantiers
-        Chantiers(IndexChantiers).Financements = getDefaultFinancements(NBFinancements)
+        ChantierTmp = Chantiers(IndexChantiers)
+        FinancementsTmp = getDefaultFinancements(NBFinancements)
+        ChantierTmp.Financements = FinancementsTmp
+        Chantiers(IndexChantiers) = ChantierTmp
     Next IndexChantiers
     
     ' Extraction des types avec le chantier 1
     ColCounter = 1
     For IndexFinancement = 1 To NBFinancements
-        Chantiers(1).Financements(IndexFinancement).Nom = BaseCell.Cells(ColCounter, 2).value
+        ChantierTmp = Chantiers(1)
+        FinancementsTmp = ChantierTmp.Financements
+        FinancementTmp = FinancementsTmp(IndexFinancement)
+        FinancementTmp.Nom = BaseCell.Cells(ColCounter, 2).value
         IndexType = 0
         For IndexTypeName = 1 To UBound(TypesFinancements)
             If TypesFinancements(IndexTypeName) = BaseCell.Cells(ColCounter, 1).value Then
                 IndexType = IndexTypeName
             End If
         Next IndexTypeName
-        Chantiers(1).Financements(IndexFinancement).TypeFinancement = IndexType
+        FinancementTmp.TypeFinancement = IndexType
         If IndexType > 0 Then
             ColCounter = ColCounter + 1
         Else
-            If ForV0 And Chantiers(1).Financements(IndexFinancement).Nom <> "" Then
-                If Trim(Chantiers(1).Financements(IndexFinancement).Nom) = "Formations" Or _
-                    Trim(Chantiers(1).Financements(IndexFinancement).Nom) = "Prestations" Or _
-                    Trim(Chantiers(1).Financements(IndexFinancement).Nom) = "Cotisations" Then
-                    Chantiers(1).Financements(IndexFinancement).TypeFinancement = 0
+            If ForV0 And FinancementTmp.Nom <> "" Then
+                If Trim(FinancementTmp.Nom) = "Formations" Or _
+                    Trim(FinancementTmp.Nom) = "Prestations" Or _
+                    Trim(FinancementTmp.Nom) = "Cotisations" Then
+                    FinancementTmp.TypeFinancement = 0
                 Else
-                    Chantiers(1).Financements(IndexFinancement).TypeFinancement = FindTypeFinancementIndex("Autres")
+                    FinancementTmp.TypeFinancement = FindTypeFinancementIndex("Autres")
                 End If
             End If
         End If
+        FinancementsTmp(IndexFinancement) = FinancementTmp
+        ChantierTmp.Financements = FinancementsTmp
+        Chantiers(1) = ChantierTmp
         ColCounter = ColCounter + 1
     Next IndexFinancement
     
     ' Extraction des valeurs
     For IndexChantiers = 1 To NBChantiers
         ColCounter = 1
+        ChantierTmp = Chantiers(IndexChantiers)
         For IndexFinancement = 1 To NBFinancements
+            FinancementsTmp = ChantierTmp.Financements
+            FinancementTmp = FinancementsTmp(IndexFinancement)
             ' récupération du type depuis le chantier 1
             If IndexChantiers > 1 Then
-                Chantiers(IndexChantiers).Financements(IndexFinancement).Nom = Chantiers(1).Financements(IndexFinancement).Nom
-                Chantiers(IndexChantiers).Financements(IndexFinancement).TypeFinancement = Chantiers(1).Financements(IndexFinancement).TypeFinancement
+                FinancementTmp.Nom = Chantiers(1).Financements(IndexFinancement).Nom
+                FinancementTmp.TypeFinancement = Chantiers(1).Financements(IndexFinancement).TypeFinancement
             End If
-            Chantiers(IndexChantiers).Financements(IndexFinancement).Valeur = BaseCell.Cells(ColCounter, IndexChantiers + 2).value
-            Set Chantiers(IndexChantiers).Financements(IndexFinancement).BaseCell = BaseCell.Cells(ColCounter, IndexChantiers + 2)
+            FinancementTmp.Valeur = BaseCell.Cells(ColCounter, IndexChantiers + 2).value
+            Set FinancementTmp.BaseCell = BaseCell.Cells(ColCounter, IndexChantiers + 2)
             
-            If Chantiers(IndexChantiers).Financements(IndexFinancement).TypeFinancement > 0 And Not ForV0 Then
+            If FinancementTmp.TypeFinancement > 0 And Not ForV0 Then
                 IndexType = 0
                 For IndexTypeName = 1 To UBound(TypesStatuts)
                     If TypesStatuts(IndexTypeName) = BaseCell.Cells(ColCounter + 1, IndexChantiers + 2).value Then
                         IndexType = IndexTypeName
                     End If
                 Next IndexTypeName
-                Chantiers(IndexChantiers).Financements(IndexFinancement).Statut = IndexType
+                FinancementTmp.Statut = IndexType
                 ColCounter = ColCounter + 1
             Else
-                Chantiers(IndexChantiers).Financements(IndexFinancement).Statut = 0
+                FinancementTmp.Statut = 0
             End If
             ColCounter = ColCounter + 1
+            FinancementsTmp(IndexFinancement) = FinancementTmp
+            ChantierTmp.Financements = FinancementsTmp
         Next IndexFinancement
+        Chantiers(IndexChantiers) = ChantierTmp
     Next IndexChantiers
     
-    Data.Chantiers = Chantiers
+    SetOfChantiers.Chantiers = Chantiers
     
 FinFunction:
-    extraireFinancementChantier = Data
+    extraireFinancementChantier = SetOfChantiers
 
 End Function
 Public Function TrouveBaseCellFinancementV0(BaseCellChantier As Range) As Range
