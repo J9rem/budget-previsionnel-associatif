@@ -5,6 +5,71 @@ Option VBASupport 1
 ' Pour forcer la declaration de toutes les variables
 Option Explicit
 
+' Types
+
+Type DepenseChantier
+    Nom As String
+    Valeur As Double
+    BaseCell As Range
+    Formula As String
+    ValeurReal As Double
+    BaseCellReal As Range
+    FormulaReal As String
+End Type
+
+Type Chantier
+    Nom As String
+    Depenses() As DepenseChantier
+    Financements() As Financement
+    AutoFinancementStructure As Double
+    AutoFinancementStructureFormula As String
+    AutoFinancementAutres As Double
+    AutoFinancementAutresFormula As String
+    AutoFinancementStructureAnneesPrecedentes As Double
+    AutoFinancementStructureAnneesPrecedentesFormula As String
+    AutoFinancementAutresAnneesPrecedentes As Double
+    AutoFinancementAutresAnneesPrecedentesFormula As String
+    CAanneesPrecedentes As Double
+    CAanneesPrecedentesFormula As String
+End Type
+
+Type SetOfChantiers
+    Chantiers() As Chantier
+End Type
+
+Type Charge
+    Nom As String
+    IndexTypeCharge As Integer
+    CurrentYearValue As Double
+    CurrentRealizedYearValue As Double
+    PreviousYearValue As Double
+    PreviousN2YearValue As Double
+    ChargeCell As Range
+    Category As Integer
+End Type
+
+Type SetOfCharges
+    Charges() As Charge
+End Type
+
+Type Financement
+    Nom As String
+    TypeFinancement As Integer ' Index in TypeFinancements
+    Valeur As Double
+    ValeurReal As Double
+    Formula As String
+    FormulaReal As String
+    Statut As Integer ' 0 = empty
+    BaseCell As Range
+    BaseCellReal As Range
+    IndexInProvisions As Integer ' 0 = not concerned
+End Type
+
+Type FinancementComplet
+    Financements() As Financement
+    Status As Boolean
+End Type
+
 Public Function Common_FindNextNotEmpty(BaseCell As Range, directionDown As Boolean) As Range
 
     Dim NB As Integer

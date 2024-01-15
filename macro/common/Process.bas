@@ -5,6 +5,155 @@ Option VBASupport 1
 ' Pour forcer la declaration de toutes les variables
 Option Explicit
 
+' Types
+Type WbRevision
+    Majeure As Integer
+    Mineure As Integer
+    Error As Boolean
+End Type
+
+Type DonneesSalarie
+    Erreur As Boolean
+    Prenom As String
+    Nom As String
+    TauxDeTempsDeTravail As Double
+    TauxDeTempsDeTravailFormula As String
+    MasseSalarialeAnnuelle As Double
+    MasseSalarialeAnnuelleFormula As String
+    TauxOperateur As Double
+    TauxOperateurFormula As String
+    JoursChantiers() As Double ' Tableau de temps de chantiers même index que le tableau Chantiers
+    JoursChantiersFormula() As String
+    JoursChantiersReal() As Double
+    JoursChantiersFormulaReal() As String
+End Type
+
+Type DepenseChantier
+    Nom As String
+    Valeur As Double
+    BaseCell As Range
+    Formula As String
+    ValeurReal As Double
+    BaseCellReal As Range
+    FormulaReal As String
+End Type
+
+Type Chantier
+    Nom As String
+    Depenses() As DepenseChantier
+    Financements() As Financement
+    AutoFinancementStructure As Double
+    AutoFinancementStructureFormula As String
+    AutoFinancementAutres As Double
+    AutoFinancementAutresFormula As String
+    AutoFinancementStructureAnneesPrecedentes As Double
+    AutoFinancementStructureAnneesPrecedentesFormula As String
+    AutoFinancementAutresAnneesPrecedentes As Double
+    AutoFinancementAutresAnneesPrecedentesFormula As String
+    CAanneesPrecedentes As Double
+    CAanneesPrecedentesFormula As String
+End Type
+
+Type SetOfChantiers
+    Chantiers() As Chantier
+End Type
+
+Type Charge
+    Nom As String
+    IndexTypeCharge As Integer
+    CurrentYearValue As Double
+    CurrentRealizedYearValue As Double
+    PreviousYearValue As Double
+    PreviousN2YearValue As Double
+    ChargeCell As Range
+    Category As Integer
+End Type
+
+Type SetOfCharges
+    Charges() As Charge
+End Type
+
+Type Informations
+    Annee As Integer
+    AnneeFormula As String
+    ConventionCollective As String
+    NBConges As Integer
+    NBCongesFormula As String
+    Pentecote As Boolean
+    NBRTT As Integer
+    NBRTTFormula As String
+    NBJoursSpeciaux As Integer
+    NBJoursSpeciauxFormula As String
+End Type
+
+Type Financement
+    Nom As String
+    TypeFinancement As Integer ' Index in TypeFinancements
+    Valeur As Double
+    ValeurReal As Double
+    Formula As String
+    FormulaReal As String
+    Statut As Integer ' 0 = empty
+    BaseCell As Range
+    BaseCellReal As Range
+    IndexInProvisions As Integer ' 0 = not concerned
+End Type
+
+Type Provision
+    NomDuFinanceur As String
+    RangeForTitle As Range ' Nothing if not linked
+    NBYears As Integer ' 0 if empty
+    FirstYear As Integer ' ex 2020
+    WaitedValues() As Double ' for each year
+    RangeForLastYearWaitedValue As Range ' Nothing if not linked
+    PayedValues() As Double ' one dimension array
+      ' NBYears elements for first year
+      ' NBYears  - 1 elements for next year
+      ' etc up to LastYear
+    RangeForLastYearPayedValue As Range ' Nothing if not linked
+    RetrievalTenPercent() As Double ' one dimension array
+      ' NBYears - 1 elements for first year
+      ' NBYears - 2 elements for next year
+      ' etc up to LastYear - 1
+End Type
+
+Type Data
+    Salaries() As DonneesSalarie
+    Chantiers() As Chantier
+    Informations As Informations
+    Charges() As Charge
+    TitlesForChargesCat() As String
+    Provisions() As Provision
+End Type
+
+Type FinancementComplet
+    Financements() As Financement
+    Status As Boolean
+End Type
+
+Type NBAndRange
+    NB As Integer
+    Range As Range
+End Type
+
+Type SetOfRange
+    EndCell As Range
+    EndCellReal As Range
+    HeadCell As Range
+    HeadCellReal As Range
+    ResultCell As Range
+    ResultCellReal As Range
+    Status As Boolean
+    StatusReal As Boolean
+    ChantierSheet As Worksheet
+    ChantierSheetReal As Worksheet
+End Type
+
+Type SetOfCellsCategories
+    Cells(60 To 68) As Range
+    TotalCell As Range
+End Type
+
 Public Sub ChangeSalaries(wb As Workbook, PreviousNB As Integer, FinalNB As Integer)
 
     If FinalNB < 1 Then
