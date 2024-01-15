@@ -37,12 +37,12 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Data = extraireDonneesVersion1(wb, rev)
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_global)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_global & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Budget_global & "' n'a pas ?t? trouv?e"
         GoTo EndSub
     End If
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ?t? trouv?e"
         GoTo EndSub
     End If
     
@@ -72,9 +72,9 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
             If currentCharge.IndexTypeCharge = IndexFound Then
                 
                 Set BaseCell = InsertLineAndFormat(BaseCell, HeadCell)
-                BaseCell.Cells(1, 2).Formula = "=" & CleanAddess(currentCharge.ChargeCell.address(False, False, xlA1, True))
+                BaseCell.Cells(1, 2).Formula = "=" & CleanAddress(currentCharge.ChargeCell.address(False, False, xlA1, True))
                 ' Be carefull to the number of columns if a 'charges' coles is added
-                BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(currentCharge.ChargeCell.Cells(1, 4).address(False, False, xlA1, True))
+                BaseCell.Cells(1, 3).Formula = "=" & CleanAddress(currentCharge.ChargeCell.Cells(1, 4).address(False, False, xlA1, True))
             End If
         Next Index
         TmpChantier = Data.Chantiers(1)
@@ -84,20 +84,20 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
             TmpDepense = Depenses(Index)
             If Left(TmpDepense.Nom, 2) = CStr(CodeIndex) Then
                 Set BaseCell = InsertLineAndFormat(BaseCell, HeadCell)
-                BaseCell.Cells(1, 2).Formula = "=" & CleanAddess(TmpDepense.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
-                BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(TmpDepense.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
+                BaseCell.Cells(1, 2).Formula = "=" & CleanAddress(TmpDepense.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
+                BaseCell.Cells(1, 3).Formula = "=" & CleanAddress(TmpDepense.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
             End If
         Next Index
         If CodeIndex = 64 Then
-            ' ajouter les dépenses de personnel
+            ' ajouter les d?penses de personnel
             Set BaseCell = InsertLineAndFormat(BaseCell, HeadCell)
-            BaseCell.Cells(1, 2).value = "Rémunération des personnels"
+            BaseCell.Cells(1, 2).value = "R?mun?ration des personnels"
             BaseCell.Cells(1, 2).Font.Bold = True
-            BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True)) & "/1.5"
+            BaseCell.Cells(1, 3).Formula = "=" & CleanAddress(SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True)) & "/1.5"
             Set BaseCell = InsertLineAndFormat(BaseCell, HeadCell)
             BaseCell.Cells(1, 2).value = "Charges sociales"
             BaseCell.Cells(1, 2).Font.Bold = True
-            BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True)) & "-" & CleanAddess(BaseCell.Cells(0, 3).address(False, False, xlA1, False))
+            BaseCell.Cells(1, 3).Formula = "=" & CleanAddress(SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True)) & "-" & CleanAddress(BaseCell.Cells(0, 3).address(False, False, xlA1, False))
         End If
         
         ' remove others lines and leave one formatted
@@ -108,7 +108,7 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
         tmpTypeCharge = TypesDeCharges().Values(IndexFound)
         HeadCell.Cells(1, 2).value = tmpTypeCharge.Nom
         If BaseCell.Row > HeadCell.Row Then
-            HeadCell.Cells(1, 3).Formula = "=SUM(" & CleanAddess(Range(HeadCell.Cells(2, 3), BaseCell.Cells(1, 3)).address(False, False, xlA1)) & ")"
+            HeadCell.Cells(1, 3).Formula = "=SUM(" & CleanAddress(Range(HeadCell.Cells(2, 3), BaseCell.Cells(1, 3)).address(False, False, xlA1)) & ")"
         End If
         
         For Index = 1 To 3
@@ -151,8 +151,8 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
         TmpFinancement = TmpChantier.Financements(Index)
         If TmpFinancement.TypeFinancement = 0 Then
             Set BaseCell = InsertLineAndFormat(BaseCell, HeadCell)
-            BaseCell.Cells(1, 2).Formula = "=" & CleanAddess(TmpFinancement.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
-            BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(TmpFinancement.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
+            BaseCell.Cells(1, 2).Formula = "=" & CleanAddress(TmpFinancement.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
+            BaseCell.Cells(1, 3).Formula = "=" & CleanAddress(TmpFinancement.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
         End If
     Next Index
     
@@ -162,7 +162,7 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Wend
     
     If BaseCell.Row > HeadCell.Row Then
-        HeadCell.Cells(1, 3).Formula = "=SUM(" & CleanAddess(Range(HeadCell.Cells(2, 3), BaseCell.Cells(1, 3)).address(False, False, xlA1)) & ")"
+        HeadCell.Cells(1, 3).Formula = "=SUM(" & CleanAddress(Range(HeadCell.Cells(2, 3), BaseCell.Cells(1, 3)).address(False, False, xlA1)) & ")"
     End If
     For Index = 1 To 3
         With BaseCell.Cells(1, Index).Borders(xlEdgeBottom)
@@ -207,19 +207,19 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
                 End With
             Next VarTmp
         Next Index
-        HeadCell.Cells(1, 3).Formula = HeadCell.Cells(1, 3).Formula & "+" & CleanAddess(BaseCell.Cells(1, 3).address(False, False, xlA1))
+        HeadCell.Cells(1, 3).Formula = HeadCell.Cells(1, 3).Formula & "+" & CleanAddress(BaseCell.Cells(1, 3).address(False, False, xlA1))
         Set HeadCellFinancement = BaseCell
         TmpChantier = Data.Chantiers(1)
         For Index = 1 To UBound(TmpChantier.Financements)
             TmpFinancement = TmpChantier.Financements(Index)
             If TmpFinancement.TypeFinancement = IndexTypeFinancement Then
                 Set BaseCell = InsertLineAndFormat(BaseCell, HeadCellFinancement)
-                BaseCell.Cells(1, 2).Formula = "=" & CleanAddess(TmpFinancement.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
-                BaseCell.Cells(1, 3).Formula = "=" & CleanAddess(TmpFinancement.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
+                BaseCell.Cells(1, 2).Formula = "=" & CleanAddress(TmpFinancement.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
+                BaseCell.Cells(1, 3).Formula = "=" & CleanAddress(TmpFinancement.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
             End If
         Next Index
         If BaseCell.Row > HeadCellFinancement.Row Then
-            HeadCellFinancement.Cells(1, 3).Formula = "=SUM(" & CleanAddess(Range(HeadCellFinancement.Cells(2, 3), BaseCell.Cells(1, 3)).address(False, False, xlA1)) & ")"
+            HeadCellFinancement.Cells(1, 3).Formula = "=SUM(" & CleanAddress(Range(HeadCellFinancement.Cells(2, 3), BaseCell.Cells(1, 3)).address(False, False, xlA1)) & ")"
         End If
     Next IndexTypeFinancement
     

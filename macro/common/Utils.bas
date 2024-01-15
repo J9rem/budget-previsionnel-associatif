@@ -450,13 +450,19 @@ Public Function returnToCurrentPath() As Boolean
     ChDir (ThisWorkbook.Path)
     returnToCurrentPath = True
 End Function
-Public Function CleanAddess(address As String) As String
+Public Function CleanAddress(address As String) As String
     Dim pos
+    Dim Tmp As String
     pos = InStr(1, address, "]")
     If pos Then
-        CleanAddess = Mid(address, pos + 1)
+        If InStr(1, Left(address, pos), "'") Then
+            Tmp = "'"
+        Else
+            Tmp = ""
+        End If
+        CleanAddress = Tmp & Mid(address, pos + 1)
     Else
-        CleanAddess = address
+        CleanAddress = address
     End If
 End Function
 
