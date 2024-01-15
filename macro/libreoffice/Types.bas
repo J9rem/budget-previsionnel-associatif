@@ -50,6 +50,10 @@ Type Chantier
     CAanneesPrecedentes As Double
 End Type
 
+Public Type SetOfChantiers
+    Chantiers() As Chantier
+End Type
+
 Type FinancementComplet
     Financements() As Financement
     Status As Boolean
@@ -280,19 +284,5 @@ Public Function getChargesDefaultPreserve(PreviousCharges() as Charge, Nb As Int
     
     getChargesDefaultPreserve = ArrayTmp
     
-End Function
-
-Public Function getDefaultChantiers(NBChantiers As Integer, NbDefaultDepenses as Integer)
-
-    Dim newArray() As Chantier
-    Dim idx As Integer
-    
-    ReDim newArray(1 To NBChantiers)
-    
-    For idx = 1 To NBChantiers
-        newArray(idx) = getDefaultChantier(NbDefaultDepenses)
-    Next idx
-    getDefaultChantiers = newArray
-
 End Function
 
