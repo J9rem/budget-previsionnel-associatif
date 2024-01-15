@@ -5,6 +5,15 @@ Option VBASupport 1
 ' Pour forcer la déclaration de toutes les variables
 Option Explicit
 
+Type TypeCharge
+    Nom As String
+    Index As Integer
+    NomLong As String
+End Type
+
+Type TypesCharges
+    Values() As TypeCharge
+End Type
 
 Public Function TypeFinancements()
     Dim ArrayTmp(0 To 9) As String
