@@ -1,6 +1,6 @@
 Attribute VB_Name = "Types"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la dï¿½claration de toutes les variables
+' Pour forcer la déclaration de toutes les variables
 Option Explicit
 
 ' Types
@@ -48,6 +48,10 @@ Public Type Chantier
     CAanneesPrecedentes As Double
 End Type
 
+Public Type SetOfChantiers
+    Chantiers() As Chantier
+End Type
+
 Public Type FinancementComplet
     Financements() As Financement
     Status As Boolean
@@ -63,7 +67,7 @@ Public Type DonneesSalarie
     MasseSalarialeAnnuelleFormula As String
     TauxOperateur As Double
     TauxOperateurFormula As String
-    JoursChantiers() As Double ' Tableau de temps de chantiers mï¿½me index que le tableau Chantiers
+    JoursChantiers() As Double ' Tableau de temps de chantiers même index que le tableau Chantiers
 End Type
 
 Public Type Charge
@@ -150,11 +154,13 @@ End Function
 Public Function getDefaultChantier(NbDefaultDepenses As Integer) As Chantier
 
     Dim Chantier As Chantier
+    Dim EmptyArrayDepenses() As DepenseChantier
+    ReDim EmptyArrayDepenses(0)
     Dim EmptyFinancements() As Financement
     ReDim EmptyFinancements(0)
     
     Chantier.Nom = ""
-    Chantier.Depenses = getDefaultDepenses(NbDefaultDepenses)
+    Chantier.Depenses = EmptyArrayDepenses
     Chantier.Financements = EmptyFinancements
     Chantier.AutoFinancementStructure = 0
     Chantier.AutoFinancementStructureAnneesPrecedentes = 0
@@ -274,18 +280,4 @@ Public Function getChargesDefaultPreserve(PreviousCharges() As Charge, NB As Int
     
     getChargesDefaultPreserve = ArrayTmp
     
-End Function
-
-Public Function getDefaultChantiers(NBChantiers As Integer) As Chantier()
-
-    Dim newArray() As Chantier
-    Dim idx As Integer
-    
-    ReDim newArray(1 To NBChantiers)
-    
-    For idx = 1 To NBChantiers
-        newArray(idx) = getDefaultChantier()
-    Next idx
-    getDefaultChantiers = newArray
-
 End Function

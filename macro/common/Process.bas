@@ -27,9 +27,9 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Dim currentCharge As Charge
     Dim Charges() As Charge
     Dim tmpTypeCharge As TypeCharge
-    Dim TmpChantier
-    Dim TmpFinancement
-    Dim TmpDepense
+    Dim TmpChantier As Chantier
+    Dim TmpFinancement As Financement
+    Dim TmpDepense As DepenseChantier
         
     SetSilent
     
@@ -1003,13 +1003,14 @@ Public Function extraireDepensesChantier( _
     ) As Data
         
     Dim Chantiers() As Chantier
+    Dim SetOfChantiers As SetOfChantiers
     Dim Data As Data
     Dim IndexChantiers As Integer
     Dim IndexDepense As Integer
     Dim NBDepenses As Integer
     Dim NewFormatForAutofinancement As Boolean
     Dim BaseCellLocal As Range
-    Dim ChantierTmp
+    Dim ChantierTmp As Chantier
     
     Data = getDefaultData(Data)
     
@@ -1019,21 +1020,22 @@ Public Function extraireDepensesChantier( _
     End If
     NBDepenses = Range(BaseCell, FindNextNotEmpty(BaseCell, True).Cells(0, 1)).Rows.Count
     
-    Chantiers = getDefaultChantiers(NBChantiers, NBDepenses)
+    SetOfChantiers = getDefaultSetOfChantiers(NBChantiers, NBDepenses)
 
     For IndexDepense = 1 To NBDepenses
-        updateNameDepense Chantiers, 1, IndexDepense, BaseCell.Cells(IndexDepense, 1).value
+        updateNameDepense SetOfChantiers, 1, IndexDepense, BaseCell.Cells(IndexDepense, 1).value
     Next IndexDepense
     
     For IndexChantiers = 1 To NBChantiers
+        Chantiers = SetOfChantiers.Chantiers
         ChantierTmp = Chantiers(IndexChantiers)
         ChantierTmp.Nom = BaseCellChantier.Cells(2, IndexChantiers).value
         For IndexDepense = 1 To NBDepenses
             If IndexChantiers > 1 Then
-                updateNameDepense Chantiers, IndexChantiers, IndexDepense, Chantiers(1).Depenses(IndexDepense).Nom
+                updateNameDepense SetOfChantiers, IndexChantiers, IndexDepense, Chantiers(1).Depenses(IndexDepense).Nom
             End If
-            updateValDepense Chantiers, IndexChantiers, IndexDepense, BaseCell.Cells(IndexDepense, IndexChantiers + 1).value
-            updateBaseCellDepense Chantiers, IndexChantiers, IndexDepense, BaseCell.Cells(IndexDepense, IndexChantiers + 1)
+            updateValDepense SetOfChantiers, IndexChantiers, IndexDepense, BaseCell.Cells(IndexDepense, IndexChantiers + 1).value
+            updateBaseCellDepense SetOfChantiers, IndexChantiers, IndexDepense, BaseCell.Cells(IndexDepense, IndexChantiers + 1)
         Next IndexDepense
     Next IndexChantiers
     
@@ -1043,6 +1045,7 @@ Public Function extraireDepensesChantier( _
     If Not (BaseCellLocal Is Nothing) Then
         NewFormatForAutofinancement = (BaseCellLocal.Cells(6, 1).value = Label_Autofinancement_Structure_Previous)
         For IndexChantiers = 1 To NBChantiers
+            Chantiers = SetOfChantiers.Chantiers
             Chantiers(IndexChantiers).AutoFinancementStructure = BaseCellLocal.Cells(1, 1 + IndexChantiers).value
             Chantiers(IndexChantiers).AutoFinancementAutres = BaseCellLocal.Cells(2, 1 + IndexChantiers).value
             If NewFormatForAutofinancement Then
@@ -1053,7 +1056,7 @@ Public Function extraireDepensesChantier( _
         Next IndexChantiers
     End If
     
-    Data.Chantiers = Chantiers
+    Data.Chantiers = SetOfChantiers.Chantiers
     
     extraireDepensesChantier = Data
 
@@ -1610,38 +1613,60 @@ Public Function FindNextNotEmpty(BaseCell As Range, directionDown As Boolean) As
 
 End Function
 
-Public Sub updateNameDepense(Chantiers, IdxChantiers As Integer, IdxDepense As Integer, newName As String)
+Public Sub updateNameDepense(SetOfChantiers As SetOfChantiers, IdxChantiers As Integer, IdxDepense As Integer, newName As String)
+    Dim Chantiers() As Chantier
     Dim ChantierTmp As Chantier
     Dim DepensesTmp() As DepenseChantier
     Dim TmpDepense As DepenseChantier
     
+    Chantiers = SetOfChantiers.Chantiers
     ChantierTmp = Chantiers(IdxChantiers)
     DepensesTmp = ChantierTmp.Depenses
     TmpDepense = DepensesTmp(IdxDepense)
     TmpDepense.Nom = newName
 End Sub
 
-Public Sub updateValDepense(Chantiers, IdxChantiers As Integer, IdxDepense As Integer, newVal)
+Public Sub updateValDepense(SetOfChantiers As SetOfChantiers, IdxChantiers As Integer, IdxDepense As Integer, newVal)
+    Dim Chantiers() As Chantier
     Dim ChantierTmp As Chantier
     Dim DepensesTmp() As DepenseChantier
     Dim TmpDepense As DepenseChantier
     
+    Chantiers = SetOfChantiers.Chantiers
     ChantierTmp = Chantiers(IdxChantiers)
     DepensesTmp = ChantierTmp.Depenses
     TmpDepense = DepensesTmp(IdxDepense)
     TmpDepense.Valeur = newVal
 End Sub
 
-Public Sub updateBaseCellDepense(Chantiers, IdxChantiers As Integer, IdxDepense As Integer, newRange As Range)
+Public Sub updateBaseCellDepense(SetOfChantiers As SetOfChantiers, IdxChantiers As Integer, IdxDepense As Integer, newRange As Range)
+    Dim Chantiers() As Chantier
     Dim ChantierTmp As Chantier
     Dim DepensesTmp() As DepenseChantier
     Dim TmpDepense As DepenseChantier
     
+    Chantiers = SetOfChantiers.Chantiers
     ChantierTmp = Chantiers(IdxChantiers)
     DepensesTmp = ChantierTmp.Depenses
     TmpDepense = DepensesTmp(IdxDepense)
     Set TmpDepense.BaseCell = newRange
 End Sub
+
+Public Function getDefaultSetOfChantiers(NBChantiers As Integer, NbDefaultDepenses As Integer) As SetOfChantiers
+
+    Dim newArray() As Chantier
+    Dim SetOfChantiers As SetOfChantiers
+    Dim idx As Integer
+    
+    ReDim newArray(1 To NBChantiers)
+    
+    For idx = 1 To NBChantiers
+        newArray(idx) = getDefaultChantier(NbDefaultDepenses)
+    Next idx
+    SetOfChantiers.Chantiers = newArray
+    getDefaultSetOfChantiers = SetOfChantiers
+
+End Function
 
 
 
