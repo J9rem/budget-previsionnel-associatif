@@ -1,11 +1,11 @@
 Attribute VB_Name = "Utils"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la dÈclaration de toutes les variables
+' Pour forcer la d√©claration de toutes les variables
 Option Explicit
 
 
 Public Sub NotAvailable()
-    MsgBox "Patience, cette fonction est encore en cours de dÈveloppement"
+    MsgBox "Patience, cette fonction est encore en cours de d√©veloppement"
 End Sub
 
 Public Function FileExists(FilePath As String) As Boolean
@@ -110,8 +110,8 @@ Public Function SaveFileNoMacro(FilePath As String) As Boolean
 
     SaveFileNoMacro = False
     If (FilePath = ThisWorkbook.Path) Then
-        MsgBox "Il n'est pas possible d'Ècraser le fichier courant" & Chr(10) & _
-          "Veuillez rÈessayer avec un autre emplacement ou nom de fichier"
+        MsgBox "Il n'est pas possible d'√©craser le fichier courant" & Chr(10) & _
+          "Veuillez r√©essayer avec un autre emplacement ou nom de fichier"
     Else
         
         ' check extension type
@@ -128,8 +128,8 @@ Public Function SaveFileNoMacro(FilePath As String) As Boolean
         SanitizedFilePath = FolderName & NewFileName
         
         If FileExists(SanitizedFilePath) Then
-            MsgBoxResult = MsgBox("Le fichie cible existe dÈj‡ !" & Chr(10) & _
-                "Faut-il l'Ècraser avec le nouveau ?", _
+            MsgBoxResult = MsgBox("Le fichie cible existe d√©j√† !" & Chr(10) & _
+                "Faut-il l'√©craser avec le nouveau ?", _
                 vbYesNo)
             If MsgBoxResult <> vbYes And MsgBoxResult <> vbOK Then
                 Exit Function
@@ -240,7 +240,7 @@ Public Function archiveThisFile() As Boolean
     FileName = Left(FileName, Len(FileName) - Len(Extension) - 1) & "-backup-" & Format(Now(), "yyyymdd_hhmmss") & "." & Extension
     
     If FileExists(ThisWorkbook.Path & "\" & FileName) Then
-        MsgBox "Impossible de sauvegarder le fichier de sauvegarde car il existe dÈj‡"
+        MsgBox "Impossible de sauvegarder le fichier de sauvegarde car il existe d√©j√†"
         Exit Function
     End If
     
@@ -321,19 +321,19 @@ Public Function FindTypeChargeIndex(value As String) As Integer
     For Index = 1 To UBound(TypesCharges)
         typeCh = TypesCharges(Index)
         tmpName = typeCh.NomLong
-        OtherName = Replace(tmpName, "…", "E")
-        OtherName = Replace(OtherName, " ", "E")
-        OtherName = Replace(OtherName, "»", "E")
-        OtherName = Replace(OtherName, "À", "E")
-        OtherName = Replace(OtherName, "ƒ", "A")
-        OtherName = Replace(OtherName, "¬", "A")
-        OtherName = Replace(OtherName, "¡", "A")
-        OtherName = Replace(OtherName, "¿", "A")
-        OtherName = Replace(OtherName, "“", "O")
-        OtherName = Replace(OtherName, "”", "O")
-        OtherName = Replace(OtherName, "’", "O")
-        OtherName = Replace(OtherName, "÷", "O")
-        OtherName = Replace(OtherName, "‘", "O")
+        OtherName = Replace(tmpName, "√â", "E")
+        OtherName = Replace(OtherName, "√ä", "E")
+        OtherName = Replace(OtherName, "√à", "E")
+        OtherName = Replace(OtherName, "√ã", "E")
+        OtherName = Replace(OtherName, "√Ñ", "A")
+        OtherName = Replace(OtherName, "√Ç", "A")
+        OtherName = Replace(OtherName, "√Å", "A")
+        OtherName = Replace(OtherName, "√Ä", "A")
+        OtherName = Replace(OtherName, "√í", "O")
+        OtherName = Replace(OtherName, "√ì", "O")
+        OtherName = Replace(OtherName, "√ï", "O")
+        OtherName = Replace(OtherName, "√ñ", "O")
+        OtherName = Replace(OtherName, "√î", "O")
         If IndexFound = 0 And Len(tmpName) > 0 And (Left(value, Len(tmpName)) = tmpName Or Left(value, Len(OtherName)) = OtherName) Then
             IndexFound = Index
         End If
@@ -476,7 +476,7 @@ End Function
 
 Public Sub SetSilent()
     ' config to be faster
-    On Error Resume Next ' pour Èviter les erreurs LibreOffice
+    On Error Resume Next ' pour √©viter les erreurs LibreOffice
     Application.Calculation = xlCalculationManual
     Application.CalculateBeforeSave = True
     Application.ScreenUpdating = False
@@ -484,7 +484,7 @@ Public Sub SetSilent()
 End Sub
 
 Public Sub SetActive()
-    On Error Resume Next ' pour Èviter les erreurs LibreOffice
+    On Error Resume Next ' pour √©viter les erreurs LibreOffice
     Application.Calculation = xlCalculationAutomatic
     Application.CalculateBeforeSave = True
     Application.ScreenUpdating = True
