@@ -1010,6 +1010,9 @@ Public Function extraireDepensesChantier( _
     Dim NewFormatForAutofinancement As Boolean
     Dim BaseCellLocal As Range
     Dim ChantierTmp As Chantier
+    Dim ChantierTmp1 As Chantier
+    Dim DepensesTmp1() As DepenseChantier
+    Dim DepenseTmp As DepenseChantier
     
     ' Depenses
     If BaseCell Is Nothing Then
@@ -1026,10 +1029,13 @@ Public Function extraireDepensesChantier( _
     For IndexChantiers = 1 To NBChantiers
         Chantiers = SetOfChantiers.Chantiers
         ChantierTmp = Chantiers(IndexChantiers)
+        ChantierTmp1 = Chantiers(1)
+        DepensesTmp1 = ChantierTmp1.Depenses
         ChantierTmp.Nom = BaseCellChantier.Cells(2, IndexChantiers).value
         For IndexDepense = 1 To NBDepenses
             If IndexChantiers > 1 Then
-                updateNameDepense SetOfChantiers, IndexChantiers, IndexDepense, Chantiers(1).Depenses(IndexDepense).Nom
+                DepenseTmp = DepensesTmp1(IndexDepense)
+                updateNameDepense SetOfChantiers, IndexChantiers, IndexDepense, DepenseTmp.Nom
             End If
             updateValDepense SetOfChantiers, IndexChantiers, IndexDepense, BaseCell.Cells(IndexDepense, IndexChantiers + 1).value
             updateBaseCellDepense SetOfChantiers, IndexChantiers, IndexDepense, BaseCell.Cells(IndexDepense, IndexChantiers + 1)
@@ -1314,9 +1320,14 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
     Dim FinancementCompletTmp As FinancementComplet
     FinancementCompletTmp = getDefaultFinancementComplet()
     Dim FinancementsTmp() As Financement
+    Dim Financements() As Financement
     Dim TauxAutre As Double
     Dim TotalCell As Range
     Dim TmpChantier As Chantier
+    Dim TmpChantier1 As Chantier
+    Dim DepensesTmp() As DepenseChantier
+    Dim DepenseTmp As DepenseChantier
+    Dim Chantiers() As Chantier
     
     importerInfos NewWorkbook, Data.Informations
     
@@ -1383,41 +1394,51 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                     ' nom des dépenses
                     Set BaseCell = BaseCellChantier.Cells(6 + 2 * NBSalaries, 1).EntireRow.Cells(1, 2)
                     TmpChantier = Data.Chantiers(1)
+                    TmpChantier1 = Data.Chantiers(1)
+                    DepensesTmp = TmpChantier1.Depenses
+
                     ChangeDepenses BaseCell, NBSalaries, UBound(TmpChantier.Depenses), NBChantiers
                     
                     For Index = 1 To UBound(TmpChantier.Depenses)
-                        If Data.Chantiers(1).Depenses(Index).Nom = "0" Then
+                        DepenseTmp = DepensesTmp(Index)
+                        If DepenseTmp.Nom = "0" Then
                             BaseCell.Cells(Index, 1).value = ""
                         Else
-                            BaseCell.Cells(Index, 1).value = Data.Chantiers(1).Depenses(Index).Nom
+                            BaseCell.Cells(Index, 1).value = DepenseTmp.Nom
                         End If
                     Next Index
                     
-                    For IndexChantier = 1 To WorksheetFunction.Min(NBChantiers, UBound(Data.Chantiers))
-                        If (Data.Chantiers(IndexChantier).Nom = "0") Or (Data.Chantiers(IndexChantier).Nom = "") Then
+                    Chantiers = Data.Chantiers
+                    For IndexChantier = 1 To WorksheetFunction.Min(NBChantiers, UBound(Chantiers))
+                        TmpChantier = Chantiers(IndexChantier)
+                        If (TmpChantier.Nom = "0") Or (TmpChantier.Nom = "") Then
                             BaseCellChantier.Cells(2, IndexChantier).value = "xx"
                         Else
-                            BaseCellChantier.Cells(2, IndexChantier).value = Data.Chantiers(IndexChantier).Nom
+                            BaseCellChantier.Cells(2, IndexChantier).value = TmpChantier.Nom
                         End If
                         
-                        TmpChantier = Data.Chantiers(IndexChantier)
-                        For Index = 1 To UBound(TmpChantier.Depenses)
-                            If Data.Chantiers(IndexChantier).Depenses(Index).Valeur = 0 Then
+                        DepensesTmp = TmpChantier.Depenses
+                        For Index = 1 To UBound(DepensesTmp)
+                            DepenseTmp = DepensesTmp(Index)
+                            If DepenseTmp.Valeur = 0 Then
                                 BaseCell.Cells(Index, 1 + IndexChantier).value = ""
                             Else
-                                BaseCell.Cells(Index, 1 + IndexChantier).value = Data.Chantiers(IndexChantier).Depenses(Index).Valeur
+                                BaseCell.Cells(Index, 1 + IndexChantier).value = DepenseTmp.Valeur
                             End If
                         Next Index
                     Next IndexChantier
-                    TmpChantier = Data.Chantiers(1)
-                    Set TotalCell = BaseCell.Cells(UBound(TmpChantier.Depenses) + 1, 1)
+                    DepensesTmp = TmpChantier1.Depenses
+                    Set TotalCell = BaseCell.Cells(UBound(DepensesTmp) + 1, 1)
                     
                     ' Financements
-                    If UBound(Data.Chantiers) > 0 And UBound(TmpChantier.Financements) > 0 Then
-                        ReDim FinancementsTmp(1 To UBound(Data.Chantiers))
-                        For Index = 1 To UBound(TmpChantier.Financements)
-                            For IndexChantier = 1 To UBound(Data.Chantiers)
-                                FinancementsTmp(IndexChantier) = Data.Chantiers(IndexChantier).Financements(Index)
+                    Financements = TmpChantier1.Financements
+                    If UBound(Chantiers) > 0 And UBound(Financements) > 0 Then
+                        ReDim FinancementsTmp(1 To UBound(Chantiers))
+                        For Index = 1 To UBound(Financements)
+                            For IndexChantier = 1 To UBound(Chantiers)
+                                TmpChantier = Chantiers(IndexChantier)
+                                Financements = TmpChantier.Financements
+                                FinancementsTmp(IndexChantier) = Financements(Index)
                             Next IndexChantier
                             FinancementCompletTmp.Financements = FinancementsTmp
                             FinancementCompletTmp.Status = True
@@ -1429,17 +1450,18 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                     Set BaseCell = ChantierSheet.Cells(1, 2).EntireColumn.Find(Label_Autofinancement_Structure)
                     Application.Calculate
                     If Not (BaseCell Is Nothing) Then
-                        For IndexChantier = 1 To UBound(Data.Chantiers)
-                            BaseCell.Cells(1, 1 + IndexChantier).value = Data.Chantiers(IndexChantier).AutoFinancementStructure
+                        For IndexChantier = 1 To UBound(Chantiers)
+                            TmpChantier = Chantiers(IndexChantier)
+                            BaseCell.Cells(1, 1 + IndexChantier).value = TmpChantier.AutoFinancementStructure
                             If BaseCell.Cells(3, 1 + IndexChantier).value = 0 Or BaseCell.Cells(3, 1 + IndexChantier).value = "" Then
                                 TauxAutre = 0
                             Else
-                                TauxAutre = Data.Chantiers(IndexChantier).AutoFinancementAutres / TotalCell.Cells(1, 1 + IndexChantier).value
+                                TauxAutre = TmpChantier.AutoFinancementAutres / TotalCell.Cells(1, 1 + IndexChantier).value
                             End If
                             BaseCell.Cells(2, 1 + IndexChantier).Formula = "=" & Replace(WorksheetFunction.Round(TauxAutre, 3), ",", ".") & "*" & TotalCell.Cells(1, 1 + IndexChantier).address(False, False, xlA1, False)
-                            BaseCell.Cells(6, 1 + IndexChantier).value = Data.Chantiers(IndexChantier).AutoFinancementStructureAnneesPrecedentes
-                            BaseCell.Cells(7, 1 + IndexChantier).value = Data.Chantiers(IndexChantier).AutoFinancementAutresAnneesPrecedentes
-                            BaseCell.Cells(8, 1 + IndexChantier).value = Data.Chantiers(IndexChantier).CAanneesPrecedentes
+                            BaseCell.Cells(6, 1 + IndexChantier).value = TmpChantier.AutoFinancementStructureAnneesPrecedentes
+                            BaseCell.Cells(7, 1 + IndexChantier).value = TmpChantier.AutoFinancementAutresAnneesPrecedentes
+                            BaseCell.Cells(8, 1 + IndexChantier).value = TmpChantier.CAanneesPrecedentes
                         Next IndexChantier
                     End If
                     
