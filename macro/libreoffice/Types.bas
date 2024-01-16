@@ -50,7 +50,7 @@ Type Chantier
     CAanneesPrecedentes As Double
 End Type
 
-Public Type SetOfChantiers
+Type SetOfChantiers
     Chantiers() As Chantier
 End Type
 
@@ -79,6 +79,10 @@ Type Charge
     PreviousYearValue As Double
     PreviousN2YearValue As Double
     ChargeCell As Range
+End Type
+
+Type SetOfCharges
+    Charges() As Charge
 End Type
 
 Type Data
