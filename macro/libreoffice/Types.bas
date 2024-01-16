@@ -230,11 +230,10 @@ Public Function getDefaultDepenses(Nb As Integer)
 
     Dim ArrayTmp() As DepenseChantier
     Dim IndexChantiers As Integer
-    Dim DefaultDepenseChantier As New DepenseChantier
     ReDim ArrayTmp(1 To Nb)
     
     For IndexChantiers = 1 To Nb
-        ArrayTmp(IndexChantiers) = DefaultDepenseChantier
+        ArrayTmp(IndexChantiers) = New DepenseChantier
     Next IndexChantiers
     
     getDefaultDepenses = ArrayTmp
@@ -245,11 +244,10 @@ Public Function getDefaultFinancements(Nb As Integer)
 
     Dim ArrayTmp() As Financement
     Dim Index As Integer
-    Dim DefaultFinancement As New Financement
     ReDim ArrayTmp(1 To Nb)
     
     For Index = 1 To Nb
-        ArrayTmp(Index) = DefaultFinancement
+        ArrayTmp(Index) = New Financement
     Next Index
     
     getDefaultFinancements = ArrayTmp
