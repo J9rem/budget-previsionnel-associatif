@@ -31,78 +31,39 @@ Public Function TypeStatut()
     TypeStatut = ArrayTmp
 End Function
 
+Public Function GetNewTypeDeCharge(Title As String, Index As Integer) As TypeCharge
+    Dim TmpCharge As TypeCharge
+    
+    TmpCharge = getDefaultTypeCharge()
+    TmpCharge.Nom = Title
+    TmpCharge.Index = Index
+    If (Title = "") Then
+        TmpCharge.NomLong = ""
+    Else
+        TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
+    End If
+
+    GetNewTypeDeCharge = TmpCharge
+End Function
+
 Public Function TypesDeCharges() As TypesCharges
     Dim ArrayTmp(0 To 10) As TypeCharge
-    Dim TmpCharge As TypeCharge
     Dim TmpTypesCharges As TypesCharges
     TmpTypesCharges = getDefaultTypesCharges()
     
     ' Inconnue
-    TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = ""
-    TmpCharge.Index = 0
-    TmpCharge.NomLong = ""
-    ArrayTmp(0) = TmpCharge
+    ArrayTmp(0) = GetNewTypeDeCharge("", 0)
     
-    TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Achats"
-    TmpCharge.Index = 60
-    TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
-    ArrayTmp(1) = TmpCharge
-    
-    TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Services extérieurs"
-    TmpCharge.Index = 61
-    TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
-    ArrayTmp(2) = TmpCharge
-    
-    TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Autres services extérieurs"
-    TmpCharge.Index = 62
-    TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
-    ArrayTmp(3) = TmpCharge
-    
-    TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Impôts et taxes"
-    TmpCharge.Index = 63
-    TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
-    ArrayTmp(4) = TmpCharge
-    
-    TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Charges de personnel"
-    TmpCharge.Index = 64
-    TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
-    ArrayTmp(5) = TmpCharge
-    
-    TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Autres charges de gestion courante"
-    TmpCharge.Index = 65
-    TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
-    ArrayTmp(6) = TmpCharge
-    
-    TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Charges financières"
-    TmpCharge.Index = 66
-    TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
-    ArrayTmp(7) = TmpCharge
-    
-    TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Charges exceptionnelles"
-    TmpCharge.Index = 67
-    TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
-    ArrayTmp(8) = TmpCharge
-    
-    TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Dotation aux amortissements"
-    TmpCharge.Index = 68
-    TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
-    ArrayTmp(9) = TmpCharge
-    
-    TmpCharge = getDefaultTypeCharge()
-    TmpCharge.Nom = "Dotations amortissement"
-    TmpCharge.Index = 68
-    TmpCharge.NomLong = TmpCharge.Index & " - " & UCase(TmpCharge.Nom)
-    ArrayTmp(10) = TmpCharge
+    ArrayTmp(1) = GetNewTypeDeCharge("Achats", 60)
+    ArrayTmp(2) = GetNewTypeDeCharge("Services extérieurs", 61)
+    ArrayTmp(3) = GetNewTypeDeCharge("Autres services extérieurs", 62)
+    ArrayTmp(4) = GetNewTypeDeCharge("Impôts et taxes", 63)
+    ArrayTmp(5) = GetNewTypeDeCharge("Charges de personnel", 64)
+    ArrayTmp(6) = GetNewTypeDeCharge("Autres charges de gestion courante", 65)
+    ArrayTmp(7) = GetNewTypeDeCharge("Charges financières", 66)
+    ArrayTmp(8) = GetNewTypeDeCharge("Charges exceptionnelles", 67)
+    ArrayTmp(9) = GetNewTypeDeCharge("Dotation aux amortissements", 68)
+    ArrayTmp(10) = GetNewTypeDeCharge("Les impôts sur les bénéfices et assimilés", 69)
     
     TmpTypesCharges.Values = ArrayTmp
 
