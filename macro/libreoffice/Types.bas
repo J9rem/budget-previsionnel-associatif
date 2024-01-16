@@ -251,38 +251,3 @@ Public Function getDefaultFinancements(Nb As Integer)
     getDefaultFinancements = ArrayTmp
     
 End Function
-
-Public Function getChargesDefault(Nb As Integer)
-
-    Dim ArrayTmp() As Charge
-    Dim Index As Integer
-    Dim DefaultCharge As New Charge
-    ReDim ArrayTmp(1 To Nb)
-    
-    For Index = 1 To Nb
-        ArrayTmp(Index) = DefaultCharge
-    Next Index
-    
-    getChargesDefault = ArrayTmp
-    
-End Function
-
-Public Function getChargesDefaultPreserve(PreviousCharges() as Charge, Nb As Integer)
-
-    Dim ArrayTmp() As Charge
-    Dim Index As Integer
-    Dim DefaultCharge As New Charge
-    ReDim ArrayTmp(1 To Nb)
-    
-    For Index = 1 To Nb
-    	If Index <= UBound(PreviousCharges) Then
-        	ArrayTmp(Index) = PreviousCharges(Index)
-    	Else
-        	ArrayTmp(Index) = DefaultCharge
-        End If
-    Next Index
-    
-    getChargesDefaultPreserve = ArrayTmp
-    
-End Function
-

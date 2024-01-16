@@ -79,6 +79,10 @@ Public Type Charge
     ChargeCell As Range
 End Type
 
+Public Type SetOfCharges
+    Charges() As Charge
+End Type
+
 Public Type Data
     Salaries() As DonneesSalarie
     Chantiers() As Chantier
@@ -244,40 +248,5 @@ Public Function getDefaultFinancements(NB As Integer) As Financement()
     Next Index
     
     getDefaultFinancements = ArrayTmp
-    
-End Function
-
-
-Public Function getChargesDefault(NB As Integer) As Charge()
-
-    Dim ArrayTmp() As Charge
-    Dim Index As Integer
-    Dim DefaultCharge As Charge
-    ReDim ArrayTmp(1 To NB)
-    
-    For Index = 1 To NB
-        ArrayTmp(Index) = DefaultCharge
-    Next Index
-    
-    getChargesDefault = ArrayTmp
-    
-End Function
-
-Public Function getChargesDefaultPreserve(PreviousCharges() As Charge, NB As Integer) As Charge()
-
-    Dim ArrayTmp() As Charge
-    Dim Index As Integer
-    Dim DefaultCharge As Charge
-    ReDim ArrayTmp(1 To NB)
-    
-    For Index = 1 To NB
-        If Index <= UBound(PreviousCharges) Then
-            ArrayTmp(Index) = PreviousCharges(Index)
-        Else
-            ArrayTmp(Index) = DefaultCharge
-        End If
-    Next Index
-    
-    getChargesDefaultPreserve = ArrayTmp
     
 End Function
