@@ -1,4 +1,4 @@
-Rem Attribute VBA_ModuleType=VBAModule
+﻿Rem Attribute VBA_ModuleType=VBAModule
 Option VBASupport 1
 
 ' SPDX-License-Identifier: EUPL-1.2
@@ -30,3 +30,4 @@ Public Const Label_Pentecote = "Pentecôte = férié"
 Public Const Label_NB_Jours_speciaux = "Nb. Jours non travaillés supplémentaires:"
 Public Const Label_Autofinancement_Structure = "Autofinancmt structure"
 Public Const Label_Autofinancement_Structure_Previous = "Autofinancmt structure années précédentes"
+
