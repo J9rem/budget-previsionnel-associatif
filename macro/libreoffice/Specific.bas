@@ -216,21 +216,20 @@ Public Function TypeFinancementsFromWb(wb As Workbook)
 End Function
 
 Public Sub CleanLineStylesForBudget(oCellRange, BaseCell As Range, HeadCell As Range, IsHeader As Boolean)
+	Dim oNoLine As New com.sun.star.table.BorderLine
+	With oNoLine
+		.Color = 0
+		.InnerLineWidth = 0
+		.LineDistance = 0
+		.LineStyle = com.sun.star.table.BorderLineStyle.NONE
+		.LineWidth = 0
+		.OuterLineWidth = 0
+	End With
 	If Not IsHeader Then
-		oCellRange.BottomBorder.Color = 0
-		oCellRange.BottomBorder.InnerLineWidth = 0
-		oCellRange.BottomBorder.OuterLineWidth = 0
-		oCellRange.BottomBorder.LineDistance = 0
-		oCellRange.BottomBorder.LineStyle = 0
-		oCellRange.BottomBorder.LineWidth = 0
+		oCellRange.BottomBorder = oNoLine
 	
 		If HeadCell.Row <> BaseCell.Row - 1 Then
-			oCellRange.TopBorder.Color = 0
-			oCellRange.TopBorder.InnerLineWidth = 0
-			oCellRange.TopBorder.OuterLineWidth = 0
-			oCellRange.TopBorder.LineDistance = 0
-			oCellRange.TopBorder.LineStyle = 0
-			oCellRange.TopBorder.LineWidth = 0
+			oCellRange.TopBorder = oNoLine
 		End If
 	End If
 End Sub
@@ -241,33 +240,29 @@ Public Sub DefineLineStylesForBudget( _
         HeadCell As Range, _
         IsHeader As Boolean _
     )
-	oCellRange.LeftBorder.Color = 0
-	oCellRange.LeftBorder.InnerLineWidth = 0
-	oCellRange.LeftBorder.OuterLineWidth = 26
-	oCellRange.LeftBorder.LineDistance = 0
-	oCellRange.LeftBorder.LineStyle = 0
-	oCellRange.LeftBorder.LineWidth = 26
-	oCellRange.RightBorder.Color = 0
-	oCellRange.RightBorder.InnerLineWidth = 0
-	oCellRange.RightBorder.OuterLineWidth = 26
-	oCellRange.RightBorder.LineDistance = 0
-	oCellRange.RightBorder.LineStyle = 0
-	oCellRange.RightBorder.LineWidth = 26
+	Dim oSheet
+    Dim oCellRange2
+	Dim oLine As New com.sun.star.table.BorderLine
+    
+    oSheet = ThisComponent.Sheets.getByName(BaseCell.Worksheet.Name)
+    
+	With oLine
+		.Color = RGB(0,0,0)
+		.InnerLineWidth = 0
+		.LineDistance = 0
+		.LineStyle = com.sun.star.table.BorderLineStyle.SOLID
+		.LineWidth = 26
+		.OuterLineWidth = 26
+	End With
+	oCellRange.LeftBorder = oLine
+	oCellRange.RightBorder = oLine
 
 	If IsHeader Then
-		oCellRange.BottomBorder.InnerLineWidth = 0
-		oCellRange.BottomBorder.OuterLineWidth = 26
-		oCellRange.BottomBorder.LineDistance = 0
-		oCellRange.BottomBorder.LineStyle = 0
-		oCellRange.BottomBorder.LineWidth = 26
+		oCellRange2 = oSheet.getCellByPosition(BaseCell.Column-1,BaseCell.Row-2)
+		oCellRange2.BottomBorder = oLine
 	End If
 	If IsHeader Or HeadCell.Row = BaseCell.Row - 1 Then
-		oCellRange.TopBorder.Color = 0
-		oCellRange.TopBorder.InnerLineWidth = 0
-		oCellRange.TopBorder.OuterLineWidth = 26
-		oCellRange.TopBorder.LineDistance = 0
-		oCellRange.TopBorder.LineStyle = 0
-		oCellRange.TopBorder.LineWidth = 26
+		oCellRange.TopBorder = oLine
 	End If
 End Sub
 
@@ -289,9 +284,9 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As 
     	oCellRange.CharFontFamily = 5
     	oCellRange.CharFontName = "Calibri"
 		If IsHeader Then
-    		oCellRange.CharColor = -1
-    		oCellRange.CharWeight = 100
-    		oCellRange.CellBackColor = -1
+    		oCellRange.CharColor = RGB(255,255,255)
+    		oCellRange.CharWeight = 500
+    		oCellRange.CellBackColor = RGB(164,164,164)
 		Else
     		oCellRange.CharColor = -1
     		oCellRange.CharWeight = 100
@@ -300,15 +295,16 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As 
     	oCellRange.CharHeight = 8
 		
 		If IndexBis = 1 Or (IndexBis = 3 And IsHeader) Then
-			' .HorizontalAlignment = xlCenter
+			oCellRange.HoriJustify = com.sun.star.table.CellHoriJustify.CENTER
 		Else
-			' .HorizontalAlignment = xlLeft
+			oCellRange.HoriJustify = com.sun.star.table.CellHoriJustify.LEFT
 		End If
-		' .VerticalAlignment = xlTop
+			oCellRange.VertJustify  = com.sun.star.table.CellVertJustify.TOP
 		If IndexBis = 3 Then
-			' .NumberFormat = "#,##0.00"" �"""
+			' com.sun.star.util.XNumberFormatter 
+			oCellRange.NumberFormat = "#,##0.00"" �"""
 		Else
-			' .NumberFormat = "General"
+			oCellRange.NumberFormat = "General"
 		End If
     	
     Next IndexBis
@@ -414,19 +410,19 @@ Public Sub DefinirBordures(CurrentCell As Range, AddTopBorder As Boolean)
     oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
     oCellRange = oSheet.getCellByPosition(CurrentCell.Column-1,CurrentCell.Row-1)
     
-   	oCellRange.LeftBorder.Color = 0
+   	oCellRange.LeftBorder.Color = RGB(0,0,0)
 	oCellRange.LeftBorder.InnerLineWidth = 0
 	oCellRange.LeftBorder.OuterLineWidth = 26
 	oCellRange.LeftBorder.LineDistance = 0
 	oCellRange.LeftBorder.LineStyle = 0
 	oCellRange.LeftBorder.LineWidth = 26
-	oCellRange.RightBorder.Color = 0
+	oCellRange.RightBorder.Color = RGB(0,0,0)
 	oCellRange.RightBorder.InnerLineWidth = 0
 	oCellRange.RightBorder.OuterLineWidth = 26
 	oCellRange.RightBorder.LineDistance = 0
 	oCellRange.RightBorder.LineStyle = 0
 	oCellRange.RightBorder.LineWidth = 26
-	oCellRange.TopBorder.Color = 0
+	oCellRange.TopBorder.Color = RGB(0,0,0)
 	oCellRange.TopBorder.InnerLineWidth = 0
     If AddTopBorder Then
 		oCellRange.TopBorder.OuterLineWidth = 40
@@ -437,7 +433,7 @@ Public Sub DefinirBordures(CurrentCell As Range, AddTopBorder As Boolean)
     End If
 	oCellRange.TopBorder.LineDistance = 0
 	oCellRange.TopBorder.LineStyle = 0
-	oCellRange.BottomBorder.Color = 0
+	oCellRange.BottomBorder.Color = RGB(0,0,0)
 	oCellRange.BottomBorder.InnerLineWidth = 0
 	oCellRange.BottomBorder.OuterLineWidth = 26
 	oCellRange.BottomBorder.LineDistance = 0
@@ -462,21 +458,21 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
     For IndexBis = 1 To 4
 	    oCellRange = oSheet.getCellByPosition(CurrentCell.Column+IndexBis-2,CurrentCell.Row-1)
 	    
-	   	oCellRange.LeftBorder.Color = 0
+	   	oCellRange.LeftBorder.Color = RGB(0,0,0)
 		oCellRange.LeftBorder.InnerLineWidth = 0
 		oCellRange.LeftBorder.LineDistance = 0
 		oCellRange.LeftBorder.LineStyle = 0
-		oCellRange.RightBorder.Color = 0
+		oCellRange.RightBorder.Color = RGB(0,0,0)
 		oCellRange.RightBorder.InnerLineWidth = 0
 		oCellRange.RightBorder.LineDistance = 0
 		oCellRange.RightBorder.LineStyle = 0
-		oCellRange.TopBorder.Color = 0
+		oCellRange.TopBorder.Color = RGB(0,0,0)
 		oCellRange.TopBorder.InnerLineWidth = 0
 		oCellRange.TopBorder.OuterLineWidth = 26
 		oCellRange.TopBorder.LineWidth = 26
 		oCellRange.TopBorder.LineDistance = 0
 		oCellRange.TopBorder.LineStyle = 0
-		oCellRange.BottomBorder.Color = 0
+		oCellRange.BottomBorder.Color = RGB(0,0,0)
 		oCellRange.BottomBorder.InnerLineWidth = 0
 		oCellRange.BottomBorder.OuterLineWidth = 26
 		oCellRange.BottomBorder.LineDistance = 0
@@ -505,7 +501,7 @@ Public Sub AddBottomBorder(CurrentCell As Range)
 
 	oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
 	oCellRange = oSheet.getCellByPosition(CurrentCell.Column-1,CurrentCell.Row-1)
-	oCellRange.BottomBorder.Color = 0
+	oCellRange.BottomBorder.Color = RGB(0,0,0)
 	oCellRange.BottomBorder.InnerLineWidth = 0
 	oCellRange.BottomBorder.OuterLineWidth = 26
 	oCellRange.BottomBorder.LineDistance = 0
@@ -519,19 +515,19 @@ Public Sub FormatFinancementCells(BaseCell As Range)
     Dim oSheet
     Dim oCellRange
 
-	oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
+	oSheet = ThisComponent.Sheets.getByName(BaseCell.Worksheet.Name)
     For Index = 2 To 3
-		oCellRange = oSheet.getCellByPosition(CurrentCell.Column+Index-2,CurrentCell.Row-1)
-		oCellRange.CharWeight = 100 ' bold ?
-		oCellRange.CharColor = -1 ' white ?
-		oCellRange.CellBackColor = -1 ' grey ?
-		oCellRange.TopBorder.Color = 0
+		oCellRange = oSheet.getCellByPosition(BaseCell.Column+Index-2,BaseCell.Row-1)
+		oCellRange.CharWeight = 400 ' bold ?
+		oCellRange.CharColor = RGB(255,255,255) ' white ?
+		oCellRange.CellBackColor = RGB(200,200,200) ' grey ?
+		oCellRange.TopBorder.Color = RGB(0,0,0)
 		oCellRange.TopBorder.InnerLineWidth = 0
 		oCellRange.TopBorder.OuterLineWidth = 26
 		oCellRange.TopBorder.LineWidth = 26
 		oCellRange.TopBorder.LineDistance = 0
 		oCellRange.TopBorder.LineStyle = 0
-		oCellRange.BottomBorder.Color = 0
+		oCellRange.BottomBorder.Color = RGB(0,0,0)
 		oCellRange.BottomBorder.InnerLineWidth = 0
 		oCellRange.BottomBorder.OuterLineWidth = 26
 		oCellRange.BottomBorder.LineDistance = 0
