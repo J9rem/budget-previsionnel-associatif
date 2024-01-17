@@ -217,7 +217,6 @@ End Function
 
 Public Sub CleanLineStylesForBudget(oCellRange, BaseCell As Range, HeadCell As Range, IsHeader As Boolean)
 	If Not IsHeader Then
-		oCellRange = oSheet.getCellByPosition(BaseCell.Column+IndexBis-2,BaseCell.Row-1)
 		oCellRange.BottomBorder.Color = 0
 		oCellRange.BottomBorder.InnerLineWidth = 0
 		oCellRange.BottomBorder.OuterLineWidth = 0
