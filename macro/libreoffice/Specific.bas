@@ -216,7 +216,7 @@ Public Function TypeFinancementsFromWb(wb As Workbook)
 End Function
 
 Public Sub CleanLineStylesForBudget(oCellRange, BaseCell As Range, HeadCell As Range, IsHeader As Boolean)
-	Dim oNoLine As New com.sun.star.table.BorderLine
+	Dim oNoLine As New com.sun.star.table.BorderLine2
 	With oNoLine
 		.Color = 0
 		.InnerLineWidth = 0
@@ -242,7 +242,7 @@ Public Sub DefineLineStylesForBudget( _
     )
 	Dim oSheet
     Dim oCellRange2
-	Dim oLine As New com.sun.star.table.BorderLine
+	Dim oLine As New com.sun.star.table.BorderLine2
     
     oSheet = ThisComponent.Sheets.getByName(BaseCell.Worksheet.Name)
     
@@ -271,6 +271,7 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As 
     Dim IndexBis As Integer
     Dim oSheet
     Dim oCellRange
+    Dim oFormat As Long
     
     oSheet = ThisComponent.Sheets.getByName(BaseCell.Worksheet.Name)
     
@@ -285,7 +286,7 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As 
     	oCellRange.CharFontName = "Calibri"
 		If IsHeader Then
     		oCellRange.CharColor = RGB(255,255,255)
-    		oCellRange.CharWeight = 500
+    		oCellRange.CharWeight = com.sun.star.awt.FontWeight.BOLD
     		oCellRange.CellBackColor = RGB(164,164,164)
 		Else
     		oCellRange.CharColor = -1
@@ -301,14 +302,24 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As 
 		End If
 			oCellRange.VertJustify  = com.sun.star.table.CellVertJustify.TOP
 		If IndexBis = 3 Then
-			' com.sun.star.util.XNumberFormatter 
-			oCellRange.NumberFormat = "#,##0.00"" �"""
+			oFormat = CellSetNumberFormat("# ##0,00"" €""",ThisComponent)
+			oCellRange.NumberFormat = oFormat
 		Else
-			oCellRange.NumberFormat = "General"
+			oCellRange.NumberFormat = 0
 		End If
     	
     Next IndexBis
 End Sub
+
+Public Function CellSetNumberFormat(stNumberFormat As String, oDoc As Object) AS Long
+	DIM aLocale	AS New com.sun.star.lang.Locale
+	DIM oNumberFormats AS Object
+	DIM loFormatKey	AS Long
+	oNumberFormats = oDoc.getNumberFormats()
+	loFormatKey = oNumberFormats.queryKey(stNumberFormat, aLocale, FALSE)
+	IF loFormatKey = -1 THEN loFormatKey = oNumberFormats.addNew(stNumberFormat, aLocale)
+	CellSetNumberFormat = loFormatKey
+End Function
 
 Public Sub Validate_Click(document)
     Dim Nom As String
@@ -518,7 +529,7 @@ Public Sub FormatFinancementCells(BaseCell As Range)
 	oSheet = ThisComponent.Sheets.getByName(BaseCell.Worksheet.Name)
     For Index = 2 To 3
 		oCellRange = oSheet.getCellByPosition(BaseCell.Column+Index-2,BaseCell.Row-1)
-		oCellRange.CharWeight = 400 ' bold ?
+		oCellRange.CharWeight = com.sun.star.awt.FontWeight.BOLD ' bold ?
 		oCellRange.CharColor = RGB(255,255,255) ' white ?
 		oCellRange.CellBackColor = RGB(200,200,200) ' grey ?
 		oCellRange.TopBorder.Color = RGB(0,0,0)
