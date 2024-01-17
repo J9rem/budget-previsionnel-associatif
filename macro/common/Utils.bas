@@ -392,6 +392,8 @@ Public Function FindTypeChargeIndexFromCode(value As Integer) As Integer
     Dim TypeCharge As TypeCharge
     Dim currentIndex As Integer
     
+    On Error GoTo ManageLocalError:
+
     TypesCharges = TypesDeCharges().Values
     IndexFound = 0
     For Index = 1 To UBound(TypesCharges)
@@ -401,6 +403,11 @@ Public Function FindTypeChargeIndexFromCode(value As Integer) As Integer
             IndexFound = Index
         End If
     Next Index
+ManageLocalError:
+    If Err.Number > 0 Then
+        IndexFound = 0
+    End If
+    On Error GoTo 0
     
     FindTypeChargeIndexFromCode = IndexFound
 

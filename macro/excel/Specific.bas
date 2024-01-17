@@ -152,45 +152,70 @@ Public Function TypeFinancementsFromWb(wb As Workbook)
     
 End Function
 
-Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range)
-
-    Dim IndexBis As Integer
+Public Sub CleanLineStylesForBudget(BaseCell As Range, HeadCell As Range, IsHeader As Boolean)
+    
     Dim TmpVar As Variant
     Dim VarTmp As Variant
-    Dim Border
+    With BaseCell
+        If IsHeader Then
+            TmpVar = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
+        Else
+            If HeadCell.Row = BaseCell.Row - 1 Then
+                TmpVar = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
+            Else
+                TmpVar = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal, xlEdgeTop)
+                .Cells(0, 1).Borders(xlEdgeBottom).LineStyle = xlNone
+            End If
+        End If
+        For Each VarTmp In TmpVar
+            .Borders(VarTmp).LineStyle = xlNone
+        Next VarTmp
+    End With
+End Sub
+
+Public Sub DefineLineStylesForBudget( _
+        BaseCell As Range, _
+        HeadCell As Range, _
+        IsHeader As Boolean _
+    )
+    Dim TmpVar As Variant
+    Dim VarTmp As Variant
+    With BaseCell
+        If IsHeader Then
+            TmpVar = Array(xlEdgeLeft, xlEdgeRight, xlEdgeTop, xlEdgeBottom)
+            With .Cells(0, 1).Borders(xlEdgeBottom)
+                .LineStyle = xlContinuous
+                .ColorIndex = 1
+                .Weight = xlThin
+                .TintAndShade = 0
+            End With
+        Else
+            If HeadCell.Row = BaseCell.Row - 1 Then
+                TmpVar = Array(xlEdgeLeft, xlEdgeRight, xlEdgeTop, xlEdgeBottom)
+            Else
+                TmpVar = Array(xlEdgeLeft, xlEdgeRight, xlEdgeBottom)
+            End If
+        End If
+        For Each VarTmp In TmpVar
+            With .Borders(VarTmp)
+                .LineStyle = xlContinuous
+                .ColorIndex = 1
+                .Weight = xlThin
+                .TintAndShade = 0
+            End With
+        Next VarTmp
+    End With
+End Sub
+
+Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As Boolean)
+
+    Dim IndexBis As Integer
     
     For IndexBis = 1 To 3
         With BaseCell.Cells(1, IndexBis)
-            If IndexBis <> 3 Then
-                If HeadCell.Row = BaseCell.Row - 1 Then
-                    TmpVar = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal, xlEdgeBottom)
-                Else
-                    TmpVar = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal, xlEdgeBottom, xlEdgeTop)
-                End If
-            Else
-                TmpVar = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
-            End If
-            For Each VarTmp In TmpVar
-                .Borders(VarTmp).LineStyle = xlNone
-            Next VarTmp
+            CleanLineStylesForBudget .Cells(1, 1), HeadCell, IsHeader
+            DefineLineStylesForBudget .Cells(1, 1), HeadCell, IsHeader
             
-            If IndexBis <> 3 Then
-                If HeadCell.Row = BaseCell.Row - 1 Then
-                    TmpVar = Array(xlEdgeLeft, xlEdgeRight, xlEdgeTop)
-                Else
-                    TmpVar = Array(xlEdgeLeft, xlEdgeRight)
-                End If
-            Else
-                TmpVar = Array(xlEdgeLeft, xlEdgeRight, xlEdgeTop, xlEdgeBottom)
-            End If
-            For Each VarTmp In TmpVar
-                With .Borders(VarTmp)
-                    .LineStyle = xlContinuous
-                    .ColorIndex = 1
-                    .Weight = xlThin
-                    .TintAndShade = 0
-                End With
-            Next VarTmp
             With .Font
                 .Name = "Calibri"
                 .FontStyle = "Normal"
@@ -199,20 +224,42 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range)
                 .OutlineFont = False
                 .Shadow = False
                 .Underline = xlUnderlineStyleNone
-                .ColorIndex = xlAutomatic
-                .Bold = False
+                If IsHeader Then
+                    .Color = RGB(255, 255, 255)
+                Else
+                    .ColorIndex = xlAutomatic
+                End If
+                .Bold = IsHeader
                 .Superscript = False
                 .Subscript = False
                 .ThemeFont = xlThemeFontNone
                 .TintAndShade = 0
             End With
             With .Interior
-                .Pattern = xlNone
-                .TintAndShade = 0
-                .PatternTintAndShade = 0
+                If IsHeader Then
+                    .Pattern = xlSolid
+                    .PatternThemeColor = xlThemeColorDark1
+                    .Color = 9868950
+                    .TintAndShade = 0
+                    .PatternTintAndShade = 0
+                Else
+                    .Pattern = xlNone
+                    .TintAndShade = 0
+                    .PatternTintAndShade = 0
+                End If
             End With
-            .HorizontalAlignment = xlLeft
+            If IndexBis = 1 Or (IndexBis = 3 And IsHeader) Then
+                .HorizontalAlignment = xlCenter
+            Else
+                .HorizontalAlignment = xlLeft
+            End If
             .VerticalAlignment = xlTop
+            
+            If IndexBis = 3 Then
+                .NumberFormat = "#,##0.00"" €"""
+            Else
+                .NumberFormat = "General"
+            End If
         End With
     Next IndexBis
 End Sub

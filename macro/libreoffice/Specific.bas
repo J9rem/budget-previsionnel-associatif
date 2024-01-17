@@ -215,7 +215,64 @@ Public Function TypeFinancementsFromWb(wb As Workbook)
     
 End Function
 
-Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range)
+Public Sub CleanLineStylesForBudget(oCellRange, BaseCell As Range, HeadCell As Range, IsHeader As Boolean)
+	If Not IsHeader Then
+		oCellRange = oSheet.getCellByPosition(BaseCell.Column+IndexBis-2,BaseCell.Row-1)
+		oCellRange.BottomBorder.Color = 0
+		oCellRange.BottomBorder.InnerLineWidth = 0
+		oCellRange.BottomBorder.OuterLineWidth = 0
+		oCellRange.BottomBorder.LineDistance = 0
+		oCellRange.BottomBorder.LineStyle = 0
+		oCellRange.BottomBorder.LineWidth = 0
+	
+		If HeadCell.Row <> BaseCell.Row - 1 Then
+			oCellRange.TopBorder.Color = 0
+			oCellRange.TopBorder.InnerLineWidth = 0
+			oCellRange.TopBorder.OuterLineWidth = 0
+			oCellRange.TopBorder.LineDistance = 0
+			oCellRange.TopBorder.LineStyle = 0
+			oCellRange.TopBorder.LineWidth = 0
+		End If
+	End If
+End Sub
+
+Public Sub DefineLineStylesForBudget( _
+		oCellRange, _
+        BaseCell As Range, _
+        HeadCell As Range, _
+        IsHeader As Boolean _
+    )
+	oCellRange.LeftBorder.Color = 0
+	oCellRange.LeftBorder.InnerLineWidth = 0
+	oCellRange.LeftBorder.OuterLineWidth = 26
+	oCellRange.LeftBorder.LineDistance = 0
+	oCellRange.LeftBorder.LineStyle = 0
+	oCellRange.LeftBorder.LineWidth = 26
+	oCellRange.RightBorder.Color = 0
+	oCellRange.RightBorder.InnerLineWidth = 0
+	oCellRange.RightBorder.OuterLineWidth = 26
+	oCellRange.RightBorder.LineDistance = 0
+	oCellRange.RightBorder.LineStyle = 0
+	oCellRange.RightBorder.LineWidth = 26
+
+	If IsHeader Then
+		oCellRange.BottomBorder.InnerLineWidth = 0
+		oCellRange.BottomBorder.OuterLineWidth = 26
+		oCellRange.BottomBorder.LineDistance = 0
+		oCellRange.BottomBorder.LineStyle = 0
+		oCellRange.BottomBorder.LineWidth = 26
+	End If
+	If IsHeader Or HeadCell.Row = BaseCell.Row - 1 Then
+		oCellRange.TopBorder.Color = 0
+		oCellRange.TopBorder.InnerLineWidth = 0
+		oCellRange.TopBorder.OuterLineWidth = 26
+		oCellRange.TopBorder.LineDistance = 0
+		oCellRange.TopBorder.LineStyle = 0
+		oCellRange.TopBorder.LineWidth = 26
+	End If
+End Sub
+
+Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As Boolean)
 
     Dim IndexBis As Integer
     Dim oSheet
@@ -225,6 +282,8 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range)
     
     For IndexBis = 1 To 3
     	oCellRange = oSheet.getCellByPosition(BaseCell.Column+IndexBis-2,BaseCell.Row-1)
+		CleanLineStylesForBudget oCellRange, BaseCell, HeadCell, IsHeader
+		DefineLineStylesForBudget oCellRange, BaseCell, HeadCell, IsHeader
     	oCellRange.CharFontStyleName = ""
     	oCellRange.CharFontPitch = 2
     	oCellRange.CharFontCharSet = -1
@@ -234,31 +293,6 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range)
     	oCellRange.CellBackColor = -1
     	oCellRange.CharHeight = 8
     	oCellRange.CharWeight = 100
-    	oCellRange.LeftBorder.Color = 0
-		oCellRange.LeftBorder.InnerLineWidth = 0
-		oCellRange.LeftBorder.OuterLineWidth = 26
-		oCellRange.LeftBorder.LineDistance = 0
-		oCellRange.LeftBorder.LineStyle = 0
-		oCellRange.LeftBorder.LineWidth = 26
-		oCellRange.RightBorder.Color = 0
-		oCellRange.RightBorder.InnerLineWidth = 0
-		oCellRange.RightBorder.OuterLineWidth = 26
-		oCellRange.RightBorder.LineDistance = 0
-		oCellRange.RightBorder.LineStyle = 0
-		oCellRange.RightBorder.LineWidth = 26
-		oCellRange.TopBorder.Color = 0
-		oCellRange.TopBorder.InnerLineWidth = 0
-		oCellRange.TopBorder.OuterLineWidth = 26
-		oCellRange.TopBorder.LineDistance = 0
-		oCellRange.TopBorder.LineStyle = 0
-		oCellRange.TopBorder.LineWidth = 26
-		oCellRange.BottomBorder.Color = 0
-		oCellRange.BottomBorder.InnerLineWidth = 0
-		oCellRange.BottomBorder.OuterLineWidth = 26
-		oCellRange.BottomBorder.LineDistance = 0
-		oCellRange.BottomBorder.LineStyle = 0
-		oCellRange.BottomBorder.LineWidth = 26
-		
     	
     Next IndexBis
 End Sub
