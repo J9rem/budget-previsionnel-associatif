@@ -162,46 +162,5 @@ End Sub
 
 ' Macro pour insérer une dépense
 Public Sub InsererUneDepense()
-    
-    Dim BaseCell As Range
-    Dim ChantierSheet As Worksheet
-    Dim NBChantiers As Integer
-    
-    Set ChantierSheet = ThisWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
-    If ChantierSheet Is Nothing Then
-        Exit Sub
-    End If
-    Set BaseCell = FindNextNotEmpty(ChantierSheet.Cells(3, 1),False)
-    If BaseCell.Column > 1000 Then
-        Exit Sub
-    End If
-    If Left(BaseCell.value, Len("Chantier")) <> "Chantier" Then
-        Exit Sub
-    End If
-    
-    Set BaseCell = BaseCell.Cells(3, 0)
-    While BaseCell.value <> "TOTAL" And BaseCell.Row < 200
-        Set BaseCell = BaseCell.Cells(2, 1)
-    Wend
-    
-    If BaseCell.value <> "TOTAL" Then
-        Exit Sub
-    End If
-    
-	SetSilent
-    
-    ' Insert Cells
-    BaseCell.Cells(0, 1).EntireRow.Insert _
-        Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
-    ' Copy All
-    BaseCell.Cells(0, 1).EntireRow.Copy
-    BaseCell.Cells(-1, 1).EntireRow.PasteSpecial _
-        Paste:=xlAll
-    
-    BaseCell.Cells(0, 1).value = "650 - Autre"
-    NBChantiers = GetNbChantiers(ThisWorkbook)
-    Range(BaseCell.Cells(0, 2), BaseCell.Cells(0, 1 + NBChantiers)).ClearContents
-    
-    SetActive
-    
+    InsererUneDepenseInternal
 End Sub

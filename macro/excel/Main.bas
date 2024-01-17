@@ -1,13 +1,13 @@
 Attribute VB_Name = "Main"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dï¿½claration de toutes les variables
 Option Explicit
 
 ' fonction qui fournit la date de sauvegarde du fichier
 ' pour pouvoir l'utiliser directement dans les cases
 
 Public Function LastSaveDate() As String
-  ' Volatile est présent pour indiquer que c'est une macro qui est recalculée en même temps que le fichier
+  ' Volatile est prï¿½sent pour indiquer que c'est une macro qui est recalculï¿½e en mï¿½me temps que le fichier
   Application.Volatile
   On Error Resume Next
   LastSaveDate = ThisWorkbook.BuiltinDocumentProperties("Last Save Time")
@@ -28,9 +28,9 @@ Public Sub ExporterSansMacro()
         End If
         
         If Erreur Then
-            MsgBox "Fichier non exporté"
+            MsgBox "Fichier non exportï¿½"
         Else
-            MsgBox "Fichier sauvegardé"
+            MsgBox "Fichier sauvegardï¿½"
         End If
     End If
 End Sub
@@ -48,7 +48,7 @@ Public Sub ImporterDesDonnees()
         If choisirFichierAImporter(FilePath) Then
             MsgBoxResult = MsgBox( _
                 "Faut-il faire une sauvegarde de ce fichier avant l'importation ?" & Chr(10) & _
-                "Les données importées remplaceront toutes les données contenues dans le présent fichier.", _
+                "Les donnï¿½es importï¿½es remplaceront toutes les donnï¿½es contenues dans le prï¿½sent fichier.", _
                 vbYesNo, _
                 "Sauvegarder ce fichier ?" _
                 )
@@ -66,7 +66,7 @@ Public Sub ImporterDesDonnees()
         If Erreur Then
             MsgBox "Impossible d'importer le ficher"
         Else
-            MsgBox "Fichier importé"
+            MsgBox "Fichier importï¿½"
         End If
     End If
 End Sub
@@ -147,49 +147,8 @@ Public Sub AjouterUnSalarie()
 
 End Sub
 
-' Macro pour insérer une dépense
+' Macro pour insï¿½rer une dï¿½pense
 Public Sub InsererUneDepense()
-    
-    Dim BaseCell As Range
-    Dim ChantierSheet As Worksheet
-    Dim NBChantiers As Integer
-    
-    Set ChantierSheet = ThisWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
-    If ChantierSheet Is Nothing Then
-        Exit Sub
-    End If
-    Set BaseCell = FindNextNotEmpty(ChantierSheet.Cells(3, 1), False)
-    If BaseCell.Column > 1000 Then
-        Exit Sub
-    End If
-    If Left(BaseCell.value, Len("Chantier")) <> "Chantier" Then
-        Exit Sub
-    End If
-    
-    Set BaseCell = BaseCell.Cells(3, 0)
-    While BaseCell.value <> "TOTAL" And BaseCell.Row < 200
-        Set BaseCell = BaseCell.Cells(2, 1)
-    Wend
-    
-    If BaseCell.value <> "TOTAL" Then
-        Exit Sub
-    End If
-    
-    SetSilent
-    
-    ' Insert Cells
-    BaseCell.Cells(0, 1).EntireRow.Insert _
-        Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
-    ' Copy All
-    BaseCell.Cells(0, 1).EntireRow.Copy
-    BaseCell.Cells(-1, 1).EntireRow.PasteSpecial _
-        Paste:=xlAll
-    
-    BaseCell.Cells(0, 1).value = "650 - Autre"
-    NBChantiers = GetNbChantiers(ThisWorkbook)
-    Range(BaseCell.Cells(0, 2), BaseCell.Cells(0, 1 + NBChantiers)).ClearContents
-    
-    SetActive
-    
+    InsererUneDepenseInternal
 End Sub
 
