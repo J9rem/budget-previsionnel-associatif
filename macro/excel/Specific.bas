@@ -394,3 +394,36 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
         End With
     Next IndexBis
 End Sub
+Public Sub AddBottomBorder(CurrentCell As Range)
+    With CurrentCell.Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .ColorIndex = 1
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+End Sub
+
+Public Sub FormatFinancementCells(BaseCell As Range)
+    Dim Index As Integer
+    Dim TmpVar As Variant
+    Dim VarTmp As Variant
+    TmpVar = Array(xlEdgeBottom, xlEdgeTop)
+    For Index = 2 To 3
+        BaseCell.Cells(1, Index).Font.Bold = True
+        With BaseCell.Cells(1, Index).Interior
+            .Pattern = xlSolid
+            .PatternColorIndex = 24
+            .Color = 12632256
+            .TintAndShade = 0
+            .PatternTintAndShade = 0
+        End With
+        For Each VarTmp In TmpVar
+            With BaseCell.Cells(1, Index).Borders(VarTmp)
+                .LineStyle = xlContinuous
+                .ColorIndex = 1
+                .TintAndShade = 0
+                .Weight = xlThin
+            End With
+        Next VarTmp
+    Next Index
+End Sub

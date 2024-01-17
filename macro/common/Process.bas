@@ -152,8 +152,6 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Dim NBChantiers As Integer
     Dim ChantierSheet As Worksheet
     Dim TypesFinancements() As String
-    Dim TmpVar As Variant
-    Dim VarTmp As Variant
     Dim rev As WbRevision
     Dim TmpChantier As Chantier
     Dim TmpFinancement As Financement
@@ -217,12 +215,7 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
         HeadCell.Cells(1, 3).Formula = "=SUM(" & CleanAddress(Range(HeadCell.Cells(2, 3), BaseCell.Cells(1, 3)).address(False, False, xlA1)) & ")"
     End If
     For Index = 1 To 3
-        With BaseCell.Cells(1, Index).Borders(xlEdgeBottom)
-            .LineStyle = xlContinuous
-            .ColorIndex = 1
-            .TintAndShade = 0
-            .Weight = xlThin
-        End With
+        AddBottomBorder BaseCell.Cells(1, Index)
     Next Index
     
     Set BaseCell = BaseCell.Cells(2, 1)
@@ -240,25 +233,7 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
         BaseCell.Cells(1, 2).value = TypesFinancements(IndexTypeFinancement)
         BaseCell.Cells(1, 3).value = 0
         
-        TmpVar = Array(xlEdgeBottom, xlEdgeTop)
-        For Index = 2 To 3
-            BaseCell.Cells(1, Index).Font.Bold = True
-            With BaseCell.Cells(1, Index).Interior
-                .Pattern = xlSolid
-                .PatternColorIndex = 24
-                .Color = 12632256
-                .TintAndShade = 0
-                .PatternTintAndShade = 0
-            End With
-            For Each VarTmp In TmpVar
-                With BaseCell.Cells(1, Index).Borders(VarTmp)
-                    .LineStyle = xlContinuous
-                    .ColorIndex = 1
-                    .TintAndShade = 0
-                    .Weight = xlThin
-                End With
-            Next VarTmp
-        Next Index
+        FormatFinancementCells BaseCell
         HeadCell.Cells(1, 3).Formula = HeadCell.Cells(1, 3).Formula & "+" & CleanAddress(BaseCell.Cells(1, 3).address(False, False, xlA1))
         Set HeadCellFinancement = BaseCell
         TmpChantier = Data.Chantiers(1)
@@ -1605,7 +1580,6 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Dim CurrentChargesForIndex() As Charge
     Dim Index As Integer
     Dim IndexBis As Integer
-    Dim VarTmp As Variant
     Dim TmpCharge As Charge
     Dim TmpCharges() As Charge
 

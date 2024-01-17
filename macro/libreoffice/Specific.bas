@@ -289,10 +289,28 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As 
     	oCellRange.CharFontCharSet = -1
     	oCellRange.CharFontFamily = 5
     	oCellRange.CharFontName = "Calibri"
-    	oCellRange.CharColor = -1
-    	oCellRange.CellBackColor = -1
+		If IsHeader Then
+    		oCellRange.CharColor = -1
+    		oCellRange.CharWeight = 100
+    		oCellRange.CellBackColor = -1
+		Else
+    		oCellRange.CharColor = -1
+    		oCellRange.CharWeight = 100
+    		oCellRange.CellBackColor = -1
+		End If
     	oCellRange.CharHeight = 8
-    	oCellRange.CharWeight = 100
+		
+		If IndexBis = 1 Or (IndexBis = 3 And IsHeader) Then
+			' .HorizontalAlignment = xlCenter
+		Else
+			' .HorizontalAlignment = xlLeft
+		End If
+		' .VerticalAlignment = xlTop
+		If IndexBis = 3 Then
+			' .NumberFormat = "#,##0.00"" �"""
+		Else
+			' .NumberFormat = "General"
+		End If
     	
     Next IndexBis
 End Sub
@@ -479,4 +497,46 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
 	    End If
 	Next IndexBis
 
+End Sub
+
+Public Sub AddBottomBorder(CurrentCell As Range)
+
+    Dim oSheet
+    Dim oCellRange
+
+	oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
+	oCellRange = oSheet.getCellByPosition(CurrentCell.Column-1,CurrentCell.Row-1)
+	oCellRange.BottomBorder.Color = 0
+	oCellRange.BottomBorder.InnerLineWidth = 0
+	oCellRange.BottomBorder.OuterLineWidth = 26
+	oCellRange.BottomBorder.LineDistance = 0
+	oCellRange.BottomBorder.LineStyle = 0
+	oCellRange.BottomBorder.LineWidth = 26
+End Sub
+
+Public Sub FormatFinancementCells(BaseCell As Range)
+
+    Dim Index As Integer
+    Dim oSheet
+    Dim oCellRange
+
+	oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
+    For Index = 2 To 3
+		oCellRange = oSheet.getCellByPosition(CurrentCell.Column+Index-2,CurrentCell.Row-1)
+		oCellRange.CharWeight = 100 ' bold ?
+		oCellRange.CharColor = -1 ' white ?
+		oCellRange.CellBackColor = -1 ' grey ?
+		oCellRange.TopBorder.Color = 0
+		oCellRange.TopBorder.InnerLineWidth = 0
+		oCellRange.TopBorder.OuterLineWidth = 26
+		oCellRange.TopBorder.LineWidth = 26
+		oCellRange.TopBorder.LineDistance = 0
+		oCellRange.TopBorder.LineStyle = 0
+		oCellRange.BottomBorder.Color = 0
+		oCellRange.BottomBorder.InnerLineWidth = 0
+		oCellRange.BottomBorder.OuterLineWidth = 26
+		oCellRange.BottomBorder.LineDistance = 0
+		oCellRange.BottomBorder.LineStyle = 0
+		oCellRange.BottomBorder.LineWidth = 26
+    Next Index
 End Sub
