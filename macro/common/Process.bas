@@ -798,7 +798,7 @@ Public Sub AjoutFinancement(wb As Workbook, _
     RowTypeFinanceur = BaseCell.Row
     
     If RetirerLignesVides Then
-        RetirerLignesVidesFunc BaseCell, NBChantiers, NBExtraCols
+        RetirerLignesVidesFunc BaseCell, NBChantiers
     End If
     Set BaseCell = BaseCell.Cells(2, 1)
     
