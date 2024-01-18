@@ -356,11 +356,11 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
     Dim VarTmp
     
     If NoBorderOnRightAndLeft Then
-        Arr1 = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
-        Arr2 = Array(xlEdgeLeft, xlEdgeTop, xlEdgeRight, xlEdgeBottom)
-    Else
         Arr1 = Array(xlEdgeLeft, xlEdgeRight, xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
         Arr2 = Array(xlEdgeTop, xlEdgeBottom)
+    Else
+        Arr1 = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
+        Arr2 = Array(xlEdgeLeft, xlEdgeTop, xlEdgeRight, xlEdgeBottom)
     End If
 
     ' Format cell

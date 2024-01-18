@@ -287,6 +287,9 @@ EndSub:
 End Sub
 
 Public Function InsertLineAndFormat(BaseCell As Range, HeadCell As Range, IsHeader As Boolean) As Range
+
+    Dim Index As Integer
+
     If (Not IsHeader) And BaseCell.Cells(2, 1).value = "" Then
         Set BaseCell = BaseCell.Cells(2, 1)
     Else
@@ -295,6 +298,10 @@ Public Function InsertLineAndFormat(BaseCell As Range, HeadCell As Range, IsHead
         BaseCell.Select
         BaseCell.Copy
         Range(BaseCell.Cells(2, 1), BaseCell.Cells(2, 3)).Insert Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
+        
+        For Index = 1 To 3
+            BaseCell.Cells(2, Index).value = ""
+        Next Index
         
         Set BaseCell = BaseCell.Cells(2, 1)
         
@@ -1580,16 +1587,17 @@ Public Sub InitialiserLesFinancements(wb As Workbook, NBFinancements As Integer,
 End Sub
 
 Public Sub AjoutCharges(wb As Workbook, Data As Data)
+    Dim Charge As Charge
+    Dim Charges() As Charge
     Dim ChargesSheet As Worksheet
     Dim CurrentCell As Range
-    Dim HeadCell As Range
-    Dim CurrentIndexTypeCharge As Integer
-    Dim SearchedIndex As Integer
     Dim CurrentChargesForIndex() As Charge
+    Dim CurrentIndexTypeCharge As Integer
+    Dim HeadCell As Range
     Dim Index As Integer
     Dim IndexBis As Integer
-    Dim TmpCharge As Charge
-    Dim TmpCharges() As Charge
+    Dim IndexCode As Integer
+    Dim StartCell As Range
 
     On Error Resume Next
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
@@ -1603,63 +1611,75 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     While (CurrentCell.value = "" Or CurrentCell.value = Empty) And CurrentCell.Row < 1000
         Set CurrentCell = CurrentCell.Cells(2, 1)
     Wend
-    
-    CurrentIndexTypeCharge = FindTypeChargeIndex(CurrentCell.value)
-    SearchedIndex = 1
-    
-    While CurrentIndexTypeCharge = SearchedIndex And SearchedIndex > 0 And SearchedIndex < 9
-        Set HeadCell = CurrentCell
-        TmpCharges = Data.Charges
-        For Index = 1 To UBound(TmpCharges)
-            TmpCharge = TmpCharges(Index)
-            If TmpCharge.IndexTypeCharge = SearchedIndex Then
-                ' prepare cells
-                If FindTypeChargeIndex(CurrentCell.Cells(2, 1).value) > 0 Or CurrentCell.Cells(2, 1).value = "TOTAL" Then
+
+    Set StartCell = CurrentCell
+    Charges = Data.Charges
+
+    For IndexCode = 60 To 68
+        CurrentIndexTypeCharge = FindTypeChargeIndexFromCode(IndexCode)
+        If CurrentIndexTypeCharge > 0 Then
+            Set CurrentCell = StartCell
+            While (Left(CurrentCell.value, 2) <> IndexCode And Left(CurrentCell.value, 5) <> "Total") And CurrentCell.Row < 1000
+                Set CurrentCell = CurrentCell.Cells(2, 1)
+            Wend
+            If Left(CurrentCell.value, 2) = IndexCode Then
+                Set HeadCell = CurrentCell
+
+                ' clean previous
+                HeadCell.Cells(1, 2).value = 0
+                HeadCell.Cells(1, 3).value = 0
+                HeadCell.Cells(1, 4).value = 0
+                Set CurrentCell = HeadCell.Cells(2, 1)
+                While (Left(CurrentCell.value, 2) = IndexCode And CurrentCell.value <> Empty) And CurrentCell.Row < 1000
+                    Set CurrentCell = CurrentCell.Cells(2, 1)
+                Wend
+                If Left(CurrentCell.value, 1) = 6 And Mid(CurrentCell.value, 3, 1) = " " Then
+                    Set CurrentCell = CurrentCell.Cells(0, 1)
+                End If
+                If CurrentCell.Row > (HeadCell.Row + 1) Then
+                    Range(HeadCell.Cells(2, 1), CurrentCell.Cells(1, 15)).Delete Shift:=xlShiftUp
+                End If
+                Set CurrentCell = HeadCell.Cells(2, 1)
+                If Left(CurrentCell.value, 1) = 6 And Mid(CurrentCell.value, 3, 1) = " " Then
                     ' insert line
                     ChargesSheet.Activate
                     CurrentCell.Select
                     CurrentCell.Cells(2, 1).EntireRow.Insert _
                         Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
-                    ' Copy Format
-                    CurrentCell.EntireRow.Copy
-                    CurrentCell.Cells(2, 1).EntireRow.PasteSpecial _
-                        Paste:=xlPasteFormats
-                    Set CurrentCell = CurrentCell.Cells(2, 1)
-                Else
-                    Set CurrentCell = CurrentCell.Cells(2, 1)
                 End If
-                ' Add value
-                CurrentCell.Cells(1, 1).value = TmpCharge.Nom
-                CurrentCell.Cells(1, 2).value = TmpCharge.PreviousN2YearValue
-                CurrentCell.Cells(1, 3).value = TmpCharge.PreviousYearValue
-                CurrentCell.Cells(1, 4).value = TmpCharge.CurrentYearValue
-                formatChargeCell CurrentCell, True
+                Set CurrentCell = HeadCell
                 
+                ' add charges
+                For Index = 1 To UBound(Charges)
+                    Charge = Charges(Index)
+                    If Charge.IndexTypeCharge = CurrentIndexTypeCharge Then
+                        ' insert line
+                        ChargesSheet.Activate
+                        CurrentCell.Select
+                        CurrentCell.EntireRow.Copy
+                        CurrentCell.Cells(2, 1).EntireRow.Insert _
+                            Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
+                        ' Copy Format
+                        CurrentCell.EntireRow.Copy
+                        CurrentCell.Cells(2, 1).EntireRow.PasteSpecial _
+                            Paste:=xlPasteFormats
+                        Set CurrentCell = CurrentCell.Cells(2, 1)
+                        ' Add value
+                        CurrentCell.Cells(1, 1).value = Charge.Nom
+                        CurrentCell.Cells(1, 2).value = Charge.PreviousN2YearValue
+                        CurrentCell.Cells(1, 3).value = Charge.PreviousYearValue
+                        CurrentCell.Cells(1, 4).value = Charge.CurrentYearValue
+                        formatChargeCell CurrentCell, False
+                    End If
+                Next Index
+
+                ' add formula
+                HeadCell.Cells(1, 2).Formula = "=SUM(" & Range(HeadCell.Cells(2, 2), CurrentCell.Cells(0, 2)).address(False, False, xlA1) & ")"
+                HeadCell.Cells(1, 3).Formula = "=SUM(" & Range(HeadCell.Cells(2, 3), CurrentCell.Cells(0, 3)).address(False, False, xlA1) & ")"
+                HeadCell.Cells(1, 4).Formula = "=SUM(" & Range(HeadCell.Cells(2, 4), CurrentCell.Cells(0, 4)).address(False, False, xlA1) & ")"
             End If
-        Next Index
-        
-        ' remove others lines and leave one formatted
-        While CurrentCell.Cells(2, 1).value = "" Or (FindTypeChargeIndex(CurrentCell.Cells(2, 1).value) = 0 And CurrentCell.Cells(2, 1).value <> "TOTAL")
-            CurrentCell.Cells(2, 1).EntireRow.Delete Shift:=xlShiftUp
-        Wend
-        CurrentCell.Cells(2, 1).EntireRow.Insert Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
-        
-        Set CurrentCell = CurrentCell.Cells(2, 1)
-        formatChargeCell CurrentCell, False
-        
-        
-        ' increase searched index
-        SearchedIndex = SearchedIndex + 1
-        ' find next current cell
-        Set CurrentCell = CurrentCell.Cells(2, 1)
-        CurrentIndexTypeCharge = FindTypeChargeIndex(CurrentCell.value)
-        
-        ' add formula
-        HeadCell.Cells(1, 2).Formula = "=SUM(" & Range(HeadCell.Cells(2, 2), CurrentCell.Cells(0, 2)).address(False, False, xlA1) & ")"
-        HeadCell.Cells(1, 3).Formula = "=SUM(" & Range(HeadCell.Cells(2, 3), CurrentCell.Cells(0, 3)).address(False, False, xlA1) & ")"
-        HeadCell.Cells(1, 4).Formula = "=SUM(" & Range(HeadCell.Cells(2, 4), CurrentCell.Cells(0, 4)).address(False, False, xlA1) & ")"
-        
-    Wend
+        End If
+    Next IndexCode
 End Sub
 
 Public Function FindNextNotEmpty(BaseCell As Range, directionDown As Boolean) As Range

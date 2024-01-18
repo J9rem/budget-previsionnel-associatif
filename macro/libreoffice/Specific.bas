@@ -417,39 +417,37 @@ Public Sub DefinirBordures(CurrentCell As Range, AddTopBorder As Boolean)
 
     Dim oSheet
     Dim oCellRange
+	Dim oLine As New com.sun.star.table.BorderLine2
+	Dim oLineThick As New com.sun.star.table.BorderLine2
     
     oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
     oCellRange = oSheet.getCellByPosition(CurrentCell.Column-1,CurrentCell.Row-1)
     
-   	oCellRange.LeftBorder.Color = RGB(0,0,0)
-	oCellRange.LeftBorder.InnerLineWidth = 0
-	oCellRange.LeftBorder.OuterLineWidth = 26
-	oCellRange.LeftBorder.LineDistance = 0
-	oCellRange.LeftBorder.LineStyle = 0
-	oCellRange.LeftBorder.LineWidth = 26
-	oCellRange.RightBorder.Color = RGB(0,0,0)
-	oCellRange.RightBorder.InnerLineWidth = 0
-	oCellRange.RightBorder.OuterLineWidth = 26
-	oCellRange.RightBorder.LineDistance = 0
-	oCellRange.RightBorder.LineStyle = 0
-	oCellRange.RightBorder.LineWidth = 26
-	oCellRange.TopBorder.Color = RGB(0,0,0)
-	oCellRange.TopBorder.InnerLineWidth = 0
+	With oLine
+		.Color = RGB(0,0,0)
+		.InnerLineWidth = 0
+		.LineDistance = 0
+		.LineStyle = com.sun.star.table.BorderLineStyle.SOLID
+		.LineWidth = 26
+		.OuterLineWidth = 26
+	End With
+	With oLineThick
+		.Color = RGB(0,0,0)
+		.InnerLineWidth = 0
+		.LineDistance = 0
+		.LineStyle = com.sun.star.table.BorderLineStyle.SOLID
+		.LineWidth = 40
+		.OuterLineWidth = 40
+	End With
+	oCellRange.LeftBorder = oLine
+	oCellRange.RightBorder = oLine
+	oCellRange.BottomBorder = oLine
+    
     If AddTopBorder Then
-		oCellRange.TopBorder.OuterLineWidth = 40
-		oCellRange.TopBorder.LineWidth = 40
+		oCellRange.TopBorder = oLineThick
     Else
-		oCellRange.TopBorder.OuterLineWidth = 26
-		oCellRange.TopBorder.LineWidth = 26
+		oCellRange.TopBorder = oLine
     End If
-	oCellRange.TopBorder.LineDistance = 0
-	oCellRange.TopBorder.LineStyle = 0
-	oCellRange.BottomBorder.Color = RGB(0,0,0)
-	oCellRange.BottomBorder.InnerLineWidth = 0
-	oCellRange.BottomBorder.OuterLineWidth = 26
-	oCellRange.BottomBorder.LineDistance = 0
-	oCellRange.BottomBorder.LineStyle = 0
-	oCellRange.BottomBorder.LineWidth = 26
 		
 End Sub
 
@@ -461,46 +459,60 @@ End Sub
 
 Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Boolean)
 
+    Dim IndexBis
     Dim oSheet
     Dim oCellRange
-    Dim IndexBis
+    Dim oFormat As Long
+	Dim oLine As New com.sun.star.table.BorderLine2
+	Dim oNoLine As New com.sun.star.table.BorderLine2
+
+	With oLine
+		.Color = RGB(0,0,0)
+		.InnerLineWidth = 0
+		.LineDistance = 0
+		.LineStyle = com.sun.star.table.BorderLineStyle.SOLID
+		.LineWidth = 26
+		.OuterLineWidth = 26
+	End With
+	With oNoLine
+		.Color = 0
+		.InnerLineWidth = 0
+		.LineDistance = 0
+		.LineStyle = com.sun.star.table.BorderLineStyle.NONE
+		.LineWidth = 0
+		.OuterLineWidth = 0
+	End With
     
     oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
     For IndexBis = 1 To 4
 	    oCellRange = oSheet.getCellByPosition(CurrentCell.Column+IndexBis-2,CurrentCell.Row-1)
 	    
-	   	oCellRange.LeftBorder.Color = RGB(0,0,0)
-		oCellRange.LeftBorder.InnerLineWidth = 0
-		oCellRange.LeftBorder.LineDistance = 0
-		oCellRange.LeftBorder.LineStyle = 0
-		oCellRange.RightBorder.Color = RGB(0,0,0)
-		oCellRange.RightBorder.InnerLineWidth = 0
-		oCellRange.RightBorder.LineDistance = 0
-		oCellRange.RightBorder.LineStyle = 0
-		oCellRange.TopBorder.Color = RGB(0,0,0)
-		oCellRange.TopBorder.InnerLineWidth = 0
-		oCellRange.TopBorder.OuterLineWidth = 26
-		oCellRange.TopBorder.LineWidth = 26
-		oCellRange.TopBorder.LineDistance = 0
-		oCellRange.TopBorder.LineStyle = 0
-		oCellRange.BottomBorder.Color = RGB(0,0,0)
-		oCellRange.BottomBorder.InnerLineWidth = 0
-		oCellRange.BottomBorder.OuterLineWidth = 26
-		oCellRange.BottomBorder.LineDistance = 0
-		oCellRange.BottomBorder.LineStyle = 0
-		oCellRange.BottomBorder.LineWidth = 26
+		oCellRange.TopBorder = oLine
+		oCellRange.BottomBorder= oLine
 	    
 	    If NoBorderOnRightAndLeft Then
-			oCellRange.LeftBorder.OuterLineWidth = 0
-			oCellRange.LeftBorder.LineWidth = 0
-			oCellRange.RightBorder.OuterLineWidth = 0
-			oCellRange.RightBorder.LineWidth = 0
+			oCellRange.LeftBorder = oNoLine
+			oCellRange.RightBorder = oNoLine
 	    Else
-			oCellRange.LeftBorder.OuterLineWidth = 26
-			oCellRange.LeftBorder.LineWidth = 26
-			oCellRange.RightBorder.OuterLineWidth = 26
-			oCellRange.RightBorder.LineWidth = 26
+			oCellRange.LeftBorder = oLine
+			oCellRange.RightBorder = oLine
 	    End If
+
+		oCellRange.CharFontStyleName = ""
+    	oCellRange.CharFontPitch = 2
+    	oCellRange.CharFontCharSet = -1
+    	oCellRange.CharFontFamily = 5
+    	oCellRange.CharFontName = "Calibri"
+		oCellRange.CharColor = -1
+		oCellRange.CharWeight = 100
+		oCellRange.CellBackColor = -1
+    	oCellRange.CharHeight = 8
+		oCellRange.HoriJustify = com.sun.star.table.CellHoriJustify.LEFT
+		oCellRange.VertJustify  = com.sun.star.table.CellVertJustify.TOP
+		If IndexBis > 1 Then
+			oFormat = CellSetNumberFormat("# ##0,00"" €""",ThisComponent)
+			oCellRange.NumberFormat = oFormat
+		End If
 	Next IndexBis
 
 End Sub
@@ -509,15 +521,20 @@ Public Sub AddBottomBorder(CurrentCell As Range)
 
     Dim oSheet
     Dim oCellRange
+	Dim oLine As New com.sun.star.table.BorderLine2
+
+	With oLine
+		.Color = RGB(0,0,0)
+		.InnerLineWidth = 0
+		.LineDistance = 0
+		.LineStyle = com.sun.star.table.BorderLineStyle.SOLID
+		.LineWidth = 26
+		.OuterLineWidth = 26
+	End With
 
 	oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
 	oCellRange = oSheet.getCellByPosition(CurrentCell.Column-1,CurrentCell.Row-1)
-	oCellRange.BottomBorder.Color = RGB(0,0,0)
-	oCellRange.BottomBorder.InnerLineWidth = 0
-	oCellRange.BottomBorder.OuterLineWidth = 26
-	oCellRange.BottomBorder.LineDistance = 0
-	oCellRange.BottomBorder.LineStyle = 0
-	oCellRange.BottomBorder.LineWidth = 26
+	oCellRange.BottomBorder = oLine
 End Sub
 
 Public Sub FormatFinancementCells(BaseCell As Range)
@@ -525,6 +542,16 @@ Public Sub FormatFinancementCells(BaseCell As Range)
     Dim Index As Integer
     Dim oSheet
     Dim oCellRange
+	Dim oLine As New com.sun.star.table.BorderLine2
+
+	With oLine
+		.Color = RGB(0,0,0)
+		.InnerLineWidth = 0
+		.LineDistance = 0
+		.LineStyle = com.sun.star.table.BorderLineStyle.SOLID
+		.LineWidth = 26
+		.OuterLineWidth = 26
+	End With
 
 	oSheet = ThisComponent.Sheets.getByName(BaseCell.Worksheet.Name)
     For Index = 2 To 3
@@ -532,17 +559,7 @@ Public Sub FormatFinancementCells(BaseCell As Range)
 		oCellRange.CharWeight = com.sun.star.awt.FontWeight.BOLD ' bold ?
 		oCellRange.CharColor = RGB(255,255,255) ' white ?
 		oCellRange.CellBackColor = RGB(200,200,200) ' grey ?
-		oCellRange.TopBorder.Color = RGB(0,0,0)
-		oCellRange.TopBorder.InnerLineWidth = 0
-		oCellRange.TopBorder.OuterLineWidth = 26
-		oCellRange.TopBorder.LineWidth = 26
-		oCellRange.TopBorder.LineDistance = 0
-		oCellRange.TopBorder.LineStyle = 0
-		oCellRange.BottomBorder.Color = RGB(0,0,0)
-		oCellRange.BottomBorder.InnerLineWidth = 0
-		oCellRange.BottomBorder.OuterLineWidth = 26
-		oCellRange.BottomBorder.LineDistance = 0
-		oCellRange.BottomBorder.LineStyle = 0
-		oCellRange.BottomBorder.LineWidth = 26
+		oCellRange.TopBorder = oLine
+		oCellRange.BottomBorder = oLine
     Next Index
 End Sub
