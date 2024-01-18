@@ -678,7 +678,7 @@ End Sub
 
 Public Sub RetirerLignesVidesFunc( _
     BaseCell As Range, _
-    NBChantiers As Integer, _
+    NBChantiers As Integer _
     )
     Dim IsEmptyLine As Boolean
     Dim Index As Integer
