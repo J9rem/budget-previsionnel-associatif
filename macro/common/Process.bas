@@ -1,6 +1,6 @@
-ï»¿Attribute VB_Name = "Process"
+Attribute VB_Name = "Process"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la dï¿½claration de toutes les variables
+' Pour forcer la déclaration de toutes les variables
 Option Explicit
 
 Public Sub CleanDepenses(BaseCell)
@@ -119,7 +119,7 @@ Public Function AddDepenses(wb As Workbook, Data As Data, BaseCell As Range) As 
                 ' ajouter les d?penses de personnel
                 Set CurrentCell = InsertLineAndFormat(CurrentCell, HeadCell, False)
                 CurrentCell.value = ""
-                CurrentCell.Cells(1, 2).value = "Rï¿½munï¿½ration des personnels"
+                CurrentCell.Cells(1, 2).value = "Rémunération des personnels"
                 CurrentCell.Cells(1, 2).Font.Bold = True
                 CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress(SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True)) & "/1.5"
                 Set CurrentCell = InsertLineAndFormat(CurrentCell, HeadCell, False)
@@ -225,7 +225,7 @@ Public Function AddFinancements(wb As Workbook, Data As Data, StartCell As Range
     AddFinancements = True
 End Function
 
-' Macro pour mettre ï¿½ jour le budget update
+' Macro pour mettre à jour le budget update
 Public Sub MettreAJourBudgetGlobal(wb As Workbook)
 
     Dim Data As Data
@@ -323,7 +323,7 @@ Public Function SearchRangeForEmployeesSalary(wb As Workbook) As Range
         GoTo EndFunction
     End If
     
-    Set BaseCell = CoutJSalaireSheet.Cells.Find("Masse salariale des " & Chr(10) & "opï¿½rateurs : ")
+    Set BaseCell = CoutJSalaireSheet.Cells.Find("Masse salariale des " & Chr(10) & "opérateurs : ")
     If BaseCell Is Nothing Then
         GoTo EndFunction
     End If
@@ -342,14 +342,14 @@ Public Sub EgaliserLesColonnes(ws As Worksheet)
     Dim BaseCell As Range
     Dim HeadCell
     
-    Set EndFirstCol = ws.Cells.Find("Total Dï¿½penses (1) + (2)")
+    Set EndFirstCol = ws.Cells.Find("Total Dépenses (1) + (2)")
     Set EndSecondCol = ws.Cells.Find("Total Financements (1) + (2)+ (3)")
     Ecart = EndFirstCol.Row - EndSecondCol.Row
     
     If Ecart > 0 Then
         Set BaseCell = ws.Cells(1, 5).EntireColumn.Find(75).Cells(0, 1)
     Else
-        Set BaseCell = ws.Cells.Find("Total Dï¿½penses (1)").Cells(0, 1)
+        Set BaseCell = ws.Cells.Find("Total Dépenses (1)").Cells(0, 1)
         Ecart = -Ecart
     End If
     
@@ -375,7 +375,7 @@ Public Function GetNbSalaries(wb As Workbook)
         GetNbSalaries = -1
         Exit Function
     End If
-    Set BaseCell = CoutJSalaireSheet.Range("A:A").Find("Prï¿½nom")
+    Set BaseCell = CoutJSalaireSheet.Range("A:A").Find("Prénom")
     If BaseCell Is Nothing Then
         GetNbSalaries = -2
         Exit Function
@@ -385,7 +385,7 @@ Public Function GetNbSalaries(wb As Workbook)
         Exit Function
     End If
     ' TODO find dynamically the right row
-    If BaseCell.value <> "Prï¿½nom" Then
+    If BaseCell.value <> "Prénom" Then
         GetNbSalaries = -4
         Exit Function
     End If
@@ -395,7 +395,7 @@ Public Function GetNbSalaries(wb As Workbook)
     End If
     
     Set TmpRange = FindNextNotEmpty(BaseCell.Cells(2, 1), True)
-    If TmpRange.value = "Prï¿½nom" Or TmpRange.value = Label_Cout_J_Salaire_Part_B Then
+    If TmpRange.value = "Prénom" Or TmpRange.value = Label_Cout_J_Salaire_Part_B Then
         GetNbSalaries = -6
         Exit Function
     End If
@@ -573,10 +573,10 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Cout_J_Salaire)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas été trouvée"
         Exit Sub
     End If
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -603,7 +603,7 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     If BaseCell.value <> Label_Cout_J_Salaire_Part_B Then
         Exit Sub
     End If
-    If BaseCell.Cells(3, 1).value <> "Prï¿½nom" Then
+    If BaseCell.Cells(3, 1).value <> "Prénom" Then
         Exit Sub
     End If
     Set BaseCell = BaseCell.Cells(3, 1)
@@ -621,7 +621,7 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     If BaseCell Is Nothing Then
         Exit Sub
     End If
-    If BaseCell.Cells(5, 1).value <> "Prï¿½nom" Then
+    If BaseCell.Cells(5, 1).value <> "Prénom" Then
         Exit Sub
     End If
     Set BaseCell = BaseCell.Cells(5, 1)
@@ -642,10 +642,10 @@ Public Sub ChangeNBSalariesDansChantier(wb As Workbook, PreviousNB As Integer, F
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
         Exit Sub
     End If
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Salariï¿½")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("Salarié")
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -780,7 +780,7 @@ Public Sub AjoutFinancement(wb As Workbook, _
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
         Exit Sub
     End If
     
@@ -835,8 +835,8 @@ Public Sub AjoutFinancement(wb As Workbook, _
         Set BaseCell = BaseCell.Cells(2, 1)
     Else
         CurrentSheet.Activate
-        BaseCell.Cells(2, NBChantiers + NBExtraCols+1).Select
-        BaseCell.Cells(2, NBChantiers + NBExtraCols+1).Copy
+        BaseCell.Cells(2, NBChantiers + NBExtraCols + 1).Select
+        BaseCell.Cells(2, NBChantiers + NBExtraCols + 1).Copy
         Range(BaseCell.Cells(2, 1), BaseCell.Cells(3, NBChantiers + NBExtraCols)).Insert Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
         
         Range(BaseCell, BaseCell.Cells(1, NBChantiers + NBExtraCols)).Copy
@@ -892,7 +892,7 @@ End Sub
 Public Sub AddValidationDossier(currentRange As Range)
     Dim Index As Integer
     For Index = 1 To currentRange.Columns.Count
-        DefinirBordures currentRange.Cells(1,Index), True
+        DefinirBordures currentRange.Cells(1, Index), True
     Next Index
     
     With currentRange.Validation
@@ -1039,13 +1039,13 @@ Public Sub ChangeNBSalarieDansPersonnel(wb As Workbook, PreviousNB As Integer, F
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Personnel)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
         Exit Sub
     End If
     
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
     If BaseCell Is Nothing Then
-        MsgBox "'Prï¿½nom' non trouvï¿½ dans '" & Nom_Feuille_Personnel & "' !"
+        MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
         Exit Sub
     End If
     
@@ -1251,7 +1251,7 @@ Public Function extraireFinancementChantier( _
             FinancementsTmp = ChantierTmp.Financements
             FinancementTmp = FinancementsTmp(IndexFinancement)
             FinancementTmp1 = FinancementsTmp1(IndexFinancement)
-            ' rï¿½cupï¿½ration du type depuis le chantier 1
+            ' récupération du type depuis le chantier 1
             If IndexChantiers > 1 Then
                 FinancementTmp.Nom = FinancementTmp1.Nom
                 FinancementTmp.TypeFinancement = FinancementTmp1.TypeFinancement
@@ -1322,7 +1322,7 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     On Error GoTo 0
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
         GoTo FinFunction
     End If
     
@@ -1407,15 +1407,15 @@ Public Sub ClearFinancements( _
     If EndCell Is Nothing Then
         Exit Sub
     End If
-    Set EndCell = EndCell.Cells(0,0)
+    Set EndCell = EndCell.Cells(0, 0)
     If EndCell.Row > HeadCell.Row + 1 Then
         Range( _
-                HeadCell.Cells(3,1), _
+                HeadCell.Cells(3, 1), _
                 EndCell.Cells(0, 3 + NBChantiers + NBExtraCols) _
             ).Delete Shift:=xlUp
     End If
     For Index = 1 To 2 + NBChantiers
-        HeadCell.Cells(2,Index).value = ""
+        HeadCell.Cells(2, Index).value = ""
     Next Index
 End Sub
 
@@ -1448,11 +1448,11 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
     If NBSalaries > 0 Then
         Set CurrentSheet = NewWorkbook.Worksheets(Nom_Feuille_Personnel)
         If CurrentSheet Is Nothing Then
-            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
         Else
-            Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
+            Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
             If BaseCell Is Nothing Then
-                MsgBox "'Prï¿½nom' non trouvï¿½ dans '" & Nom_Feuille_Personnel & "' !"
+                MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
             Else
                 On Error Resume Next
                 Set ChantierSheet = NewWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
@@ -1504,7 +1504,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                     End If
                 Next IndexTab
                 If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) And UBound(Data.Chantiers) > 1 Then
-                    ' nom des dï¿½penses
+                    ' nom des dépenses
                     Set BaseCell = BaseCellChantier.Cells(6 + 2 * NBSalaries, 1).EntireRow.Cells(1, 2)
                     TmpChantier = Data.Chantiers(1)
                     TmpChantier1 = Data.Chantiers(1)
@@ -1664,7 +1664,7 @@ Public Function InsertNewLineForCharges(ChargesSheet As Worksheet, CurrentCell A
     ChargesSheet.Activate
     CurrentCell.Cells(1, 5).Select
     CurrentCell.Cells(1, 5).Copy
-    Range(CurrentCell.Cells(2, 1),CurrentCell.Cells(2, 5)).Insert _
+    Range(CurrentCell.Cells(2, 1), CurrentCell.Cells(2, 5)).Insert _
         Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
     Set InsertNewLineForCharges = CurrentCell.Cells(2, 1)
 End Function
@@ -1686,7 +1686,7 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     On Error GoTo 0
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
         Exit Sub
     End If
     
