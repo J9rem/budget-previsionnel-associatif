@@ -1586,6 +1586,17 @@ Public Sub InitialiserLesFinancements(wb As Workbook, NBFinancements As Integer,
     
 End Sub
 
+Public Function InsertNewLineForCharges(ChargesSheet As Worksheet, CurrentCell As Range) As Range
+
+    ' insert line
+    ChargesSheet.Activate
+    CurrentCell.Cells(1, 5).Select
+    CurrentCell.Cells(1, 5).Copy
+    Range(CurrentCell.Cells(2, 1),CurrentCell.Cells(2, 5)).Insert _
+        Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
+    Set InsertNewLineForCharges = CurrentCell.Cells(2, 1)
+End Function
+
 Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Dim Charge As Charge
     Dim Charges() As Charge
@@ -1648,11 +1659,7 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
                 End If
                 Set CurrentCell = HeadCell.Cells(2, 1)
                 If Left(CurrentCell.value, 1) = 6 And Mid(CurrentCell.value, 3, 1) = " " Then
-                    ' insert line
-                    ChargesSheet.Activate
-                    CurrentCell.Select
-                    CurrentCell.Cells(2, 1).EntireRow.Insert _
-                        Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
+                    InsertNewLineForCharges ChargesSheet, CurrentCell
                 End If
                 Set CurrentCell = HeadCell
                 
@@ -1660,42 +1667,34 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
                 For Index = 1 To UBound(Charges)
                     Charge = Charges(Index)
                     If Charge.IndexTypeCharge = CurrentIndexTypeCharge Then
-                        ' insert line
-                        ChargesSheet.Activate
-                        CurrentCell.Select
-                        CurrentCell.EntireRow.Copy
-                        CurrentCell.Cells(2, 1).EntireRow.Insert _
-                            Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
-                        ' Copy Format
-                        CurrentCell.EntireRow.Copy
-                        CurrentCell.Cells(2, 1).EntireRow.PasteSpecial _
-                            Paste:=xlPasteFormats
-                        Set CurrentCell = CurrentCell.Cells(2, 1)
+                        Set CurrentCell = InsertNewLineForCharges(ChargesSheet, CurrentCell)
                         ' Add value
                         CurrentCell.Cells(1, 1).value = Charge.Nom
                         CurrentCell.Cells(1, 2).value = Charge.PreviousN2YearValue
                         CurrentCell.Cells(1, 3).value = Charge.PreviousYearValue
                         CurrentCell.Cells(1, 4).value = Charge.CurrentYearValue
+                        CurrentCell.Cells(1, 5).value = ""
                         formatChargeCell CurrentCell, False
                     End If
                 Next Index
 
                 ' add empty line
-                ' insert line
-                ChargesSheet.Activate
-                CurrentCell.Select
-                CurrentCell.Cells(2, 1).EntireRow.Insert _
-                    Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
-                Set CurrentCell = CurrentCell.Cells(2, 1)
-                For Index = 1 To 4
+                Set CurrentCell = InsertNewLineForCharges(ChargesSheet, CurrentCell)
+                For Index = 1 To 5
                     CurrentCell.Cells(1, Index).value = ""
                 Next Index
                 formatChargeCell CurrentCell, True
 
                 ' add formula
-                HeadCell.Cells(1, 2).Formula = "=SUM(" & Range(HeadCell.Cells(2, 2), CurrentCell.Cells(0, 2)).address(False, False, xlA1) & ")"
-                HeadCell.Cells(1, 3).Formula = "=SUM(" & Range(HeadCell.Cells(2, 3), CurrentCell.Cells(0, 3)).address(False, False, xlA1) & ")"
-                HeadCell.Cells(1, 4).Formula = "=SUM(" & Range(HeadCell.Cells(2, 4), CurrentCell.Cells(0, 4)).address(False, False, xlA1) & ")"
+                If HeadCell.Row + 1 < CurrentCell.Row Then
+                    HeadCell.Cells(1, 2).Formula = "=SUM(" & Range(HeadCell.Cells(2, 2), CurrentCell.Cells(0, 2)).address(False, False, xlA1) & ")"
+                    HeadCell.Cells(1, 3).Formula = "=SUM(" & Range(HeadCell.Cells(2, 3), CurrentCell.Cells(0, 3)).address(False, False, xlA1) & ")"
+                    HeadCell.Cells(1, 4).Formula = "=SUM(" & Range(HeadCell.Cells(2, 4), CurrentCell.Cells(0, 4)).address(False, False, xlA1) & ")"
+                Else
+                    HeadCell.Cells(1, 2).Formula = "=" & CurrentCell.Cells(1, 2).address(False, False, xlA1)
+                    HeadCell.Cells(1, 3).Formula = "=" & CurrentCell.Cells(1, 3).address(False, False, xlA1)
+                    HeadCell.Cells(1, 4).Formula = "=" & CurrentCell.Cells(1, 4).address(False, False, xlA1)
+                End If
             End If
         End If
     Next IndexCode
