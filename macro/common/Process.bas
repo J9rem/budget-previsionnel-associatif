@@ -1619,7 +1619,7 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
         CurrentIndexTypeCharge = FindTypeChargeIndexFromCode(IndexCode)
         If CurrentIndexTypeCharge > 0 Then
             Set CurrentCell = StartCell
-            While (Left(CurrentCell.value, 2) <> IndexCode And Left(CurrentCell.value, 5) <> "Total") And CurrentCell.Row < 1000
+            While (Left(CurrentCell.value, 2) <> IndexCode And Left(CurrentCell.value, 5) <> "TOTAL") And CurrentCell.Row < 1000
                 Set CurrentCell = CurrentCell.Cells(2, 1)
             Wend
             If Left(CurrentCell.value, 2) = IndexCode Then
@@ -1630,10 +1630,17 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
                 HeadCell.Cells(1, 3).value = 0
                 HeadCell.Cells(1, 4).value = 0
                 Set CurrentCell = HeadCell.Cells(2, 1)
-                While (Left(CurrentCell.value, 2) = IndexCode And CurrentCell.value <> Empty) And CurrentCell.Row < 1000
+                While (CurrentCell.value = Empty Or _
+                    ( _
+                        Left(CurrentCell.value, 1) = 6 _
+                        And Mid(CurrentCell.value, 3, 1) <> " " _
+                    )) _
+                    And Left(CurrentCell.value, 5) <> "TOTAL" _
+                    And CurrentCell.Row < 1000
                     Set CurrentCell = CurrentCell.Cells(2, 1)
                 Wend
-                If Left(CurrentCell.value, 1) = 6 And Mid(CurrentCell.value, 3, 1) = " " Then
+                If (Left(CurrentCell.value, 1) = 6 And Mid(CurrentCell.value, 3, 1) = " ") _
+                    Or Left(CurrentCell.value, 5) <> "Total" Then
                     Set CurrentCell = CurrentCell.Cells(0, 1)
                 End If
                 If CurrentCell.Row > (HeadCell.Row + 1) Then
@@ -1672,6 +1679,18 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
                         formatChargeCell CurrentCell, False
                     End If
                 Next Index
+
+                ' add empty line
+                ' insert line
+                ChargesSheet.Activate
+                CurrentCell.Select
+                CurrentCell.Cells(2, 1).EntireRow.Insert _
+                    Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
+                Set CurrentCell = CurrentCell.Cells(2, 1)
+                For Index = 1 To 4
+                    CurrentCell.Cells(1, Index).value = ""
+                Next Index
+                formatChargeCell CurrentCell, True
 
                 ' add formula
                 HeadCell.Cells(1, 2).Formula = "=SUM(" & Range(HeadCell.Cells(2, 2), CurrentCell.Cells(0, 2)).address(False, False, xlA1) & ")"
