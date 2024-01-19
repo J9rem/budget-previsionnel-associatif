@@ -107,6 +107,12 @@ Type NBAndRange
     Range As Range
 End Type
 
+Type SetOfRange
+    EndCell As Range
+    HeadCell As Range
+    ResultCell As Range
+    Status As Boolean
+End Type
 
 Public Function getDefaultWbRevision() As WbRevision
     

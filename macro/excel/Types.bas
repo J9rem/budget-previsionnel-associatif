@@ -1,6 +1,6 @@
 Attribute VB_Name = "Types"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dï¿½claration de toutes les variables
 Option Explicit
 
 ' Types
@@ -67,7 +67,7 @@ Public Type DonneesSalarie
     MasseSalarialeAnnuelleFormula As String
     TauxOperateur As Double
     TauxOperateurFormula As String
-    JoursChantiers() As Double ' Tableau de temps de chantiers même index que le tableau Chantiers
+    JoursChantiers() As Double ' Tableau de temps de chantiers mï¿½me index que le tableau Chantiers
 End Type
 
 Public Type Charge
@@ -103,6 +103,13 @@ End Type
 Public Type NBAndRange
     NB As Integer
     Range As Range
+End Type
+
+Public Type SetOfRange
+    EndCell As Range
+    HeadCell As Range
+    ResultCell As Range
+    Status As Boolean
 End Type
 
 Public Function getDefaultWbRevision() As WbRevision
