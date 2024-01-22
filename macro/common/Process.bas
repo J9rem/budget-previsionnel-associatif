@@ -506,6 +506,7 @@ Public Sub ChangeChantiers(wb As Workbook, PreviousNB As Integer, FinalNB As Int
     End If
     
     If FinalNB > PreviousNB Then
+        ' TODO does not insert between but at end
         Range(BaseCell.Cells(1, PreviousNB).EntireColumn, BaseCell.Cells(1, FinalNB - 1).EntireColumn).Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
         BaseCell.Cells(1, FinalNB).EntireColumn.Copy
         Range(BaseCell.Cells(1, PreviousNB).EntireColumn, BaseCell.Cells(1, FinalNB - 1).EntireColumn).PasteSpecial _
@@ -842,6 +843,7 @@ Public Sub AjoutFinancement(wb As Workbook, _
         CurrentSheet.Activate
         BaseCell.Cells(2, NBChantiers + NBExtraCols + 1).Select
         BaseCell.Cells(2, NBChantiers + NBExtraCols + 1).Copy
+        ' TODO doest not insert between but at end
         Range(BaseCell.Cells(2, 1), BaseCell.Cells(3, NBChantiers + NBExtraCols)).Insert Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
         
         Range(BaseCell, BaseCell.Cells(1, NBChantiers + NBExtraCols)).Copy
@@ -965,20 +967,53 @@ Public Sub DefinirFormatConditionnelPourLesDossier(CurrentCells As Range)
     OldCurrentFormatCondition.ModifyAppliesToRange Union(OldCurrentFormatCondition.AppliesTo, CurrentCells)
     On Error GoTo 0
 End Sub
-Public Sub InsertRows(BaseCell As Range, PreviousNB As Integer, FinalNB As Integer, Optional AutoFitNext As Boolean = True, Optional ExtraCols As Integer = 0)
 
-    Dim endR As Range
+Public Function InsertRows( _
+    BaseCell As Range, _
+    PreviousNB As Integer, _
+    FinalNB As Integer, _
+    Optional AutoFitNext As Boolean = True, _
+    Optional ExtraCols As Integer = 0) As Range
+
+    Dim endOfRow As Range
+    Dim Index As Integer
+    Dim FollowingLine As Range
+    Dim FormulaRelative As String
+    Dim FormulaAbsolute As String
     
-    Set endR = FindNextNotEmpty(BaseCell, False)
+    Set endOfRow = FindNextNotEmpty(BaseCell, False) ' To Right
     ' Insert Cells
-    Range(BaseCell.Cells(1 + PreviousNB, 1), endR.Cells(1 + PreviousNB, 1 + ExtraCols)).Copy
-    Range(BaseCell.Cells(1 + PreviousNB, 1), endR.Cells(1 + FinalNB - 1, 1 + ExtraCols)).Insert _
+    BaseCell.Worksheet.Activate
+    BaseCell.Cells(1, 1).Select 'Force Selection
+    Range(BaseCell.Cells(1 + PreviousNB, 1), endOfRow.Cells(1 + PreviousNB, 1 + ExtraCols)).Copy
+    Range(BaseCell.Cells(1 + PreviousNB + 1, 1), endOfRow.Cells(1 + FinalNB, 1 + ExtraCols)).Insert _
         Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
-    
-    ' Copy All
-    Range(BaseCell.Cells(1 + PreviousNB - 1, 1), endR.Cells(1 + PreviousNB - 1, 1 + ExtraCols)).Copy
-    Range(BaseCell.Cells(1 + PreviousNB, 1), endR.Cells(1 + FinalNB, 1 + ExtraCols)).PasteSpecial _
-        Paste:=xlAll
+
+    ' Update Sums
+    Set FollowingLine = Range(BaseCell.Cells(1 + FinalNB + 1, 1), endOfRow.Cells(1 + FinalNB + 1, 1 + ExtraCols))
+    For Index = 1 To FollowingLine.Columns.Count
+        FormulaRelative = "=SUM(" & CleanAddress( _
+                Range( _
+                    BaseCell.Cells(2, Index), _
+                    BaseCell.Cells(1 + PreviousNB, Index) _
+                ).address(False, False, xlA1, False) _
+            ) & ")"
+        FormulaAbsolute = "=SUM(" & CleanAddress( _
+                Range( _
+                    BaseCell.Cells(2, Index), _
+                    BaseCell.Cells(1 + PreviousNB, Index) _
+                ).address(False, False, xlA1, False) _
+            ) & ")"
+        If FollowingLine.Cells(1, Index).Formula = FormulaRelative _
+            Or FollowingLine.Cells(1, Index).Formula = FormulaAbsolute Then
+            FollowingLine.Cells(1, Index).Formula = "=SUM(" & CleanAddress( _
+                Range( _
+                    BaseCell.Cells(2, Index), _
+                    BaseCell.Cells(1 + FinalNB, Index) _
+                ).address(False, False, xlA1, False) _
+            ) & ")"
+        End If
+    Next Index
         
     ' Row AutoFit
     On Error Resume Next
@@ -989,7 +1024,10 @@ Public Sub InsertRows(BaseCell As Range, PreviousNB As Integer, FinalNB As Integ
         Range(BaseCell.Cells(2, 1).EntireRow, BaseCell.Cells(1 + FinalNB, 1).EntireRow).AutoFit
     End If
     On Error GoTo 0
-End Sub
+    Set InsertRows = BaseCell.Cells(1 + FinalNB + 1, 1)
+    BaseCell.Select 'Force Selection
+End Function
+
 Public Sub RemoveRows(BaseCell As Range, PreviousNB As Integer, FinalNB As Integer, Optional ExtraCols As Integer = 0, Optional AutoFitNext As Boolean = False)
 
     ' Remove Cells
@@ -1070,6 +1108,7 @@ Public Sub ChangeNBSalarieDansPersonnel(wb As Workbook, PreviousNB As Integer, F
             Shift:=xlShiftUp
     Else
         If PreviousNB < FinalNB Then
+            ' TODO use function/sub InsertRows
             ' Insert Lines
             Range(BaseCell.Cells(1 + PreviousNB + 1, 1).EntireRow, BaseCell.Cells(1 + FinalNB, 1).EntireRow).Insert _
                 Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
@@ -1602,6 +1641,7 @@ Public Sub ChangeDepenses(BaseCell As Range, NBSalaries As Integer, NewNBDepense
             Shift:=xlShiftUp
     Else
         If PreviousNBDepenses < NewNBDepenses Then
+            ' TODO use sub Insert rows
             ' Insert Lines
             Range(BaseCell.Cells(PreviousNBDepenses - 1, 1).EntireRow, BaseCell.Cells(NewNBDepenses - 1, 1).EntireRow).Insert _
                 Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
@@ -1663,6 +1703,7 @@ End Sub
 
 Public Function InsertNewLineForCharges(ChargesSheet As Worksheet, CurrentCell As Range) As Range
 
+    ' TODO use INSertRows
     ' insert line
     ChargesSheet.Activate
     CurrentCell.Cells(1, 5).Select
@@ -1938,6 +1979,8 @@ Public Sub InsererUneDepenseInternal()
     End If
     
     SetSilent
+
+    ' TODO use insert rows
     
     ' Insert Cells
     BaseCell.Cells(0, 1).EntireRow.Insert _
@@ -1987,7 +2030,6 @@ Public Function GetCellsForFinancement( _
     ) As SetOfRange
 
     Dim SetOfRange As SetOfRange
-    Dim EndCell As Range
 
     SetOfRange.Status = False
     Set SetOfRange.HeadCell = ChantierSheet.Cells(1, 1).EntireColumn.Find(Label_Type_Financeur)
