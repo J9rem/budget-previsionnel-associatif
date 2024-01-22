@@ -357,6 +357,7 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
                     
                     If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
                         Data.Chantiers = extraireDepensesChantier(BaseCellChantier, NBSalaries, NBChantiers).Chantiers
+                        Data.Chantiers = extraireNomsChantier(BaseCellChantier, NBChantiers, Data).Chantiers
                         Data.Chantiers = extraireFinancementChantier(BaseCellChantier, NBChantiers, Data).Chantiers
                     End If
                     
@@ -435,6 +436,7 @@ Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbR
             If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
                 Set BaseCell = BaseCellChantier.Cells(4 + NBSalaries, 0)
                 Data.Chantiers = extraireDepensesChantier(BaseCellChantier, NBSalaries, NBChantiers, BaseCell).Chantiers
+                Data.Chantiers = extraireNomsChantier(BaseCellChantier, NBChantiers, Data).Chantiers
                 Data.Chantiers = extraireFinancementChantier(BaseCellChantier, NBChantiers, Data, ForV0:=True).Chantiers
             End If
             

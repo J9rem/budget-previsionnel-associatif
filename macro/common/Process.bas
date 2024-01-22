@@ -1231,6 +1231,30 @@ Public Function extraireDepensesChantier( _
 
 End Function
 
+Public Function extraireNomsChantier( _
+        BaseCellChantier As Range, _
+        NBChantiers As Integer, _
+        Data As Data _
+        ) As SetOfChantiers
+
+    Dim Chantiers() As Chantier
+    Dim ChantierTmp As Chantier
+    Dim IndexChantiers As Integer
+    Dim SetOfChantiers As SetOfChantiers
+
+    Chantiers = Data.Chantiers
+    SetOfChantiers.Chantiers = Chantiers
+
+    For IndexChantiers = 1 To NBChantiers
+        ChantierTmp = Chantiers(IndexChantiers)
+        ChantierTmp.Nom = BaseCellChantier.Cells(2, IndexChantiers).value
+        Chantiers(IndexChantiers) = ChantierTmp
+    Next IndexChantiers
+
+    SetOfChantiers.Chantiers = Chantiers
+    extraireNomsChantier = SetOfChantiers
+End Function
+
 Public Function extraireFinancementChantier( _
         BaseCellChantier As Range, _
         NBChantiers As Integer, _
@@ -1676,6 +1700,9 @@ Public Sub ChangeDepenses(BaseCell As Range, NBSalaries As Integer, NewNBDepense
     Else
         If PreviousNBDepenses < NewNBDepenses Then
             ' Insert Lines
+            BaseCell.Cells(1, 1).Worksheet.Activate
+            BaseCell.Cells(PreviousNBDepenses - 1, 1).EntireRow.Select
+            BaseCell.Cells(PreviousNBDepenses - 1, 1).EntireRow.Copy
             Range(BaseCell.Cells(PreviousNBDepenses - 1, 1).EntireRow, BaseCell.Cells(NewNBDepenses - 1, 1).EntireRow).Insert _
                 Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
             
