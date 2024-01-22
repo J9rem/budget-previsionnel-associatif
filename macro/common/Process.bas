@@ -1984,6 +1984,7 @@ End Function
 Public Sub InsererUneDepenseInternal()
     
     Dim BaseCell As Range
+    Dim BaseCellValue As String
     Dim ChantierSheet As Worksheet
     Dim CoutJJournalierCell As Range
     Dim NBChantiers As Integer
@@ -2006,11 +2007,13 @@ Public Sub InsererUneDepenseInternal()
     Set StructureCell = BaseCell.Cells(3, 0)
     Set CoutJJournalierCell = StructureCell
     Set BaseCell = StructureCell
-    While BaseCell.value <> Label_Cout_J_Journalier And BaseCell.value <> "TOTAL" And BaseCell.Row < 200
+    BaseCellValue = Trim(BaseCell)
+    While BaseCellValue <> Label_Cout_J_Journalier And BaseCellValue <> "TOTAL" And BaseCell.Row < 200
         Set BaseCell = BaseCell.Cells(2, 1)
+        BaseCellValue = Trim(BaseCell)
     Wend
     
-    If BaseCell.value <> Label_Cout_J_Journalier Then
+    If BaseCellValue <> Label_Cout_J_Journalier Then
         Exit Sub
     End If
     Set CoutJJournalierCell = BaseCell
@@ -2020,10 +2023,12 @@ Public Sub InsererUneDepenseInternal()
     Set HeadDepensesCell = CoutJJournalierCell.Cells(CoutJJournalierCell.Row - StructureCell.Row - 1, 0)
     Set BaseCell = HeadDepensesCell.Cells(2, 2)
 
-    While BaseCell.value <> "TOTAL" And BaseCell.Row < 200
+    BaseCellValue = Trim(BaseCell)
+    While BaseCellValue <> "TOTAL" And BaseCell.Row < 200
         Set BaseCell = BaseCell.Cells(2, 1)
+        BaseCellValue = Trim(BaseCell)
     Wend
-    If BaseCell.value <> "TOTAL" Then
+    If BaseCellValue <> "TOTAL" Then
         Exit Sub
     End If
     
