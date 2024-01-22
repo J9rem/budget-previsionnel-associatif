@@ -1,6 +1,6 @@
-Attribute VB_Name = "Process"
+ï»¿Attribute VB_Name = "Process"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dï¿½claration de toutes les variables
 Option Explicit
 
 Public Sub CleanDepenses(BaseCell)
@@ -119,7 +119,7 @@ Public Function AddDepenses(wb As Workbook, Data As Data, BaseCell As Range) As 
                 ' ajouter les d?penses de personnel
                 Set CurrentCell = InsertLineAndFormat(CurrentCell, HeadCell, False)
                 CurrentCell.value = ""
-                CurrentCell.Cells(1, 2).value = "Rémunération des personnels"
+                CurrentCell.Cells(1, 2).value = "Rï¿½munï¿½ration des personnels"
                 CurrentCell.Cells(1, 2).Font.Bold = True
                 CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress(SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True)) & "/1.5"
                 Set CurrentCell = InsertLineAndFormat(CurrentCell, HeadCell, False)
@@ -225,7 +225,7 @@ Public Function AddFinancements(wb As Workbook, Data As Data, StartCell As Range
     AddFinancements = True
 End Function
 
-' Macro pour mettre à jour le budget update
+' Macro pour mettre ï¿½ jour le budget update
 Public Sub MettreAJourBudgetGlobal(wb As Workbook)
 
     Dim Data As Data
@@ -323,7 +323,7 @@ Public Function SearchRangeForEmployeesSalary(wb As Workbook) As Range
         GoTo EndFunction
     End If
     
-    Set BaseCell = CoutJSalaireSheet.Cells.Find("Masse salariale des " & Chr(10) & "opérateurs : ")
+    Set BaseCell = CoutJSalaireSheet.Cells.Find("Masse salariale des " & Chr(10) & "opï¿½rateurs : ")
     If BaseCell Is Nothing Then
         GoTo EndFunction
     End If
@@ -342,14 +342,14 @@ Public Sub EgaliserLesColonnes(ws As Worksheet)
     Dim BaseCell As Range
     Dim HeadCell
     
-    Set EndFirstCol = ws.Cells.Find("Total Dépenses (1) + (2)")
+    Set EndFirstCol = ws.Cells.Find("Total Dï¿½penses (1) + (2)")
     Set EndSecondCol = ws.Cells.Find("Total Financements (1) + (2)+ (3)")
     Ecart = EndFirstCol.Row - EndSecondCol.Row
     
     If Ecart > 0 Then
         Set BaseCell = ws.Cells(1, 5).EntireColumn.Find(75).Cells(0, 1)
     Else
-        Set BaseCell = ws.Cells.Find("Total Dépenses (1)").Cells(0, 1)
+        Set BaseCell = ws.Cells.Find("Total Dï¿½penses (1)").Cells(0, 1)
         Ecart = -Ecart
     End If
     
@@ -375,7 +375,7 @@ Public Function GetNbSalaries(wb As Workbook)
         GetNbSalaries = -1
         Exit Function
     End If
-    Set BaseCell = CoutJSalaireSheet.Range("A:A").Find("Prénom")
+    Set BaseCell = CoutJSalaireSheet.Range("A:A").Find("Prï¿½nom")
     If BaseCell Is Nothing Then
         GetNbSalaries = -2
         Exit Function
@@ -385,7 +385,7 @@ Public Function GetNbSalaries(wb As Workbook)
         Exit Function
     End If
     ' TODO find dynamically the right row
-    If BaseCell.value <> "Prénom" Then
+    If BaseCell.value <> "Prï¿½nom" Then
         GetNbSalaries = -4
         Exit Function
     End If
@@ -395,7 +395,7 @@ Public Function GetNbSalaries(wb As Workbook)
     End If
     
     Set TmpRange = FindNextNotEmpty(BaseCell.Cells(2, 1), True)
-    If TmpRange.value = "Prénom" Or TmpRange.value = Label_Cout_J_Salaire_Part_B Then
+    If TmpRange.value = "Prï¿½nom" Or TmpRange.value = Label_Cout_J_Salaire_Part_B Then
         GetNbSalaries = -6
         Exit Function
     End If
@@ -574,10 +574,10 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Cout_J_Salaire)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Exit Sub
     End If
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -604,7 +604,7 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     If BaseCell.value <> Label_Cout_J_Salaire_Part_B Then
         Exit Sub
     End If
-    If BaseCell.Cells(3, 1).value <> "Prénom" Then
+    If BaseCell.Cells(3, 1).value <> "Prï¿½nom" Then
         Exit Sub
     End If
     Set BaseCell = BaseCell.Cells(3, 1)
@@ -622,7 +622,7 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     If BaseCell Is Nothing Then
         Exit Sub
     End If
-    If BaseCell.Cells(5, 1).value <> "Prénom" Then
+    If BaseCell.Cells(5, 1).value <> "Prï¿½nom" Then
         Exit Sub
     End If
     Set BaseCell = BaseCell.Cells(5, 1)
@@ -640,13 +640,14 @@ Public Sub ChangeNBSalariesDansChantier(wb As Workbook, PreviousNB As Integer, F
     Dim CurrentSheet As Worksheet
     Dim BaseCell As Range
     Dim RealFinalNB As Integer
+    Dim TmpRange As Range
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Exit Sub
     End If
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Salarié")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("Salariï¿½")
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -662,8 +663,15 @@ Public Sub ChangeNBSalariesDansChantier(wb As Workbook, PreviousNB As Integer, F
 
     If PreviousNB < RealFinalNB Then
         InsertRows BaseCell, PreviousNB, RealFinalNB, False, NBExtraCols
-        Set BaseCell = BaseCell.Cells(1 + RealFinalNB + 1, 1)
-        InsertRows BaseCell, PreviousNB, RealFinalNB, False, NBExtraCols
+        Set TmpRange = InsertRows(BaseCell.Cells(1 + RealFinalNB + 1, 1), PreviousNB, RealFinalNB, False, NBExtraCols)
+
+        UpdateSumsByColumn _
+            Range( _
+                BaseCell.Cells(1 + RealFinalNB + 2, 3), _
+                BaseCell.Cells(1 + 2 * RealFinalNB + 1, TmpRange.Columns.Count) _
+            ), _
+            BaseCell.Cells(0, 3), _
+            PreviousNB
     Else
         If PreviousNB > RealFinalNB Then
             RemoveRows BaseCell, PreviousNB, RealFinalNB, NBExtraCols
@@ -782,7 +790,7 @@ Public Sub AjoutFinancement(wb As Workbook, _
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Exit Sub
     End If
     
@@ -976,10 +984,6 @@ Public Function InsertRows( _
     Optional ExtraCols As Integer = 0) As Range
 
     Dim endOfRow As Range
-    Dim Index As Integer
-    Dim FollowingLine As Range
-    Dim FormulaRelative As String
-    Dim FormulaAbsolute As String
     
     Set endOfRow = FindNextNotEmpty(BaseCell, False) ' To Right
     ' Insert Cells
@@ -988,32 +992,22 @@ Public Function InsertRows( _
     Range(BaseCell.Cells(1 + PreviousNB, 1), endOfRow.Cells(1 + PreviousNB, 1 + ExtraCols)).Copy
     Range(BaseCell.Cells(1 + PreviousNB + 1, 1), endOfRow.Cells(1 + FinalNB, 1 + ExtraCols)).Insert _
         Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
-
+    
+    ' Copy Format
+    Range(BaseCell.Cells(1 + PreviousNB, 1), endOfRow.Cells(1 + PreviousNB, 1 + ExtraCols)).Copy
+    Range(BaseCell.Cells(1 + PreviousNB + 1, 1), endOfRow.Cells(1 + FinalNB, 1 + ExtraCols)).PasteSpecial _
+        Paste:=xlPasteFormats
+    If PreviousNB > 2 Then
+        Range(BaseCell.Cells(1 + PreviousNB - 1, 1), endOfRow.Cells(1 + PreviousNB - 1, 1 + ExtraCols)).Copy
+        Range(BaseCell.Cells(1 + PreviousNB, 1), endOfRow.Cells(1 + FinalNB, 1 + ExtraCols)).PasteSpecial _
+            Paste:=xlPasteFormats
+    End If
+    
     ' Update Sums
-    Set FollowingLine = Range(BaseCell.Cells(1 + FinalNB + 1, 1), endOfRow.Cells(1 + FinalNB + 1, 1 + ExtraCols))
-    For Index = 1 To FollowingLine.Columns.Count
-        FormulaRelative = "=SUM(" & CleanAddress( _
-                Range( _
-                    BaseCell.Cells(2, Index), _
-                    BaseCell.Cells(1 + PreviousNB, Index) _
-                ).address(False, False, xlA1, False) _
-            ) & ")"
-        FormulaAbsolute = "=SUM(" & CleanAddress( _
-                Range( _
-                    BaseCell.Cells(2, Index), _
-                    BaseCell.Cells(1 + PreviousNB, Index) _
-                ).address(False, False, xlA1, False) _
-            ) & ")"
-        If FollowingLine.Cells(1, Index).Formula = FormulaRelative _
-            Or FollowingLine.Cells(1, Index).Formula = FormulaAbsolute Then
-            FollowingLine.Cells(1, Index).Formula = "=SUM(" & CleanAddress( _
-                Range( _
-                    BaseCell.Cells(2, Index), _
-                    BaseCell.Cells(1 + FinalNB, Index) _
-                ).address(False, False, xlA1, False) _
-            ) & ")"
-        End If
-    Next Index
+    UpdateSumsByColumn _
+        Range(BaseCell.Cells(2, 1), endOfRow.Cells(1 + FinalNB, 1 + ExtraCols)), _
+        BaseCell.Cells(1 + FinalNB + 1, 1), _
+        PreviousNB
         
     ' Row AutoFit
     On Error Resume Next
@@ -1024,9 +1018,56 @@ Public Function InsertRows( _
         Range(BaseCell.Cells(2, 1).EntireRow, BaseCell.Cells(1 + FinalNB, 1).EntireRow).AutoFit
     End If
     On Error GoTo 0
-    Set InsertRows = BaseCell.Cells(1 + FinalNB + 1, 1)
+    Set InsertRows = Range(BaseCell.Cells(1 + FinalNB + 1, 1), endOfRow.Cells(1 + FinalNB + 1, 1))
     BaseCell.Select 'Force Selection
 End Function
+
+Public Sub UpdateSumsByColumn(BaseRange As Range, DestinationRange As Range, PreviousNB As Integer)
+    
+    Dim FormulaRelative As String
+    Dim FormulaAbsolute As String
+    Dim Index As Integer
+    Dim NBColumns As Integer
+    Dim NBRows As Integer
+    Dim SanitizedPreviousNB As Integer
+
+    NBColumns = BaseRange.Columns.Count
+    NBRows = BaseRange.Rows.Count
+
+    If PreviousNB < 1 Then
+        SanitizedPreviousNB = 1
+    Else
+        If PreviousNB > NBRows Then
+            SanitizedPreviousNB = NBRows
+        Else
+            SanitizedPreviousNB = PreviousNB
+        End If
+    End If
+
+    For Index = 1 To NBColumns
+        FormulaRelative = "=SUM(" & CleanAddress( _
+                Range( _
+                    BaseRange.Cells(1, Index), _
+                    BaseRange.Cells(PreviousNB, Index) _
+                ).address(False, False, xlA1, False) _
+            ) & ")"
+        FormulaAbsolute = "=SUM(" & CleanAddress( _
+                Range( _
+                    BaseRange.Cells(1, Index), _
+                    BaseRange.Cells(PreviousNB, Index) _
+                ).address(False, False, xlA1, False) _
+            ) & ")"
+        If DestinationRange.Cells(1, Index).Formula = FormulaRelative _
+            Or DestinationRange.Cells(1, Index).Formula = FormulaAbsolute Then
+            DestinationRange.Cells(1, Index).Formula = "=SUM(" & CleanAddress( _
+                Range( _
+                    BaseRange.Cells(1, Index), _
+                    BaseRange.Cells(NBRows, Index) _
+                ).address(False, False, xlA1, False) _
+            ) & ")"
+        End If
+    Next Index
+End Sub
 
 Public Sub RemoveRows(BaseCell As Range, PreviousNB As Integer, FinalNB As Integer, Optional ExtraCols As Integer = 0, Optional AutoFitNext As Boolean = False)
 
@@ -1084,13 +1125,13 @@ Public Sub ChangeNBSalarieDansPersonnel(wb As Workbook, PreviousNB As Integer, F
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Personnel)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Exit Sub
     End If
     
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
     If BaseCell Is Nothing Then
-        MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
+        MsgBox "'Prï¿½nom' non trouvï¿½ dans '" & Nom_Feuille_Personnel & "' !"
         Exit Sub
     End If
     
@@ -1103,20 +1144,10 @@ Public Sub ChangeNBSalarieDansPersonnel(wb As Workbook, PreviousNB As Integer, F
     Set endR = FindNextNotEmpty(BaseCell, False)
     
     If PreviousNB > RealFinalNB Then
-        ' Remove Lines
-        Range(BaseCell.Cells(1 + RealFinalNB + 1, 1).EntireRow, BaseCell.Cells(1 + PreviousNB, 1).EntireRow).Delete _
-            Shift:=xlShiftUp
+        RemoveRows BaseCell, PreviousNB, RealFinalNB, 1
     Else
         If PreviousNB < FinalNB Then
-            ' TODO use function/sub InsertRows
-            ' Insert Lines
-            Range(BaseCell.Cells(1 + PreviousNB + 1, 1).EntireRow, BaseCell.Cells(1 + FinalNB, 1).EntireRow).Insert _
-                Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
-            
-            ' Copy Format
-            Range(BaseCell.Cells(2, 1), endR.Cells(2, 1)).Copy
-            Range(BaseCell.Cells(2, 1), endR.Cells(FinalNB + 1, 1)).PasteSpecial _
-                Paste:=xlPasteFormats
+            InsertRows BaseCell, PreviousNB, FinalNB, True, 1
         End If
     End If
     
@@ -1302,7 +1333,7 @@ Public Function extraireFinancementChantier( _
             FinancementsTmp = ChantierTmp.Financements
             FinancementTmp = FinancementsTmp(IndexFinancement)
             FinancementTmp1 = FinancementsTmp1(IndexFinancement)
-            ' récupération du type depuis le chantier 1
+            ' rï¿½cupï¿½ration du type depuis le chantier 1
             If IndexChantiers > 1 Then
                 FinancementTmp.Nom = FinancementTmp1.Nom
                 FinancementTmp.TypeFinancement = FinancementTmp1.TypeFinancement
@@ -1373,7 +1404,7 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     On Error GoTo 0
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         GoTo FinFunction
     End If
     
@@ -1494,11 +1525,11 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
     If NBSalaries > 0 Then
         Set CurrentSheet = NewWorkbook.Worksheets(Nom_Feuille_Personnel)
         If CurrentSheet Is Nothing Then
-            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
+            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Else
-            Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+            Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
             If BaseCell Is Nothing Then
-                MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
+                MsgBox "'Prï¿½nom' non trouvï¿½ dans '" & Nom_Feuille_Personnel & "' !"
             Else
                 On Error Resume Next
                 Set ChantierSheet = NewWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
@@ -1550,7 +1581,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                     End If
                 Next IndexTab
                 If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) And UBound(Data.Chantiers) > 1 Then
-                    ' nom des dépenses
+                    ' nom des dï¿½penses
                     Set BaseCell = BaseCellChantier.Cells(6 + 2 * NBSalaries, 1).EntireRow.Cells(1, 2)
                     TmpChantier = Data.Chantiers(1)
                     TmpChantier1 = Data.Chantiers(1)
@@ -1641,7 +1672,6 @@ Public Sub ChangeDepenses(BaseCell As Range, NBSalaries As Integer, NewNBDepense
             Shift:=xlShiftUp
     Else
         If PreviousNBDepenses < NewNBDepenses Then
-            ' TODO use sub Insert rows
             ' Insert Lines
             Range(BaseCell.Cells(PreviousNBDepenses - 1, 1).EntireRow, BaseCell.Cells(NewNBDepenses - 1, 1).EntireRow).Insert _
                 Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
@@ -1730,7 +1760,7 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     On Error GoTo 0
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Exit Sub
     End If
     
@@ -1955,7 +1985,11 @@ Public Sub InsererUneDepenseInternal()
     
     Dim BaseCell As Range
     Dim ChantierSheet As Worksheet
+    Dim CoutJJournalierCell As Range
     Dim NBChantiers As Integer
+    Dim Previous As Integer
+    Dim HeadDepensesCell As Range
+    Dim StructureCell As Range
     
     Set ChantierSheet = ThisWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
@@ -1969,30 +2003,48 @@ Public Sub InsererUneDepenseInternal()
         Exit Sub
     End If
     
-    Set BaseCell = BaseCell.Cells(3, 0)
-    While BaseCell.value <> "TOTAL" And BaseCell.Row < 200
+    Set StructureCell = BaseCell.Cells(3, 0)
+    Set CoutJJournalierCell = StructureCell
+    Set BaseCell = StructureCell
+    While BaseCell.value <> Label_Cout_J_Journalier And BaseCell.value <> "TOTAL" And BaseCell.Row < 200
         Set BaseCell = BaseCell.Cells(2, 1)
     Wend
     
+    If BaseCell.value <> Label_Cout_J_Journalier Then
+        Exit Sub
+    End If
+    Set CoutJJournalierCell = BaseCell
+    If CoutJJournalierCell.Row - StructureCell.Row - 1 < 2 Then
+        Exit Sub
+    End If
+    Set HeadDepensesCell = CoutJJournalierCell.Cells(CoutJJournalierCell.Row - StructureCell.Row - 1, 0)
+    Set BaseCell = HeadDepensesCell.Cells(2, 2)
+
+    While BaseCell.value <> "TOTAL" And BaseCell.Row < 200
+        Set BaseCell = BaseCell.Cells(2, 1)
+    Wend
     If BaseCell.value <> "TOTAL" Then
         Exit Sub
     End If
     
     SetSilent
 
-    ' TODO use insert rows
-    
-    ' Insert Cells
-    BaseCell.Cells(0, 1).EntireRow.Insert _
-        Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
-    ' Copy All
-    BaseCell.Cells(0, 1).EntireRow.Copy
-    BaseCell.Cells(-1, 1).EntireRow.PasteSpecial _
-        Paste:=xlAll
-    
-    BaseCell.Cells(0, 1).value = "650 - Autre"
     NBChantiers = GetNbChantiers(ThisWorkbook)
+    Previous = BaseCell.Row - HeadDepensesCell.Row - 1
+
+    InsertRows _
+        HeadDepensesCell, _
+        Previous, _
+        Previous + 1, _
+        False, _
+        3 + NBChantiers
+
+    BaseCell.Cells(0, 1).value = "650 - Autre"
     Range(BaseCell.Cells(0, 2), BaseCell.Cells(0, 1 + NBChantiers)).ClearContents
+    UpdateSumsByColumn _
+        Range(CoutJJournalierCell.Cells(2, 2), BaseCell.Cells(0, 1 + NBChantiers)), _
+        BaseCell.Cells(1, 2), _
+        Previous + CoutJJournalierCell.Row - StructureCell.Row - 2
     
     SetActive
     
