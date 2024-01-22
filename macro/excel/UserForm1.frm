@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserForm1 
    Caption         =   "Nouveau financeur"
-   ClientHeight    =   2832
-   ClientLeft      =   36
-   ClientTop       =   384
-   ClientWidth     =   5604
+   ClientHeight    =   2820
+   ClientLeft      =   30
+   ClientTop       =   390
+   ClientWidth     =   5610
    OleObjectBlob   =   "UserForm1.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -15,6 +15,10 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
 
+
+Private Sub NomFinancement_Change()
+
+End Sub
 
 Private Sub Validate_Click()
     Dim Nom As String
@@ -69,7 +73,7 @@ Private Sub Validate_Click()
     
     Unload Me
     If Nom = "" Or Nom = Empty Then
-        MsgBox "Le nom ne peut être vide !"
+        MsgBox "Le champ texte NOM ne peut être vide !"
         Exit Sub
     End If
     

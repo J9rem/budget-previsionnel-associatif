@@ -8,7 +8,7 @@
  </dlg:styles>
  <dlg:bulletinboard>
   <dlg:text dlg:style-id="0" dlg:id="Label1" dlg:tab-index="0" dlg:left="8" dlg:top="4" dlg:width="16" dlg:height="8" dlg:value="Nom" dlg:valign="top" dlg:multiline="true" dlg:tabstop="false"/>
-  <dlg:textfield dlg:style-id="1" dlg:id="NomFinancement" dlg:tab-index="1" dlg:left="32" dlg:top="4" dlg:width="140" dlg:height="12" dlg:tabstop="true">
+  <dlg:textfield dlg:style-id="1" dlg:id="NomFinancement" dlg:tab-index="1" dlg:left="32" dlg:top="4" dlg:width="140" dlg:height="12" dlg:tabstop="true" dlg:value="Client">
    <script:event script:event-name="on-textchange" script:macro-name="vnd.sun.star.script:Standard.Specific.SaveDoc?language=Basic&amp;location=document" script:language="Script"/>
   </dlg:textfield>
   <dlg:text dlg:style-id="0" dlg:id="Label2" dlg:tab-index="2" dlg:left="4" dlg:top="20" dlg:width="24" dlg:height="8" dlg:value="Type" dlg:valign="top" dlg:multiline="true" dlg:tabstop="false"/>

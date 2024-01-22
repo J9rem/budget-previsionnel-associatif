@@ -351,7 +351,7 @@ Public Sub Validate_Click(document)
     
  	oDialog.endExecute()
     If Nom = "" Or Nom = Empty Then
-        MsgBox "Le nom ne peut être vide !"
+        MsgBox "Le champ texte NOM ne peut être vide !"
         Exit Sub
     End If
     If TypeFinancement = 0 Then
