@@ -4,8 +4,7 @@ Attribute VB_Name = "Specific"
 Option Explicit
 
 ' constantes
-Public Const Nom_de_Fichier_Par_Defaut As String = "InCitu_Budget_Previsionnel_Associatif_v1_11_Excel"
-Public Const Nom_de_Fichier_Par_Defaut_xls As String = "InCitu_Budget_Previsionnel_Associatif_v1_11_Excel.xls"
+Public Const Nom_de_Fichier_Par_Defaut As String = "InCitu_Budget_Previsionnel_Associatif_Excel"
 Public Const BackupDefaultExtension As String = ".xlsx"
 Public Const intoOds As Boolean = False
 
@@ -14,7 +13,11 @@ Public Const intoOds As Boolean = False
 Public Function choisirNomFicherASauvegarderSansMacro(ByRef FilePath As String) As Boolean
     
     Dim Adresse_dossier_courant As String
+    Dim Default_File_Name As String
     Dim Fichier_De_Sauvegarde As String
+    
+    ' Default FileName
+    Default_File_Name = Nom_de_Fichier_Par_Defaut & "_" & Format(Date, "yyyy-mm-dd_") & Format(Time, "hh-nn")
     
     ' Default
     FilePath = ""
@@ -27,7 +30,7 @@ Public Function choisirNomFicherASauvegarderSansMacro(ByRef FilePath As String) 
     On Error Resume Next
     ' InitialFileName, FileFilter, FiltrerIndex, Title
     Fichier_De_Sauvegarde = Application.GetSaveAsFilename( _
-        Nom_de_Fichier_Par_Defaut, _
+        Default_File_Name, _
         "Excel 2003-2007 (*.xls),*.xls,Excel (*.xlsx),*.xlsx", _
         2, _
         "Choisir le fichier à exporter")

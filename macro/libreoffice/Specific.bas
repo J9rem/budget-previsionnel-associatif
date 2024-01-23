@@ -6,8 +6,7 @@ Option VBASupport 1
 Option Explicit
 
 ' constantes
-Public Const Nom_de_Fichier_Par_Defaut As String = "InCitu_Budget_Previsionnel_Associatif_v1_11_LibreOffice"
-Public Const Nom_de_Fichier_Par_Defaut_xls As String = "InCitu_Budget_Previsionnel_Associatif_v1_11_LibreOffice.xls"
+Public Const Nom_de_Fichier_Par_Defaut As String = "InCitu_Budget_Previsionnel_Associatif_LibreOffice"
 Public Const BackupDefaultExtension As String = ".ods"
 Public Const intoOds As Boolean = True
 
@@ -32,8 +31,11 @@ End Type
 Public Function choisirNomFicherASauvegarderSansMacro(ByRef FilePath As String) As Boolean
     
     Dim Adresse_dossier_courant As String
+    Dim Default_File_Name As String
     Dim Fichier_De_Sauvegarde As String
     
+    ' Default FileName
+    Default_File_Name = Nom_de_Fichier_Par_Defaut & "_" & Format(Date, "yyyy-mm-dd") & "_" & Format(Time, "hh-mm")
     ' Default
     FilePath = ""
     
@@ -45,7 +47,7 @@ Public Function choisirNomFicherASauvegarderSansMacro(ByRef FilePath As String) 
     On Error Resume Next
     ' InitialFileName, FileFilter, FiltrerIndex, Title
     Fichier_De_Sauvegarde = GetSaveAsFilename( _
-        Nom_de_Fichier_Par_Defaut, _
+        Default_File_Name, _
         Array(Array("Libre Office (*.ods)","*.ods"),Array("Excel (*.xls)","*.xls")), _
         "Choisir le fichier à exporter", _
         Adresse_dossier_courant)
