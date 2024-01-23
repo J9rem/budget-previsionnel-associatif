@@ -273,7 +273,28 @@ Public Sub OpenUserForm()
     
 End Sub
 
-Public Sub DefinirBordures(CurrentCell As Range, AddTopBorder As Boolean)
+Public Sub EnleverBordures(CurrentCell As Range)
+    With CurrentCell
+        .Borders(xlDiagonalDown).LineStyle = xlNone
+        .Borders(xlDiagonalUp).LineStyle = xlNone
+        .Borders(xlEdgeLeft).LineStyle = xlNone
+        .Borders(xlEdgeTop).LineStyle = xlNone
+        .Borders(xlEdgeBottom).LineStyle = xlNone
+        .Borders(xlEdgeRight).LineStyle = xlNone
+        .Borders(xlInsideVertical).LineStyle = xlNone
+        .Borders(xlInsideHorizontal).LineStyle = xlNone
+    End With
+End Sub
+
+Public Sub DefinirFormatPourChantier( _
+        CurrentCell As Range, _
+        AddTopBorder As Boolean, _
+        AddBottomBorder As Boolean, _
+        Bold As Boolean, _
+        Italic As Boolean, _
+        BlueColor As Boolean, _
+        CurrencyFormat As Boolean _
+    )
 
     With CurrentCell
         .Borders(xlDiagonalDown).LineStyle = xlNone
@@ -289,16 +310,20 @@ Public Sub DefinirBordures(CurrentCell As Range, AddTopBorder As Boolean)
             .ColorIndex = 0
             .TintAndShade = 0
             If AddTopBorder Then
-                .Weight = xlHairline
-            Else
                 .Weight = xlMedium
+            Else
+                .Weight = xlHairline
             End If
         End With
         With .Borders(xlEdgeBottom)
             .LineStyle = xlContinuous
             .ColorIndex = 0
             .TintAndShade = 0
-            .Weight = xlHairline
+            If AddBottomBorder Then
+                .Weight = xlMedium
+            Else
+                .Weight = xlHairline
+            End If
         End With
         With .Borders(xlEdgeRight)
             .LineStyle = xlContinuous
@@ -308,6 +333,34 @@ Public Sub DefinirBordures(CurrentCell As Range, AddTopBorder As Boolean)
         End With
         .Borders(xlInsideVertical).LineStyle = xlNone
         .Borders(xlInsideHorizontal).LineStyle = xlNone
+        With .Font
+            .Name = "Arial"
+            If Italic Then
+                .FontStyle = "Italic"
+            Else
+                .FontStyle = "Normal"
+            End If
+            .Bold = Bold
+            .Size = 8
+            .Strikethrough = False
+            .Superscript = False
+            .Subscript = False
+            .OutlineFont = False
+            .Shadow = False
+            .Underline = xlUnderlineStyleNone
+            If BlueColor Then
+                .Color = RGB(0, 102, 204)
+            Else
+                .ColorIndex = xlAutomatic
+            End If
+            .TintAndShade = 0
+            .ThemeFont = xlThemeFontNone
+        End With
+        If CurrencyFormat Then
+            .NumberFormat = "#,##0.00"" €"""
+        Else
+            .NumberFormat = "General"
+        End If
     End With
 End Sub
 

@@ -415,12 +415,44 @@ Public Sub SaveDoc(document)
 	publicDoc = document
 End Sub
 
-Public Sub DefinirBordures(CurrentCell As Range, AddTopBorder As Boolean)
+Public Sub EnleverBordures(CurrentCell As Range)
 
     Dim oSheet
     Dim oCellRange
 	Dim oLine As New com.sun.star.table.BorderLine2
-	Dim oLineThick As New com.sun.star.table.BorderLine2
+
+	oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
+    oCellRange = oSheet.getCellByPosition(CurrentCell.Column-1,CurrentCell.Row-1)
+
+	With oLine
+		.Color = RGB(0,0,0)
+		.InnerLineWidth = 0
+		.LineDistance = 0
+		.LineStyle = com.sun.star.table.BorderLineStyle.NONE
+		.LineWidth = 0
+		.OuterLineWidth = 0
+	End With
+	
+	oCellRange.LeftBorder = oLine
+	oCellRange.RightBorder = oLine
+	oCellRange.BottomBorder = oLine
+	oCellRange.TopBorder = oLine
+End Sub
+
+Public Sub DefinirFormatPourChantier( _
+        CurrentCell As Range, _
+        AddTopBorder As Boolean, _
+        AddBottomBorder As Boolean, _
+		Bold As Boolean, _
+		Italic As Boolean, _
+		BlueColor As Boolean, _
+		CurrencyFormat As Boolean _
+    )
+
+    Dim oSheet
+    Dim oCellRange
+	Dim oLine As New com.sun.star.table.BorderLine2
+	Dim oLineThin As New com.sun.star.table.BorderLine2
     
     oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
     oCellRange = oSheet.getCellByPosition(CurrentCell.Column-1,CurrentCell.Row-1)
@@ -433,23 +465,55 @@ Public Sub DefinirBordures(CurrentCell As Range, AddTopBorder As Boolean)
 		.LineWidth = 26
 		.OuterLineWidth = 26
 	End With
-	With oLineThick
+	With oLineThin
 		.Color = RGB(0,0,0)
 		.InnerLineWidth = 0
 		.LineDistance = 0
-		.LineStyle = com.sun.star.table.BorderLineStyle.SOLID
+		.LineStyle = com.sun.star.table.BorderLineStyle.FINE_DASHED
 		.LineWidth = 40
 		.OuterLineWidth = 40
 	End With
 	oCellRange.LeftBorder = oLine
 	oCellRange.RightBorder = oLine
-	oCellRange.BottomBorder = oLine
     
     If AddTopBorder Then
-		oCellRange.TopBorder = oLineThick
-    Else
 		oCellRange.TopBorder = oLine
+    Else
+		oCellRange.TopBorder = oLineThin
     End If
+    If AddBottomBorder Then
+		oCellRange.TopBorder = oLine
+    Else
+		oCellRange.TopBorder = oLineThin
+    End If
+
+    If Italic Then
+		oCellRange.CharFontStyleName = "Italic"
+    Else
+		oCellRange.CharFontStyleName = ""
+    End If
+	oCellRange.CharFontPitch = 2
+	oCellRange.CharFontCharSet = -1
+	oCellRange.CharFontFamily = 5
+	oCellRange.CharFontName = "Arial"
+	If BlueColor Then
+		oCellRange.CharColor = -1
+	Else
+		oCellRange.CharColor = RGB(0,102,204)
+	End If
+	If Bold Then
+		oCellRange.CharWeight = com.sun.star.awt.FontWeight.BOLD
+    Else
+		oCellRange.CharWeight = com.sun.star.awt.FontWeight.NORMAL
+    End If
+	oCellRange.CellBackColor = -1
+	oCellRange.CharHeight = 8
+	oCellRange.HoriJustify = com.sun.star.table.CellHoriJustify.LEFT
+	oCellRange.VertJustify  = com.sun.star.table.CellVertJustify.TOP
+	If CurrencyFormat Then
+		oFormat = CellSetNumberFormat("# ##0,00"" €""",ThisComponent)
+		oCellRange.NumberFormat = oFormat
+	End If
 		
 End Sub
 

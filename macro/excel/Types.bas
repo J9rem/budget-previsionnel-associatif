@@ -110,6 +110,7 @@ Public Type SetOfRange
     HeadCell As Range
     ResultCell As Range
     Status As Boolean
+    ChantierSheet As Worksheet
 End Type
 
 Public Function getDefaultWbRevision() As WbRevision
