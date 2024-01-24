@@ -483,9 +483,9 @@ Public Sub DefinirFormatPourChantier( _
 		oCellRange.TopBorder = oLineThin
     End If
     If AddBottomBorder Then
-		oCellRange.TopBorder = oLine
+		oCellRange.BottomBorder = oLine
     Else
-		oCellRange.TopBorder = oLineThin
+		oCellRange.BottomBorder = oLineThin
     End If
 
     If Italic Then

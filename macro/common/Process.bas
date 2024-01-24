@@ -1,4 +1,4 @@
-﻿Attribute VB_Name = "Process"
+Attribute VB_Name = "Process"
 ' SPDX-License-Identifier: EUPL-1.2
 ' Pour forcer la d�claration de toutes les variables
 Option Explicit
@@ -852,13 +852,13 @@ Public Function AjoutFinancementInternal( _
     AjoutFinancementInternal = SetOfRange
 
     NBRows = SetOfRange.EndCell.Row - SetOfRange.HeadCell.Row
+    Set BaseCell = SetOfRange.EndCell
     If NBRows = 0 Then
         ' insert just after HeadCell
         ShoudInsert = True
         Set BaseCell = SetOfRange.HeadCell
     Else
         ShoudInsert = False
-        Set BaseCell = SetOfRange.EndCell
         If TypeFinancementStr <> "" Then
             ' search existing similar TypeFinancement
             For Index = 1 To NBRows
@@ -931,6 +931,7 @@ Public Function AjoutFinancementInternal( _
         Set WorkingRange = BaseCell.Cells(2, 1)
         ' Clean values
         Range(WorkingRange, WorkingRange.Cells(NBLinesToClean, 2 + NBChantiers)).value = ""
+        Range(WorkingRange, WorkingRange.Cells(NBLinesToClean, 3 + NBChantiers)).MergeCells = False
     Else
         Set WorkingRange = BaseCell
     End If
@@ -1006,7 +1007,7 @@ Public Sub DefinirFormatChantiers( _
                 (ColumnIndex = 2 Or ColumnIndex = NBColumns), _
                 (ValueOfSecondCellOfLine = "Statut" And ColumnIndex <= 2), _
                 (ColumnIndex = NBColumns), _
-                (ColumnIndex > 1)
+                (ColumnIndex > 2)
         Next ColumnIndex
         If ValueOfSecondCellOfLine = "Statut" Then
             AddValidationDossier Range( _
