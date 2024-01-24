@@ -968,7 +968,7 @@ Public Function AjoutFinancementInternal( _
     End If
     ' adjust and return
     Set AjoutFinancementInternal.EndCell = SetOfRange.ResultCell.Cells(0, 0)
-End Sub
+End Function
 
 Public Sub DefinirFormatChantiers( _
         ChantierSheet As Worksheet, _
