@@ -973,6 +973,7 @@ End Sub
 Public Sub DefinirFormatChantiers( _
         ChantierSheet As Worksheet, _
         NBChantiers As Integer, _
+        Optional DefineConditionnal As Boolean = False, _
         Optional AddTopBorder As Boolean = True, _
         Optional AddBottomBorder As Boolean = True _
     )
@@ -1027,7 +1028,9 @@ Public Sub DefinirFormatChantiers( _
         End If
     Next RowIndex
 
-    DefinirFormatConditionnelPourLesDossier SetOfRange, NBChantiers
+    If DefineConditionnal Then
+        DefinirFormatConditionnelPourLesDossier SetOfRange, NBChantiers
+    End If
 End Sub
 
 Public Sub AjoutFinancement(wb As Workbook, _
@@ -1784,7 +1787,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                                 SetOfRange = AjoutFinancementInternal(SetOfRange, NewWorkbook, NBChantiers, FinancementCompletTmp, "", 0)
                             Next Index
                             RenewFormulaForTotalFinancement SetOfRange.ChantierSheet, NBChantiers
-                            DefinirFormatChantiers SetOfRange.ChantierSheet, NBChantiers
+                            DefinirFormatChantiers SetOfRange.ChantierSheet, NBChantiers, True
                         End If
                     End If
                     

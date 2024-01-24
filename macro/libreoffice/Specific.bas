@@ -634,6 +634,7 @@ Public Sub DefinirFormatConditionnelPourLesDossier( _
 
     Dim CurrentCells As Range
     Dim FirstCellAddress As String
+    Dim oCellAddress
 	Dim oCondition(2) As New com.sun.star.beans.PropertyValue
 	Dim oCondFormat
     Dim oRange
@@ -649,41 +650,57 @@ Public Sub DefinirFormatConditionnelPourLesDossier( _
 	oCondFormat = oRange.ConditionalFormat
 	oCondFormat.clear()
 
-	FirstCellAddress = CurrentCells.Cells(2,1).Address(False,False,xlA1,False)
+	oCellAddress = oSheet.getCellByPosition( _
+		CurrentCells.Cells(1,1).Column - 1, _
+		CurrentCells.Cells(1,1).Row - 1_
+	).getCellAddress()
+	FirstCellAddress = CurrentCells.Cells(1,1).Cells(2,1).Address(False,False,xlA1,False)
 	oCondFormat.addNew(CreerConditionProps( _
 		"=SI(" & FirstCellAddress & "=DOSSIER_OK;VRAI();FAUX()", _
+		oCellAddress, _
 		"CondDossierOK", _
-		RGB(0, 255, 0)
+		0, 255, 0 _
 	))
 	oCondFormat.addNew(CreerConditionProps( _
 		"=SI(" & FirstCellAddress & "=DOSSIER_FAVORABLE_ISSUE_INCERTAINE;VRAI();FAUX()", _
+		oCellAddress, _
 		"CondDossierFavorableIssueIncertaine", _
-		RGB(0, 204, 255)
+		0, 204, 255 _
 	))
 	oCondFormat.addNew(CreerConditionProps( _
 		"=SI(" & FirstCellAddress & "=DOSSIER_INCERTAIN;VRAI();FAUX()", _
+		oCellAddress, _
 		"CondDossierIncertain", _
-		RGB(255, 204, 0)
+		255, 204, 0 _
 	))
 	oCondFormat.addNew(CreerConditionProps( _
 		"=SI(" & FirstCellAddress & "=DOSSIER_NON_DEPOSE;VRAI();FAUX()", _
+		oCellAddress, _
 		"CondDossierNonDepose", _
-		RGB(255, 255, 0)
+		255, 255, 0 _
 	))
 	FirstCellAddress = CurrentCells.Cells(1,1).Address(False,False,xlA1,False)
 	oCondFormat.addNew(CreerConditionProps( _
 		"=MOD(LIGNE(" & FirstCellAddress & ");2)", _
+		oCellAddress, _
 		"CondAlternanceLigne", _
-		RGB(204, 204, 204)
+		204, 204, 204 _
 	))
 
 	oRange.ConditionalFormat = oCondFormat
 End Sub
 
-Public Function CreerConditionProps(Formula As String, StyleName As String, BgColor As Long)
-	Dim oCondition(2) As New com.sun.star.beans.PropertyValue
+Public Function CreerConditionProps( _
+		Formula As String, _
+		oCellAddress, _
+		StyleName As String , _
+		Red As Integer, _
+		Green As Integer, _
+		Blue As Integer _
+	)
+	Dim oCondition(3) As New com.sun.star.beans.PropertyValue
 
-	CreerStyle StyleName, BgColor
+	CreerStyle StyleName, Red, Green, Blue
 
 	oCondition(0).Name = "Operator"
 	oCondition(0).Value = com.sun.star.sheet.ConditionOperator.FORMULA
@@ -691,22 +708,24 @@ Public Function CreerConditionProps(Formula As String, StyleName As String, BgCo
 	oCondition(1).Value = Formula
 	oCondition(2).Name = "StyleName"
 	oCondition(2).Value = StyleName
+	oCondition(3).Name = "SourcePosition"
+	oCondition(3).Value = oCellAddress
 
 	CreerConditionProps = oCondition
 End Function
 
-Public Function CreerStyle(Name As String, BgColor As Long)
+Public Function CreerStyle(Name As String, Red As Integer, Green As Integer, Blue As Integer)
 
 	Dim oStyles
 	Dim newStyle
 
-	If Len(Name) > 0  Then
+	If Len(Name) = 0  Then
 		CreerStyle = Null
 		Exit Function
 	End If
 
 	oStyles = ThisComponent.StyleFamilies.getByName("CellStyles")
-	If oStyles.HasByName(Name) Then
+	If Not oStyles.HasByName(Name) Then
 		newStyle = ThisComponent.createInstance("com.sun.star.style.CellStyle")
 		If oStyles.HasByName("Par défaut") Then
 			newStyle.ParentStyle = "Par défaut"
@@ -719,9 +738,9 @@ Public Function CreerStyle(Name As String, BgColor As Long)
 				End If
 			End If
 		End If
-		newStyle.setPropertyValue("CellBackColor", BgColor)
-		newStyle.setPropertyValue("IsCellBackgroundTransparent", False)
-		newStyle.insertByName(Name,newStyle)
+		oStyles.insertByName(Name,newStyle)
+		newStyle = oStyles.getByName(Name)
+		newStyle.setPropertyValue("CellBackColor", RGB(Red,Green,Blue))
 	End If
 	CreerStyle = oStyles.getByName(Name)
 End Function
