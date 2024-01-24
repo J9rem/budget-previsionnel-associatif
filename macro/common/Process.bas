@@ -826,14 +826,14 @@ Public Function PrepareAjoutFinancement( _
 
 End Function
 
-Public Sub AjoutFinancementInternal( _
+Public Function AjoutFinancementInternal( _
         SetOfRange As SetOfRange, _
         wb As Workbook, _
         NBChantiers As Integer, _
         NewFinancementInChantier As FinancementComplet, _
         Optional Nom As String = "", _
         Optional TypeFinancement As Integer = 0 _
-    )
+    ) As SetOfRange
 
     Dim BaseCell As Range
     Dim Index As Integer
@@ -849,6 +849,7 @@ Public Sub AjoutFinancementInternal( _
     Dim WorkingRange As Range
     
     TypeFinancementStr = GetTypeFinancementStr(wb, TypeFinancement, NewFinancementInChantier)
+    AjoutFinancementInternal = SetOfRange
 
     NBRows = SetOfRange.EndCell.Row - SetOfRange.HeadCell.Row
     If NBRows = 0 Then
@@ -964,8 +965,8 @@ Public Sub AjoutFinancementInternal( _
             End If
         Next Index
     End If
-    ' adjust
-    Set SetOfRange.EndCell = SetOfRange.ResultCell.Cells(0, 0)
+    ' adjust and return
+    Set AjoutFinancementInternal.EndCell = SetOfRange.ResultCell.Cells(0, 0)
 End Sub
 
 Public Sub DefinirFormatChantiers( _
@@ -1049,7 +1050,7 @@ Public Sub AjoutFinancement(wb As Workbook, _
         Exit Sub
     End If
 
-    AjoutFinancementInternal SetOfRange, wb, NBChantiers, NewFinancementInChantier, Nom, TypeFinancement
+    SetOfRange = AjoutFinancementInternal SetOfRange, wb, NBChantiers, NewFinancementInChantier, Nom, TypeFinancement
     
     RenewFormulaForTotalFinancement SetOfRange.ChantierSheet, NBChantiers
     DefinirFormatChantiers SetOfRange.ChantierSheet, NBChantiers
@@ -1072,74 +1073,6 @@ Public Sub AddValidationDossier(currentRange As Range)
         .ShowError = True
     End With
 
-End Sub
-
-Public Sub DefinirFormatConditionnelPourLesDossier( _
-        SetOfRange As SetOfRange, _
-        NBChantiers As Integer _
-    )
-
-    Dim CurrentCells As Range
-    Dim CurrentFormatCondition As FormatCondition
-    Dim FirstCell As Range
-    Dim Index As Integer
-    Dim ListConditions() As String
-    Dim ListColors() As Variant
-
-    ReDim ListConditions(1 To 4)
-    ReDim ListColors(1 To 4)
-
-    Set CurrentCells = Range( _
-        SetOfRange.HeadCell.Cells(2, 1), _
-        SetOfRange.EndCell.Cells(1, 3 + NBChantiers) _
-    )
-    
-    ListConditions(1) = "DOSSIER_OK"
-    ListColors(1) = 65280
-    ListConditions(2) = "DOSSIER_FAVORABLE_ISSUE_INCERTAINE"
-    ListColors(2) = 15773696
-    ListConditions(3) = "DOSSIER_INCERTAIN"
-    ListColors(3) = 49407
-    ListConditions(4) = "DOSSIER_NON_DEPOSE"
-    ListColors(4) = 65535
-    
-    CurrentCells.FormatConditions.Delete
-    Set FirstCell = CurrentCells.Cells(1, 1).Cells(2, 1)
-    For Index = 1 To 4
-        FirstCell.Worksheet.Activate
-        CurrentCells.Select
-        Set CurrentFormatCondition = CurrentCells.FormatConditions.Add( _
-            Type:=xlExpression, _
-            Formula1:= _
-                "=SI(" & FirstCell.address( _
-                    RowAbsolute:=False, _
-                    ColumnAbsolute:=False, _
-                    ReferenceStyle:=xlA1 _
-                ) & "=" & ListConditions(Index) & ";VRAI();FAUX())" _
-            )
-        CurrentFormatCondition.StopIfTrue = True
-        CurrentFormatCondition.SetFirstPriority
-        With CurrentFormatCondition.Interior
-            .PatternColorIndex = xlAutomatic
-            .Color = ListColors(Index)
-            .TintAndShade = 0
-        End With
-    Next Index
-    Set CurrentFormatCondition = CurrentCells.FormatConditions.Add( _
-        Type:=xlExpression, _
-        Formula1:= _
-            "=MOD(LIGNE(" & FirstCell.address( _
-                RowAbsolute:=False, _
-                ColumnAbsolute:=False, _
-                ReferenceStyle:=xlA1 _
-            ) & ");2)" _
-        )
-    CurrentFormatCondition.StopIfTrue = False
-    With CurrentFormatCondition.Interior
-        .PatternColorIndex = xlAutomatic
-        .Color = RGB(216, 216, 216)
-        .TintAndShade = 0
-    End With
 End Sub
 
 Public Function InsertRows( _
@@ -1847,7 +1780,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                                 Next IndexChantier
                                 FinancementCompletTmp.Financements = FinancementsTmp
                                 FinancementCompletTmp.Status = True
-                                AjoutFinancementInternal SetOfRange, NewWorkbook, NBChantiers, FinancementCompletTmp, "", 0
+                                SetOfRange = AjoutFinancementInternal SetOfRange, NewWorkbook, NBChantiers, FinancementCompletTmp, "", 0
                             Next Index
                             RenewFormulaForTotalFinancement SetOfRange.ChantierSheet, NBChantiers
                             DefinirFormatChantiers SetOfRange.ChantierSheet, NBChantiers
@@ -1939,17 +1872,17 @@ Public Sub InitialiserLesFinancements(wb As Workbook, NBFinancements As Integer,
     
     For Index = 1 To UBound(TypesFinancements)
         For IndexLoop = 1 To NBFinancements
-            AjoutFinancementInternal SetOfRange, wb, NBChantiers, FinancementCompletTmp, "Client " & (IndexLoop + (Index - 1) * NBFinancements), Index
+            SetOfRange = AjoutFinancementInternal SetOfRange, wb, NBChantiers, FinancementCompletTmp, "Client " & (IndexLoop + (Index - 1) * NBFinancements), Index
         Next IndexLoop
     Next Index
     For IndexLoop = 1 To NBFinancements
-        AjoutFinancementInternal SetOfRange, wb, NBChantiers, FinancementCompletTmp, "Formations", 0
+        SetOfRange = AjoutFinancementInternal SetOfRange, wb, NBChantiers, FinancementCompletTmp, "Formations", 0
     Next IndexLoop
     For IndexLoop = 1 To NBFinancements
-        AjoutFinancementInternal SetOfRange, wb, NBChantiers, FinancementCompletTmp, "Prestations", 0
+        SetOfRange = AjoutFinancementInternal SetOfRange, wb, NBChantiers, FinancementCompletTmp, "Prestations", 0
     Next IndexLoop
     For IndexLoop = 1 To NBFinancements
-        AjoutFinancementInternal SetOfRange, wb, NBChantiers, FinancementCompletTmp, "Cotisations", 0
+        SetOfRange = AjoutFinancementInternal SetOfRange, wb, NBChantiers, FinancementCompletTmp, "Cotisations", 0
     Next IndexLoop
     
     RenewFormulaForTotalFinancement SetOfRange.ChantierSheet, NBChantiers

@@ -448,11 +448,12 @@ Public Sub DefinirFormatPourChantier( _
 		BlueColor As Boolean, _
 		CurrencyFormat As Boolean _
     )
-
-    Dim oSheet
+	
     Dim oCellRange
+	Dim oFormat As Long
 	Dim oLine As New com.sun.star.table.BorderLine2
 	Dim oLineThin As New com.sun.star.table.BorderLine2
+    Dim oSheet
     
     oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
     oCellRange = oSheet.getCellByPosition(CurrentCell.Column-1,CurrentCell.Row-1)
@@ -462,16 +463,16 @@ Public Sub DefinirFormatPourChantier( _
 		.InnerLineWidth = 0
 		.LineDistance = 0
 		.LineStyle = com.sun.star.table.BorderLineStyle.SOLID
-		.LineWidth = 26
-		.OuterLineWidth = 26
+		.LineWidth = 75
+		.OuterLineWidth = 75
 	End With
 	With oLineThin
 		.Color = RGB(0,0,0)
 		.InnerLineWidth = 0
 		.LineDistance = 0
-		.LineStyle = com.sun.star.table.BorderLineStyle.FINE_DASHED
-		.LineWidth = 40
-		.OuterLineWidth = 40
+		.LineStyle = com.sun.star.table.BorderLineStyle.SOLID
+		.LineWidth = 5
+		.OuterLineWidth = 5
 	End With
 	oCellRange.LeftBorder = oLine
 	oCellRange.RightBorder = oLine
@@ -496,11 +497,7 @@ Public Sub DefinirFormatPourChantier( _
 	oCellRange.CharFontCharSet = -1
 	oCellRange.CharFontFamily = 5
 	oCellRange.CharFontName = "Arial"
-	If BlueColor Then
-		oCellRange.CharColor = -1
-	Else
-		oCellRange.CharColor = RGB(0,102,204)
-	End If
+	oCellRange.CharColor = RGB(0,0,0)
 	If Bold Then
 		oCellRange.CharWeight = com.sun.star.awt.FontWeight.BOLD
     Else
@@ -628,4 +625,93 @@ Public Sub FormatFinancementCells(BaseCell As Range)
 		oCellRange.TopBorder = oLine
 		oCellRange.BottomBorder = oLine
     Next Index
+End Sub
+
+Public Sub DefinirFormatConditionnelPourLesDossier( _
+        SetOfRange As SetOfRange, _
+        NBChantiers As Integer _
+    )
+
+    Dim CurrentCells As Range
+    Dim CurrentFormatCondition As FormatCondition
+    Dim FirstCell As Range
+    Dim Index As Integer
+    Dim ListConditions() As String
+    Dim ListColors() As Variant
+	Dim oCondition(2) As New com.sun.star.beans.PropertyValue
+	Dim oConFormat
+    Dim oRange
+    Dim oSheet
+
+    ReDim ListConditions(1 To 4)
+    ReDim ListColors(1 To 4)
+
+    Set CurrentCells = Range( _
+        SetOfRange.HeadCell.Cells(2, 1), _
+        SetOfRange.EndCell.Cells(1, 3 + NBChantiers) _
+    )
+    
+    ListConditions(1) = "DOSSIER_OK"
+    ListColors(1) = 65280
+    ListConditions(2) = "DOSSIER_FAVORABLE_ISSUE_INCERTAINE"
+    ListColors(2) = 15773696
+    ListConditions(3) = "DOSSIER_INCERTAIN"
+    ListColors(3) = 49407
+    ListConditions(4) = "DOSSIER_NON_DEPOSE"
+    ListColors(4) = 65535
+	
+	oSheet = ThisComponent.Sheets.getByName(CurrentCells.Worksheet.Name)
+	oRange = oSheet.getCellRangeByName(CurrentCells.Address(False,False,xlA1,False))
+	oConFormat = oRange.ConditionalFormat
+	oConFormat.clear()
+
+	' TODO define 5 different cond formats
+	' TODO define 5 different style
+
+	oCondition(0).Name = "Operator"
+	oCondition(0).Value = com.sun.star.sheet.ConditionOperator.FORMULA
+	oCondition(1).Name = "Formula1"
+	oCondition(1).Value = 0
+	oCondition(2).Name = "StyleName"
+	oCondition(2).Value = "Heading1"
+	oConFormat.addNew(oCondition())
+	oRange.ConditionalFormat = oConFormat
+    
+    CurrentCells.FormatConditions.Delete
+    Set FirstCell = CurrentCells.Cells(1, 1).Cells(2, 1)
+    For Index = 1 To 4
+        FirstCell.Worksheet.Activate
+        CurrentCells.Select
+        Set CurrentFormatCondition = CurrentCells.FormatConditions.Add( _
+            Type:=xlExpression, _
+            Formula1:= _
+                "=SI(" & FirstCell.address( _
+                    RowAbsolute:=False, _
+                    ColumnAbsolute:=False, _
+                    ReferenceStyle:=xlA1 _
+                ) & "=" & ListConditions(Index) & ";VRAI();FAUX())" _
+            )
+        CurrentFormatCondition.StopIfTrue = True
+        CurrentFormatCondition.SetFirstPriority
+        With CurrentFormatCondition.Interior
+            .PatternColorIndex = xlAutomatic
+            .Color = ListColors(Index)
+            .TintAndShade = 0
+        End With
+    Next Index
+    Set CurrentFormatCondition = CurrentCells.FormatConditions.Add( _
+        Type:=xlExpression, _
+        Formula1:= _
+            "=MOD(LIGNE(" & FirstCell.address( _
+                RowAbsolute:=False, _
+                ColumnAbsolute:=False, _
+                ReferenceStyle:=xlA1 _
+            ) & ");2)" _
+        )
+    CurrentFormatCondition.StopIfTrue = False
+    With CurrentFormatCondition.Interior
+        .PatternColorIndex = xlAutomatic
+        .Color = RGB(216, 216, 216)
+        .TintAndShade = 0
+    End With
 End Sub

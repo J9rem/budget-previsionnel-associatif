@@ -1,6 +1,6 @@
 Attribute VB_Name = "Specific"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dï¿½claration de toutes les variables
 Option Explicit
 
 ' constantes
@@ -26,14 +26,14 @@ Public Function choisirNomFicherASauvegarderSansMacro(ByRef FilePath As String) 
     Adresse_dossier_courant = ThisWorkbook.Path
     ChDir (Adresse_dossier_courant)
     
-    ' Fenêtre pour demander le nom du fichier de sauvegarde
+    ' Fenï¿½tre pour demander le nom du fichier de sauvegarde
     On Error Resume Next
     ' InitialFileName, FileFilter, FiltrerIndex, Title
     Fichier_De_Sauvegarde = Application.GetSaveAsFilename( _
         Default_File_Name, _
         "Excel 2003-2007 (*.xls),*.xls,Excel (*.xlsx),*.xlsx", _
         2, _
-        "Choisir le fichier à exporter")
+        "Choisir le fichier ï¿½ exporter")
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" Or Fichier_De_Sauvegarde = Empty Or Fichier_De_Sauvegarde = "Faux" Or Fichier_De_Sauvegarde = "False" Then
         choisirNomFicherASauvegarderSansMacro = False
@@ -259,7 +259,7 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As 
             .VerticalAlignment = xlTop
             
             If IndexBis = 3 Then
-                .NumberFormat = "#,##0.00"" €"""
+                .NumberFormat = "#,##0.00"" ï¿½"""
             Else
                 .NumberFormat = "General"
             End If
@@ -357,7 +357,7 @@ Public Sub DefinirFormatPourChantier( _
             .ThemeFont = xlThemeFontNone
         End With
         If CurrencyFormat Then
-            .NumberFormat = "#,##0.00"" €"""
+            .NumberFormat = "#,##0.00"" ï¿½"""
         Else
             .NumberFormat = "General"
         End If
@@ -377,7 +377,7 @@ Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As S
     Set OldChargesSheet = oldWorkbook.Worksheets(Name)
     On Error GoTo 0
     If OldChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas été trouvée dans " & oldWorkbook.Name
+        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas ï¿½tï¿½ trouvï¿½e dans " & oldWorkbook.Name
         Exit Sub
     End If
     
@@ -385,7 +385,7 @@ Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As S
     Set NewChargesSheet = NewWorkbook.Worksheets(Name)
     On Error GoTo 0
     If NewChargesSheet Is Nothing Then
-        MsgBox "'" & Name & "' n'a pas été trouvée dans " & NewWorkbook.Name
+        MsgBox "'" & Name & "' n'a pas ï¿½tï¿½ trouvï¿½e dans " & NewWorkbook.Name
         Exit Sub
     End If
     
@@ -485,4 +485,72 @@ Public Sub FormatFinancementCells(BaseCell As Range)
             End With
         Next VarTmp
     Next Index
+End Sub
+
+Public Sub DefinirFormatConditionnelPourLesDossier( _
+        SetOfRange As SetOfRange, _
+        NBChantiers As Integer _
+    )
+
+    Dim CurrentCells As Range
+    Dim CurrentFormatCondition As FormatCondition
+    Dim FirstCell As Range
+    Dim Index As Integer
+    Dim ListConditions() As String
+    Dim ListColors() As Variant
+
+    ReDim ListConditions(1 To 4)
+    ReDim ListColors(1 To 4)
+
+    Set CurrentCells = Range( _
+        SetOfRange.HeadCell.Cells(2, 1), _
+        SetOfRange.EndCell.Cells(1, 3 + NBChantiers) _
+    )
+    
+    ListConditions(1) = "DOSSIER_OK"
+    ListColors(1) = 65280
+    ListConditions(2) = "DOSSIER_FAVORABLE_ISSUE_INCERTAINE"
+    ListColors(2) = 15773696
+    ListConditions(3) = "DOSSIER_INCERTAIN"
+    ListColors(3) = 49407
+    ListConditions(4) = "DOSSIER_NON_DEPOSE"
+    ListColors(4) = 65535
+    
+    CurrentCells.FormatConditions.Delete
+    Set FirstCell = CurrentCells.Cells(1, 1).Cells(2, 1)
+    For Index = 1 To 4
+        FirstCell.Worksheet.Activate
+        CurrentCells.Select
+        Set CurrentFormatCondition = CurrentCells.FormatConditions.Add( _
+            Type:=xlExpression, _
+            Formula1:= _
+                "=SI(" & FirstCell.address( _
+                    RowAbsolute:=False, _
+                    ColumnAbsolute:=False, _
+                    ReferenceStyle:=xlA1 _
+                ) & "=" & ListConditions(Index) & ";VRAI();FAUX())" _
+            )
+        CurrentFormatCondition.StopIfTrue = True
+        CurrentFormatCondition.SetFirstPriority
+        With CurrentFormatCondition.Interior
+            .PatternColorIndex = xlAutomatic
+            .Color = ListColors(Index)
+            .TintAndShade = 0
+        End With
+    Next Index
+    Set CurrentFormatCondition = CurrentCells.FormatConditions.Add( _
+        Type:=xlExpression, _
+        Formula1:= _
+            "=MOD(LIGNE(" & FirstCell.address( _
+                RowAbsolute:=False, _
+                ColumnAbsolute:=False, _
+                ReferenceStyle:=xlA1 _
+            ) & ");2)" _
+        )
+    CurrentFormatCondition.StopIfTrue = False
+    With CurrentFormatCondition.Interior
+        .PatternColorIndex = xlAutomatic
+        .Color = RGB(216, 216, 216)
+        .TintAndShade = 0
+    End With
 End Sub
