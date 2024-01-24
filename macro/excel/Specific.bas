@@ -361,6 +361,9 @@ Public Sub DefinirFormatPourChantier( _
         Else
             .NumberFormat = "General"
         End If
+        .Interior.Pattern = xlNone
+        .HorizontalAlignment = xlGeneral
+        .VerticalAlignment = xlTop
     End With
 End Sub
 

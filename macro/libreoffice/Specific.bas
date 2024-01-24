@@ -508,13 +508,13 @@ Public Sub DefinirFormatPourChantier( _
     End If
 	oCellRange.CellBackColor = -1
 	oCellRange.CharHeight = 8
-	oCellRange.HoriJustify = com.sun.star.table.CellHoriJustify.LEFT
+	oCellRange.HoriJustify = com.sun.star.table.CellHoriJustify.STANDARD
 	oCellRange.VertJustify  = com.sun.star.table.CellVertJustify.TOP
 	If CurrencyFormat Then
 		oFormat = CellSetNumberFormat("# ##0,00"" €""",ThisComponent)
 		oCellRange.NumberFormat = oFormat
 	End If
-		
+	oCellRange.CellBackColor = -1
 End Sub
 
 Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As String)
