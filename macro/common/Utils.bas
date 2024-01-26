@@ -435,11 +435,15 @@ Public Function openWbSafe(ByRef wb As Workbook, FilePath As String) As Boolean
             End If
         Else
             Set wb = Workbooks.Open(FileName:=FilePath)
-            On Error Resume Next
-            If wb.Path & "\" = DestFolder Then
+            If FindOpenedWorkBook(FileName & "." & Extension, OpenedWorkbook) Then
+                Set wb = OpenedWorkbook
+                If wb.Path & "\" = DestFolder Then
+                    openWbSafe = True
+                End If
+            Else
+                ' forced for .ods on LibreOffice
                 openWbSafe = True
             End If
-            On Error GoTo 0
         End If
      End If
 
