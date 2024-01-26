@@ -2141,74 +2141,49 @@ End Function
 
 Public Sub InsererUneDepenseInternal()
     
-    Dim BaseCell As Range
-    Dim BaseCellValue As String
     Dim ChantierSheet As Worksheet
-    Dim CoutJJournalierCell As Range
     Dim NBChantiers As Integer
+    Dim NBSalaries As Integer
     Dim Previous As Integer
-    Dim HeadDepensesCell As Range
-    Dim StructureCell As Range
+    Dim SetOfRange As SetOfRange
     
     Set ChantierSheet = ThisWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
         Exit Sub
     End If
-    Set BaseCell = FindNextNotEmpty(ChantierSheet.Cells(3, 1), False)
-    If BaseCell.Column > 1000 Then
-        Exit Sub
-    End If
-    If Left(BaseCell.Value, Len("Chantier")) <> "Chantier" Then
-        Exit Sub
-    End If
-    
-    Set StructureCell = BaseCell.Cells(3, 0)
-    Set CoutJJournalierCell = StructureCell
-    Set BaseCell = StructureCell
-    BaseCellValue = Trim(BaseCell)
-    While BaseCellValue <> Label_Cout_J_Journalier And BaseCellValue <> "TOTAL" And BaseCell.Row < 200
-        Set BaseCell = BaseCell.Cells(2, 1)
-        BaseCellValue = Trim(BaseCell)
-    Wend
-    
-    If BaseCellValue <> Label_Cout_J_Journalier Then
-        Exit Sub
-    End If
-    Set CoutJJournalierCell = BaseCell
-    If CoutJJournalierCell.Row - StructureCell.Row - 1 < 2 Then
-        Exit Sub
-    End If
-    Set HeadDepensesCell = CoutJJournalierCell.Cells(CoutJJournalierCell.Row - StructureCell.Row - 1, 0)
-    Set BaseCell = HeadDepensesCell.Cells(2, 2)
-
-    BaseCellValue = Trim(BaseCell)
-    While BaseCellValue <> "TOTAL" And BaseCell.Row < 200
-        Set BaseCell = BaseCell.Cells(2, 1)
-        BaseCellValue = Trim(BaseCell)
-    Wend
-    If BaseCellValue <> "TOTAL" Then
+    SetOfRange = GetCellsForDepense(ChantierSheet)
+    If Not SetOfRange.Status Then
         Exit Sub
     End If
     
     SetSilent
 
     NBChantiers = GetNbChantiers(ThisWorkbook)
-    Previous = BaseCell.Row - HeadDepensesCell.Row - 1
+    Previous = SetOfRange.ResultCell.Row - SetOfRange.HeadCell.Row - 1
 
     InsertRows _
-        HeadDepensesCell, _
+        SetOfRange.HeadCell, _
         Previous, _
         Previous + 1, _
         False, _
         3 + NBChantiers, _
         False
 
-    BaseCell.Cells(0, 1).Value = "650 - Autre"
-    Range(BaseCell.Cells(0, 2), BaseCell.Cells(0, 1 + NBChantiers)).ClearContents
+    SetOfRange.ResultCell.Cells(0, 1).Value = "650 - Autre"
+    Range( _
+        SetOfRange.ResultCell.Cells(0, 2), _
+        SetOfRange.ResultCell.Cells(0, 1 + NBChantiers) _
+    ).ClearContents
+
+    ' SetOfRange.EndCell = Cout_Journalier cell
+    NBSalaries = SetOfRange.HeadCell.Row - SetOfRange.EndCell.Row
     UpdateSumsByColumn _
-        Range(CoutJJournalierCell.Cells(2, 2), BaseCell.Cells(0, 1 + NBChantiers)), _
-        BaseCell.Cells(1, 2), _
-        Previous + CoutJJournalierCell.Row - StructureCell.Row - 2
+        Range( _
+            SetOfRange.EndCell.Cells(2, 2), _
+            SetOfRange.ResultCell.Cells(0, 1 + NBChantiers) _
+        ), _
+        SetOfRange.ResultCell.Cells(1, 2), _
+        Previous + NBSalaries
     
     SetActive
     
@@ -2260,6 +2235,64 @@ Public Function GetCellsForFinancement( _
     GetCellsForFinancement = SetOfRange
 End Function
 
+Public Function GetCellsForDepense( _
+        ChantierSheet As Worksheet _
+    ) As SetOfRange
+
+    Dim BaseCell As Range
+    Dim BaseCellValue As String
+    Dim CoutJJournalierCell As Range
+    Dim SetOfRange As SetOfRange
+    Dim StructureCell As Range
+
+    SetOfRange.Status = False
+    Set SetOfRange.ChantierSheet = ChantierSheet
+
+    Set BaseCell = FindNextNotEmpty(ChantierSheet.Cells(3, 1), False)
+    If BaseCell.Column > 1000 Then
+        Exit Function
+    End If
+    BaseCellValue = BaseCell.Value
+    If Left(BaseCellValue, Len("Chantier")) <> "Chantier" Then
+        Exit Function
+    End If
+
+    Set StructureCell = BaseCell.Cells(3, 0)
+    Set CoutJJournalierCell = StructureCell
+    Set BaseCell = StructureCell
+    BaseCellValue = Trim(BaseCell)
+    While BaseCellValue <> Label_Cout_J_Journalier And BaseCellValue <> "TOTAL" And BaseCell.Row < 200
+        Set BaseCell = BaseCell.Cells(2, 1)
+        BaseCellValue = Trim(BaseCell)
+    Wend
+    
+    If BaseCellValue <> Label_Cout_J_Journalier Then
+        Exit Function
+    End If
+    
+    Set CoutJJournalierCell = BaseCell
+    If CoutJJournalierCell.Row - StructureCell.Row - 1 < 2 Then
+        Exit Function
+    End If
+
+    Set SetOfRange.HeadCell = CoutJJournalierCell.Cells(CoutJJournalierCell.Row - StructureCell.Row - 1, 0)
+    Set BaseCell = SetOfRange.HeadCell.Cells(2, 2)
+    BaseCellValue = Trim(BaseCell)
+    While BaseCellValue <> "TOTAL" And BaseCell.Row < 200
+        Set BaseCell = BaseCell.Cells(2, 1)
+        BaseCellValue = Trim(BaseCell)
+    Wend
+    If BaseCellValue <> "TOTAL" Then
+        Exit Function
+    End If
+
+    Set SetOfRange.ResultCell = BaseCell
+    Set SetOfRange.EndCell = CoutJJournalierCell
+    SetOfRange.Status = True
+
+    GetCellsForDepense = SetOfRange
+End Function
+
 Public Sub RetirerUnFinanceur()
 
     Dim ChantierSheet As Worksheet
@@ -2304,7 +2337,7 @@ Public Sub RetirerUnFinanceur()
             SetOfRange.HeadCell, _
             NewLine - SetOfRange.HeadCell.Row, _
             NewLine - SetOfRange.HeadCell.Row - 2, _
-            NBExtraCols
+            1 + NBChantier + NBExtraCols
     Else
         ValueToTest = CurrentRange.Cells(2, 2).Value
         If ValueToTest = "Statut" Then
@@ -2312,17 +2345,64 @@ Public Sub RetirerUnFinanceur()
                 SetOfRange.HeadCell, _
                 NewLine - SetOfRange.HeadCell.Row + 1, _
                 NewLine - SetOfRange.HeadCell.Row - 1, _
-                NBExtraCols
+                1 + NBChantier + NBExtraCols
         Else
             RemoveRows _
                 SetOfRange.HeadCell, _
                 NewLine - SetOfRange.HeadCell.Row, _
                 NewLine - SetOfRange.HeadCell.Row - 1, _
-                NBExtraCols
+                1 + NBChantier + NBExtraCols
         End If
     End If
 
     RenewFormulaForTotalFinancement ChantierSheet, NBChantier
+
+    SetActive
+End Sub
+
+Public Sub RetirerUneDepense()
+
+    Dim ChantierSheet As Worksheet
+    Dim CurrentRange As Range
+    Dim NewLine As Integer
+    Dim NBChantier As Integer
+    Dim SetOfRange As SetOfRange
+    Dim wb As Workbook
+
+    Set wb = ThisWorkbook
+    Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
+    If ChantierSheet Is Nothing Then
+        Exit Sub
+    End If
+
+    SetOfRange = GetCellsForDepense(ChantierSheet)
+    If Not SetOfRange.Status Then
+        Exit Sub
+    End If
+
+    NBChantier = GetNbChantiers(wb)
+
+    NewLine = InputLineBetween( _
+        "Supprimer la dépense de la ligne ?", _
+        "Ligne de la dépense à supprimer", _
+        SetOfRange.HeadCell.Row + 1, _
+        SetOfRange.ResultCell.Row - 1 _
+    )
+
+    If NewLine = 0 Then
+        MsgBox "La ligne entrée n'est pas la ligne d'une dépense"
+        Exit Sub
+    End If
+    
+    SetSilent
+
+    Set CurrentRange = SetOfRange.HeadCell.Cells(NewLine - SetOfRange.HeadCell.Row + 1, 1)
+
+    RemoveRows _
+        SetOfRange.HeadCell, _
+        NewLine - SetOfRange.HeadCell.Row, _
+        NewLine - SetOfRange.HeadCell.Row - 1, _
+        1 + NBChantier + NBExtraCols
 
     SetActive
 End Sub
