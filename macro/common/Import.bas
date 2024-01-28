@@ -9,12 +9,20 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
     ' FileFilter, FiltrerIndex, Title
     On Error Resume Next
     Fichier_De_Sauvegarde = Application.GetOpenFilename( _
-        "Fichiers compatibles (*.xlsx;*.xls;*.xlsm),*.xlsx;*.xls;*.xlsm,Excel 2003-2007 (*.xls),*.xls,Excel (*.xlsx),*.xlsx, Excel avec macro (*.xlsm),*.xlsm", _
+        "Fichiers compatibles (*.xlsx;*.xls;*.xlsm;*.ods)," _
+        & "*.xlsx;*.xls;*.xlsm;*.ods," _
+        & "Excel 2003-2007 (*.xls),*.xls," _
+        & "Excel (*.xlsx),*.xlsx," _
+        & "Excel avec macro (*.xlsm),*.xlsm," _
+        & "Libre Office (*.ods),*.ods", _
         0, _
         "Choisir le fichier à importer" _
     )
     On Error GoTo 0
-    If Fichier_De_Sauvegarde = "" Or Fichier_De_Sauvegarde = Empty Or Fichier_De_Sauvegarde = "Faux" Or Fichier_De_Sauvegarde = "False" Then
+    If Fichier_De_Sauvegarde = "" _
+        Or Fichier_De_Sauvegarde = Empty _
+        Or Fichier_De_Sauvegarde = "Faux" _
+        Or Fichier_De_Sauvegarde = "False" Then
         choisirFichierAImporter = False
     Else
         FilePath = Fichier_De_Sauvegarde
