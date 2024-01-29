@@ -79,6 +79,7 @@ Type Charge
     PreviousYearValue As Double
     PreviousN2YearValue As Double
     ChargeCell As Range
+    Category As Integer
 End Type
 
 Type SetOfCharges

@@ -147,7 +147,7 @@ Public Function TypeFinancementsFromWb(wb As Workbook)
         ReDim ArrayTmp(0 To NBTypesFinancements)
         ArrayTmp(0) = ""
         For Index = 1 To NBTypesFinancements
-            ArrayTmp(Index) = RangeForType.Item(Index).value
+            ArrayTmp(Index) = RangeForType.Item(Index).Value
         Next Index
         
         TypeFinancementsFromWb = ArrayTmp
@@ -423,18 +423,26 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
     End If
 
     ' Format cell
-    For IndexBis = 1 To 4
+    For IndexBis = 1 To 9
         With CurrentCell.Cells(1, IndexBis)
             For Each VarTmp In Arr1
                 .Borders(VarTmp).LineStyle = xlNone
             Next VarTmp
             For Each VarTmp In Arr2
-                With .Borders(VarTmp)
-                    .LineStyle = xlContinuous
-                    .ColorIndex = 1
-                    .TintAndShade = 0
-                    .Weight = xlThin
-                End With
+                If IndexBis = 5 _
+                    And ( _
+                        VarTmp = xlEdgeTop _
+                        Or VarTmp = xlEdgeBottom _
+                    ) Then
+                    .Borders(VarTmp).LineStyle = xlNone
+                Else
+                    With .Borders(VarTmp)
+                        .LineStyle = xlContinuous
+                        .ColorIndex = 1
+                        .TintAndShade = 0
+                        .Weight = xlThin
+                    End With
+                End If
             Next VarTmp
             With .Font
                 .Name = "Calibri"

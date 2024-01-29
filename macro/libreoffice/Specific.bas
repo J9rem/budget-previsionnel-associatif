@@ -547,11 +547,16 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
 	End With
     
     oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
-    For IndexBis = 1 To 4
+    For IndexBis = 1 To 9
 	    oCellRange = oSheet.getCellByPosition(CurrentCell.Column+IndexBis-2,CurrentCell.Row-1)
 	    
-		oCellRange.TopBorder = oLine
-		oCellRange.BottomBorder= oLine
+		If IndexBis = 5 Then
+			oCellRange.TopBorder = oNoLine
+			oCellRange.BottomBorder= oNoLine
+		Else
+			oCellRange.TopBorder = oLine
+			oCellRange.BottomBorder= oLine
+		End If
 	    
 	    If NoBorderOnRightAndLeft Then
 			oCellRange.LeftBorder = oNoLine
