@@ -577,7 +577,7 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
     	oCellRange.CharHeight = 8
 		oCellRange.HoriJustify = com.sun.star.table.CellHoriJustify.LEFT
 		oCellRange.VertJustify  = com.sun.star.table.CellVertJustify.TOP
-		If IndexBis > 1 Then
+		If IndexBis > 1 And IndexBis <> 5 Then
 			oFormat = CellSetNumberFormat("# ##0,00"" €""",ThisComponent)
 			oCellRange.NumberFormat = oFormat
 		End If

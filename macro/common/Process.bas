@@ -1956,7 +1956,7 @@ Public Function InsertNewLineForCharges(ChargesSheet As Worksheet, CurrentCell A
     With CurrentCell.Cells(2, 6).Validation
         .Delete
         .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
-        xlBetween, Formula1:="1,2,3"
+        xlBetween, Formula1:="=VAL_CAT"
         .IgnoreBlank = True
         .InCellDropdown = True
         .InputTitle = ""
