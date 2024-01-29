@@ -21,6 +21,7 @@ Public Const Label_Total_Financements = "Total des financements"
 Public Const Label_Type_Financeur = "Type de financeur"
 Public Const Label_Version As String = "Version du tableur:"
 Public Const NBExtraCols As Integer = 6
+Public Const NBCatOfCharges As Integer = 3
 Public Const Nom_Feuille_Budget_chantiers As String = "Budget_chantiers"
 Public Const Nom_Feuille_Budget_global As String = "Budget_global"
 Public Const Nom_Feuille_CC_by_SA As String = "CC BY SA V3.0"
