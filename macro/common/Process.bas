@@ -507,7 +507,6 @@ Public Sub ChangeChantiers(wb As Workbook, PreviousNB As Integer, FinalNB As Int
     End If
     
     If FinalNB > PreviousNB Then
-        ' TODO does not insert between but append, to preserve formula
         BaseCell.Cells(1, 1).Worksheet.Activate
         BaseCell.Cells(1, PreviousNB).EntireColumn.Select
         BaseCell.Cells(1, PreviousNB).EntireColumn.Copy
@@ -2309,7 +2308,7 @@ Public Function GetCellsForDepense( _
     NewFormatForCat = True
     For Index = 1 To 1 + NBCatOfCharges
         If NewFormatForCat Then
-            BaseCellValue = SetOfRange.HeadCell.Cells(Index, 1).Value
+            BaseCellValue = Trim(SetOfRange.HeadCell.Cells(Index, 1).Value)
             If BaseCellValue = "" Then
                 NewFormatForCat = False
             Else
