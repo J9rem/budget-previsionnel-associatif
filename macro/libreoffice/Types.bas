@@ -91,6 +91,7 @@ Type Data
     Chantiers() As Chantier
     Informations As Informations
     Charges() As Charge
+    TitlesForChargesCat As TitlesForChargesCat
 End Type
 
 Type TypeCharge
@@ -114,6 +115,10 @@ Type SetOfRange
     ResultCell As Range
     Status As Boolean
     ChantierSheet As Worksheet
+End Type
+
+Type TitlesForChargesCat
+    Titles() As String
 End Type
 
 Public Function getDefaultWbRevision() As WbRevision

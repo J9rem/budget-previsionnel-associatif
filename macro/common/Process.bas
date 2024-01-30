@@ -1566,7 +1566,12 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
     Dim NBNewCharges As Integer
     Dim Has3Years As Boolean
     Dim SetOfCharges As SetOfCharges
+    Dim Titles() As Range
+    Dim TitlesBaseColumn As Integer
+    Dim TitlesForChargesCat As TitlesForChargesCat
+    Dim TitlesRow As Integer
     ReDim Charges(0)
+    ReDim Titles(1 To 3)
 
     On Error Resume Next
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
@@ -1575,6 +1580,21 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
         MsgBox "'" & Nom_Feuille_Charges & "' n'a pas �t� trouv�e"
         GoTo FinFunction
     End If
+
+    ' Get Titles for categories for charges
+    If Revision.Majeure <= 1 Then
+        Titles(1) = "Cat. 1"
+        Titles(2) = "Cat. 2"
+        Titles(3) = "Cat. 3"
+    Else
+        TitlesBaseColumn = 6
+        TitlesRow = 3
+        Titles(1) = ChargesSheet.Cells(TitlesRow, TitlesBaseColumn + 1).Value
+        Titles(2) = ChargesSheet.Cells(TitlesRow, TitlesBaseColumn + 2).Value
+        Titles(3) = ChargesSheet.Cells(TitlesRow, TitlesBaseColumn + 3).Value
+    End If
+    TitlesForChargesCat.Titles = Titles
+    Data.TitlesForChargesCat = TitlesForChargesCat
     
     Set CurrentCell = ChargesSheet.Cells(2, 1)
     While (CurrentCell.Value = "" Or CurrentCell.Value = Empty) And CurrentCell.Row < 1000
@@ -1981,6 +2001,10 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Dim IndexBis As Integer
     Dim IndexCode As Integer
     Dim StartCell As Range
+    Dim Titles() As Range
+    Dim TitlesBaseColumn As Integer
+    Dim TitlesForChargesCat As TitlesForChargesCat
+    Dim TitlesRow As Integer
 
     On Error Resume Next
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
@@ -1989,6 +2013,14 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
         MsgBox "'" & Nom_Feuille_Charges & "' n'a pas �t� trouv�e"
         Exit Sub
     End If
+    ' update titles for categories
+    TitlesBaseColumn = 6
+    TitlesRow = 3
+    TitlesForChargesCat = Data.TitlesForChargesCat
+    Titles = TitlesForChargesCat.Titles
+    For Index = LBound(Titles) To UBound(Titles)
+        ChargesSheet.Cells(TitlesRow, TitlesBaseColumn + Index).Value = Titles(Index)
+    Next Index
     
     Set CurrentCell = ChargesSheet.Cells(2, 1)
     While (CurrentCell.Value = "" Or CurrentCell.Value = Empty) And CurrentCell.Row < 1000
