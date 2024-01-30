@@ -1,6 +1,6 @@
 Attribute VB_Name = "Process"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la dï¿½claration de toutes les variables
+' Pour forcer la déclaration de toutes les variables
 Option Explicit
 
 Public Sub CleanDepenses(BaseCell)
@@ -119,7 +119,7 @@ Public Function AddDepenses(wb As Workbook, Data As Data, BaseCell As Range) As 
                 ' ajouter les d?penses de personnel
                 Set CurrentCell = InsertLineAndFormat(CurrentCell, HeadCell, False)
                 CurrentCell.Value = ""
-                CurrentCell.Cells(1, 2).Value = "Rï¿½munï¿½ration des personnels"
+                CurrentCell.Cells(1, 2).Value = "Rémunération des personnels"
                 CurrentCell.Cells(1, 2).Font.Bold = True
                 CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress(SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True)) & "/1.5"
                 Set CurrentCell = InsertLineAndFormat(CurrentCell, HeadCell, False)
@@ -225,7 +225,7 @@ Public Function AddFinancements(wb As Workbook, Data As Data, StartCell As Range
     AddFinancements = True
 End Function
 
-' Macro pour mettre ï¿½ jour le budget update
+' Macro pour mettre à jour le budget update
 Public Sub MettreAJourBudgetGlobal(wb As Workbook)
 
     Dim Data As Data
@@ -240,12 +240,12 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Data = extraireDonneesVersion1(wb, rev)
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_global)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_global & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Budget_global & "' n'a pas été trouvée"
         GoTo EndSub
     End If
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
         GoTo EndSub
     End If
     
@@ -323,7 +323,7 @@ Public Function SearchRangeForEmployeesSalary(wb As Workbook) As Range
         GoTo EndFunction
     End If
     
-    Set BaseCell = CoutJSalaireSheet.Cells.Find("Masse salariale des " & Chr(10) & "opï¿½rateurs : ")
+    Set BaseCell = CoutJSalaireSheet.Cells.Find("Masse salariale des " & Chr(10) & "opérateurs : ")
     If BaseCell Is Nothing Then
         GoTo EndFunction
     End If
@@ -342,14 +342,14 @@ Public Sub EgaliserLesColonnes(ws As Worksheet)
     Dim BaseCell As Range
     Dim HeadCell
     
-    Set EndFirstCol = ws.Cells.Find("Total Dï¿½penses (1) + (2)")
+    Set EndFirstCol = ws.Cells.Find("Total Dépenses (1) + (2)")
     Set EndSecondCol = ws.Cells.Find("Total Financements (1) + (2)+ (3)")
     Ecart = EndFirstCol.Row - EndSecondCol.Row
     
     If Ecart > 0 Then
         Set BaseCell = ws.Cells(1, 5).EntireColumn.Find(75).Cells(0, 1)
     Else
-        Set BaseCell = ws.Cells.Find("Total Dï¿½penses (1)").Cells(0, 1)
+        Set BaseCell = ws.Cells.Find("Total Dépenses (1)").Cells(0, 1)
         Ecart = -Ecart
     End If
     
@@ -375,7 +375,7 @@ Public Function GetNbSalaries(wb As Workbook)
         GetNbSalaries = -1
         Exit Function
     End If
-    Set BaseCell = CoutJSalaireSheet.Range("A:A").Find("Prï¿½nom")
+    Set BaseCell = CoutJSalaireSheet.Range("A:A").Find("Prénom")
     If BaseCell Is Nothing Then
         GetNbSalaries = -2
         Exit Function
@@ -385,7 +385,7 @@ Public Function GetNbSalaries(wb As Workbook)
         Exit Function
     End If
     ' TODO find dynamically the right row
-    If BaseCell.Value <> "Prï¿½nom" Then
+    If BaseCell.Value <> "Prénom" Then
         GetNbSalaries = -4
         Exit Function
     End If
@@ -395,7 +395,7 @@ Public Function GetNbSalaries(wb As Workbook)
     End If
     
     Set TmpRange = FindNextNotEmpty(BaseCell.Cells(2, 1), True)
-    If TmpRange.Value = "Prï¿½nom" Or TmpRange.Value = Label_Cout_J_Salaire_Part_B Then
+    If TmpRange.Value = "Prénom" Or TmpRange.Value = Label_Cout_J_Salaire_Part_B Then
         GetNbSalaries = -6
         Exit Function
     End If
@@ -589,10 +589,10 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Cout_J_Salaire)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas été trouvée"
         Exit Sub
     End If
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -619,7 +619,7 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     If BaseCell.Value <> Label_Cout_J_Salaire_Part_B Then
         Exit Sub
     End If
-    If BaseCell.Cells(3, 1).Value <> "Prï¿½nom" Then
+    If BaseCell.Cells(3, 1).Value <> "Prénom" Then
         Exit Sub
     End If
     Set BaseCell = BaseCell.Cells(3, 1)
@@ -637,7 +637,7 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     If BaseCell Is Nothing Then
         Exit Sub
     End If
-    If BaseCell.Cells(5, 1).Value <> "Prï¿½nom" Then
+    If BaseCell.Cells(5, 1).Value <> "Prénom" Then
         Exit Sub
     End If
     Set BaseCell = BaseCell.Cells(5, 1)
@@ -659,10 +659,10 @@ Public Sub ChangeNBSalariesDansChantier(wb As Workbook, PreviousNB As Integer, F
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
         Exit Sub
     End If
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Salariï¿½")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("Salarié")
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -818,7 +818,7 @@ Public Function PrepareAjoutFinancement( _
     
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
         Exit Function
     End If
     Set SetOfRange.ChantierSheet = ChantierSheet
@@ -1240,13 +1240,13 @@ Public Sub ChangeNBSalarieDansPersonnel(wb As Workbook, PreviousNB As Integer, F
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Personnel)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
         Exit Sub
     End If
     
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
     If BaseCell Is Nothing Then
-        MsgBox "'Prï¿½nom' non trouvï¿½ dans '" & Nom_Feuille_Personnel & "' !"
+        MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
         Exit Sub
     End If
     
@@ -1501,7 +1501,7 @@ Public Function extraireFinancementChantier( _
             FinancementsTmp = ChantierTmp.Financements
             FinancementTmp = FinancementsTmp(IndexFinancement)
             FinancementTmp1 = FinancementsTmp1(IndexFinancement)
-            ' rï¿½cupï¿½ration du type depuis le chantier 1
+            ' récupération du type depuis le chantier 1
             If IndexChantiers > 1 Then
                 FinancementTmp.Nom = FinancementTmp1.Nom
                 FinancementTmp.TypeFinancement = FinancementTmp1.TypeFinancement
@@ -1577,7 +1577,7 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     On Error GoTo 0
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
         GoTo FinFunction
     End If
 
@@ -1717,11 +1717,11 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
     If NBSalaries > 0 Then
         Set CurrentSheet = NewWorkbook.Worksheets(Nom_Feuille_Personnel)
         If CurrentSheet Is Nothing Then
-            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
         Else
-            Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
+            Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
             If BaseCell Is Nothing Then
-                MsgBox "'Prï¿½nom' non trouvï¿½ dans '" & Nom_Feuille_Personnel & "' !"
+                MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
             Else
                 On Error Resume Next
                 Set ChantierSheet = NewWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
@@ -1773,7 +1773,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                     End If
                 Next IndexTab
                 If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) And UBound(Data.Chantiers) > 1 Then
-                    ' nom des dï¿½penses
+                    ' nom des dépenses
                     SetOfRange = GetCellsForDepense(ChantierSheet)
                     If SetOfRange.Status Then
                         Set BaseCell = SetOfRange.HeadCell.Cells(2, 2)
@@ -1942,10 +1942,10 @@ Public Sub InitialiserLesFinancements(wb As Workbook, NBFinancements As Integer,
     DefinirFormatChantiers SetOfRange.ChantierSheet, NBChantiers
 End Sub
 
-Public Function InsertNewLineForCharges(ChargesSheet As Worksheet, CurrentCell As Range) As Range
+Public Function InsertNewLineForCharges(CurrentCell As Range) As Range
 
     ' insert line
-    ChargesSheet.Activate
+    CurrentCell.Worksheet.Activate
     CurrentCell.Cells(1, 10).Select
     CurrentCell.Cells(1, 10).Copy
     Range(CurrentCell.Cells(2, 1), CurrentCell.Cells(2, 10)).Insert _
@@ -1989,18 +1989,173 @@ Public Function InsertNewLineForCharges(ChargesSheet As Worksheet, CurrentCell A
     Set InsertNewLineForCharges = CurrentCell.Cells(2, 1)
 End Function
 
+Public Function GetRowsOfCategoriesOfCharges(ChargesSheet As Worksheet) As SetOfCellsCategories
+    
+    Dim CurrentCell As Range
+    Dim CurrentCells() As Range
+    Dim CurrentCellValue As String
+    Dim IndexCode As Integer
+    Dim StartCell As Range
+    Dim SetOfCellsCategories As SetOfCellsCategories
+    
+    ReDim CurrentCells(60 To 68)
+
+    Set CurrentCell = ChargesSheet.Cells(2, 1)
+    CurrentCellValue = CurrentCell.Value
+    While (CurrentCellValue = "" Or CurrentCellValue = Empty) And CurrentCell.Row < 1000
+        Set CurrentCell = CurrentCell.Cells(2, 1)
+        CurrentCellValue = CurrentCell.Value
+    Wend
+
+    If CurrentCell.Row < 1000 Then
+        ' on eline before to be able to scan 60
+        Set StartCell = CurrentCell.Cells(0, 1)
+
+        ' Total Cell
+        While Left(CurrentCellValue, 5) <> "TOTAL" And CurrentCell.Row < 1000
+            Set CurrentCell = CurrentCell.Cells(2, 1)
+            CurrentCellValue = CurrentCell.Value
+        Wend
+        If Left(CurrentCellValue, 5) = "TOTAL" Then
+            Set SetOfCellsCategories.TotalCell = CurrentCell
+
+            ' cells by categories
+            For IndexCode = 60 To 68
+                Set CurrentCell = StartCell
+                CurrentCellValue = CurrentCell.Value
+                While Left(CurrentCellValue, 2) <> IndexCode _
+                    And Mid(CurrentCellValue, 3, 2) = " -" _
+                    And CurrentCell.Row < SetOfCellsCategories.TotalCell.Row
+                    Set CurrentCell = CurrentCell.Cells(2, 1)
+                    CurrentCellValue = CurrentCell.Value
+                Wend
+                If Left(CurrentCellValue, 2) <> IndexCode Then
+                    Set CurrentCells(IndexCode) = CurrentCell
+                End If
+
+            Next IndexCode
+            SetOfCellsCategories.Cells = CurrentCells
+        End If
+    End If
+
+    GetRowsOfCategoriesOfCharges = SetOfCellsCategories
+End Function
+
+Public Function GetNextCell(SetOfCellsCategories As SetOfCellsCategories, IndexOfCat As Integer) As SetOfRange
+
+    Dim CurrentCell As Range
+    Dim CurrentCells() As Range
+    Dim HeadCell As Range
+    Dim Index As Integer
+    Dim NextCell As Range
+    Dim SetOfRange As SetOfRange
+
+    SetOfRange.Status = False
+
+    CurrentCells = SetOfCellsCategories.Cells
+    Set HeadCell = CurrentCells(IndexOfCat)
+    If Not (HeadCell Is Nothing) Then
+        Set SetOfRange.HeadCell = HeadCell
+        Set SetOfRange.ResultCell = SetOfCellsCategories.TotalCell
+        Set NextCell = SetOfCellsCategories.TotalCell
+        For Index = 60 To 68
+            If Index <> IndexOfCat Then
+                Set CurrentCell = CurrentCells(Index)
+                If Not (CurrentCell Is Nothing) Then
+                    If CurrentCell.Row > HeadCell.Row And CurrentCell.Row < NextCell.Row Then
+                        Set NextCell = CurrentCell
+                    End If
+                End If
+            End If
+        Next Index
+        Set SetOfRange.EndCell = NextCell
+        SetOfRange.Status = True
+    End If
+
+    GetNextCell = SetOfRange
+End Function
+
+Public Function Ajout1Charge(SetOfCellsCategories As SetOfCellsCategories, Charge As Charge) As SetOfRange
+
+    Dim CatIndex As Integer
+    Dim CurrentCell As Range
+    Dim SetOfRange As SetOfRange
+    Dim TypeCharge As TypeCharge
+
+    SetOfRange.Status = False
+
+    If Charge.IndexTypeCharge > 0 Then
+        TypeCharge = TypesDeCharges().Values(Charge.IndexTypeCharge)
+        If TypeCharge.Index > 0 Then
+            SetOfRange = GetNextCell(SetOfCellsCategories, TypeCharge.Index)
+            If SetOfRange.Status Then
+                Ajout1LigneCharge _
+                    SetOfRange.EndCell, _
+                    False, _
+                    Charge.Nom, _
+                    Charge.PreviousN2YearValue, _
+                    Charge.PreviousYearValue, _
+                    Charge.CurrentYearValue, _
+                    Charge.Category
+            End If
+        End If
+    End If
+
+    Ajout1Charge = SetOfRange
+End Function
+
+Public Sub UpdateChargeFormula(SetOfRange As SetOfRange)
+
+    Dim ColumnIndex As Integer
+
+    If SetOfRange.Status Then
+        For ColumnIndex = 2 To 4
+            If (SetOfRange.HeadCell.Row + 1) < SetOfRange.EndCell Then
+                SetOfRange.HeadCell.Cells(1, ColumnIndex).Formula = "=SUM(" _
+                    & Range( _
+                        SetOfRange.HeadCell.Cells(2, ColumnIndex), _
+                        SetOfRange.EndCell.Cells(0, ColumnIndex) _
+                    ).address(False, False, xlA1) & ")"
+            Else
+                SetOfRange.HeadCell.Cells(1, ColumnIndex).Value = 0
+            End If
+        Next ColumnIndex
+    End If
+End Sub
+
+Public Sub Ajout1LigneCharge( _
+        BaseCell As Range, _
+        Optional NoBorderOnRightAndLeft As Boolean = True, _
+        Optional Name As String = "", _
+        Optional PreviousN2YearValue As Double = 0, _
+        Optional PreviousYearValue As Double = 0, _
+        Optional CurrentYearValue As Double = 0, _
+        Optional Category As Integer = 0 _
+    )
+    
+    Dim CurrentCell As Range
+    Set CurrentCell = InsertNewLineForCharges(BaseCell)
+    ' Add value
+    CurrentCell.Cells(1, 1).Value = Name
+    CurrentCell.Cells(1, 2).Value = PreviousN2YearValue
+    CurrentCell.Cells(1, 3).Value = PreviousYearValue
+    CurrentCell.Cells(1, 4).Value = CurrentYearValue
+    CurrentCell.Cells(1, 5).Value = ""
+    If Category = 0 Then
+        CurrentCell.Cells(1, 6).Value = ""
+    Else
+        CurrentCell.Cells(1, 6).Value = Category
+    End If
+    formatChargeCell CurrentCell, NoBorderOnRightAndLeft
+End Sub
+
 Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Dim Charge As Charge
     Dim Charges() As Charge
     Dim ChargesSheet As Worksheet
-    Dim CurrentCell As Range
-    Dim CurrentChargesForIndex() As Charge
-    Dim CurrentIndexTypeCharge As Integer
-    Dim HeadCell As Range
     Dim Index As Integer
-    Dim IndexBis As Integer
-    Dim IndexCode As Integer
-    Dim StartCell As Range
+    Dim SetOfRange As SetOfRange
+    Dim SetOfCellsCategories As SetOfCellsCategories
     Dim Titles() As Range
     Dim TitlesBaseColumn As Integer
     Dim TitlesForChargesCat As TitlesForChargesCat
@@ -2010,9 +2165,10 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     On Error GoTo 0
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
         Exit Sub
     End If
+
     ' update titles for categories
     TitlesBaseColumn = 6
     TitlesRow = 3
@@ -2021,88 +2177,171 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     For Index = LBound(Titles) To UBound(Titles)
         ChargesSheet.Cells(TitlesRow, TitlesBaseColumn + Index).Value = Titles(Index)
     Next Index
-    
-    Set CurrentCell = ChargesSheet.Cells(2, 1)
-    While (CurrentCell.Value = "" Or CurrentCell.Value = Empty) And CurrentCell.Row < 1000
-        Set CurrentCell = CurrentCell.Cells(2, 1)
-    Wend
 
-    Set StartCell = CurrentCell
+    SetOfCellsCategories = GetRowsOfCategoriesOfCharges(ChargesSheet)
+    CleanCategoryOfCharges SetOfCellsCategories
     Charges = Data.Charges
 
-    For IndexCode = 60 To 68
-        CurrentIndexTypeCharge = FindTypeChargeIndexFromCode(IndexCode)
-        If CurrentIndexTypeCharge > 0 Then
-            Set CurrentCell = StartCell
-            While (Left(CurrentCell.Value, 2) <> IndexCode And Left(CurrentCell.Value, 5) <> "TOTAL") And CurrentCell.Row < 1000
-                Set CurrentCell = CurrentCell.Cells(2, 1)
-            Wend
-            If Left(CurrentCell.Value, 2) = IndexCode Then
-                Set HeadCell = CurrentCell
+    ' add charges
+    For Index = 1 To UBound(Charges)
+        Ajout1Charge SetOfCellsCategories, Charges(Index)
+    Next Index
 
-                ' clean previous
-                HeadCell.Cells(1, 2).Value = 0
-                HeadCell.Cells(1, 3).Value = 0
-                HeadCell.Cells(1, 4).Value = 0
-                Set CurrentCell = HeadCell.Cells(2, 1)
-                While (CurrentCell.Value = Empty Or _
-                    ( _
-                        Left(CurrentCell.Value, 1) = 6 _
-                        And Mid(CurrentCell.Value, 3, 1) <> " " _
-                    )) _
-                    And Left(CurrentCell.Value, 5) <> "TOTAL" _
-                    And CurrentCell.Row < 1000
-                    Set CurrentCell = CurrentCell.Cells(2, 1)
-                Wend
-                If (Left(CurrentCell.Value, 1) = 6 And Mid(CurrentCell.Value, 3, 1) = " ") _
-                    Or Left(CurrentCell.Value, 5) <> "Total" Then
-                    Set CurrentCell = CurrentCell.Cells(0, 1)
-                End If
-                If CurrentCell.Row > (HeadCell.Row + 1) Then
-                    Range(HeadCell.Cells(2, 1), CurrentCell.Cells(1, 15)).Delete Shift:=xlShiftUp
-                End If
-                Set CurrentCell = HeadCell.Cells(2, 1)
-                If Left(CurrentCell.Value, 1) = 6 And Mid(CurrentCell.Value, 3, 1) = " " Then
-                    InsertNewLineForCharges ChargesSheet, CurrentCell
-                End If
-                Set CurrentCell = HeadCell
-                
-                ' add charges
-                For Index = 1 To UBound(Charges)
-                    Charge = Charges(Index)
-                    If Charge.IndexTypeCharge = CurrentIndexTypeCharge Then
-                        Set CurrentCell = InsertNewLineForCharges(ChargesSheet, CurrentCell)
-                        ' Add value
-                        CurrentCell.Cells(1, 1).Value = Charge.Nom
-                        CurrentCell.Cells(1, 2).Value = Charge.PreviousN2YearValue
-                        CurrentCell.Cells(1, 3).Value = Charge.PreviousYearValue
-                        CurrentCell.Cells(1, 4).Value = Charge.CurrentYearValue
-                        CurrentCell.Cells(1, 5).Value = ""
-                        CurrentCell.Cells(1, 6).Value = Charge.Category
-                        formatChargeCell CurrentCell, False
-                    End If
-                Next Index
+    ' add empty lines and update sums
+    For Index = 60 To 68
+        SetOfRange = GetNextCell(SetOfCellsCategories, Index)
+        If SetOfRange.Status Then
+            Ajout1LigneCharge SetOfRange.EndCell
 
-                ' add empty line
-                Set CurrentCell = InsertNewLineForCharges(ChargesSheet, CurrentCell)
-                For Index = 1 To 5
-                    CurrentCell.Cells(1, Index).Value = ""
-                Next Index
-                formatChargeCell CurrentCell, True
+            UpdateChargeFormula SetOfRange
+        End If
+    Next Index
+End Sub
 
-                ' add formula
-                If HeadCell.Row + 1 < CurrentCell.Row Then
-                    HeadCell.Cells(1, 2).Formula = "=SUM(" & Range(HeadCell.Cells(2, 2), CurrentCell.Cells(0, 2)).address(False, False, xlA1) & ")"
-                    HeadCell.Cells(1, 3).Formula = "=SUM(" & Range(HeadCell.Cells(2, 3), CurrentCell.Cells(0, 3)).address(False, False, xlA1) & ")"
-                    HeadCell.Cells(1, 4).Formula = "=SUM(" & Range(HeadCell.Cells(2, 4), CurrentCell.Cells(0, 4)).address(False, False, xlA1) & ")"
-                Else
-                    HeadCell.Cells(1, 2).Formula = "=" & CurrentCell.Cells(1, 2).address(False, False, xlA1)
-                    HeadCell.Cells(1, 3).Formula = "=" & CurrentCell.Cells(1, 3).address(False, False, xlA1)
-                    HeadCell.Cells(1, 4).Formula = "=" & CurrentCell.Cells(1, 4).address(False, False, xlA1)
-                End If
+Public Sub CreerLigneCharge()
+
+    Dim ChargesSheet As Worksheet
+    Dim CodeIndex As Integer
+    Dim ExtractedValue As Integer
+    Dim Offset As Integer
+    Dim SetOfRange As SetOfRange
+    Dim SetOfCellsCategories As SetOfCellsCategories
+    Dim Value
+    Dim wb As Workbook
+
+    Set wb = ThisWorkbook
+    Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
+    If ChargesSheet Is Nothing Then
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        Exit Sub
+    End If
+
+    Value = InputBox("Quel nom de charge ?", "Ajouter une ligne de charge", "650 - Autre")
+
+    If Value = "" Then
+        MsgBox "Errur : Le nom fourni pour la charge ne peut pas être vide"
+        Exit Sub
+    End If
+
+    ExtractedValue = CInt(Left(Value, 2))
+    If ExtractedValue < 60 Or ExtractedValue > 68 Then
+        MsgBox "Erreur : les deux premiers caractères du nom doivent être compris entre 60 et 68 inclus."
+        Exit Sub
+    End If
+
+    CodeIndex = FindTypeChargeIndexFromCode(ExtractedValue)
+    If CodeIndex > 0 Then
+        SetOfCellsCategories = GetRowsOfCategoriesOfCharges(ChargesSheet)
+        SetOfRange = GetNextCell(SetOfCellsCategories, ExtractedValue)
+        If SetOfRange.Status Then
+            If SetOfRange.EndCell.Cells(0, 1) = Empty Then
+                Offset = -1
+            Else
+                Offset = 0
+            End If
+            Ajout1LigneCharge SetOfRange.EndCell.Cells(Offset, 1), False, Value, "", "", "", 1
+            UpdateChargeFormula SetOfRange
+        Else
+            MsgBox "Erreur : impossible de retrouver les différents types de paiement (60 à 68)"
+        End If
+    Else
+        MsgBox "Erreur : impossible d'associer cette ligne à un type de paiement (entre 60 et 68)"
+    End If
+
+End Sub
+
+Public Sub RetirerLigneCharge()
+    
+    Dim ChargesSheet As Worksheet
+    Dim CurrentCell As Range
+    Dim CurrentCells() As Range
+    Dim Index As Integer
+    Dim IsOK As Boolean
+    Dim MaxRow As Integer
+    Dim MinRow As Integer
+    Dim NewLine As Integer
+    Dim SetOfCellsCategories As SetOfCellsCategories
+    Dim SetOfRange As SetOfRange
+    Dim wb As Workbook
+
+    Set wb = ThisWorkbook
+    Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
+    If ChargesSheet Is Nothing Then
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        Exit Sub
+    End If
+    SetOfCellsCategories = GetRowsOfCategoriesOfCharges(ChargesSheet)
+    CurrentCells = SetOfCellsCategories.Cells
+
+    MinRow = 1
+    MaxRow = SetOfCellsCategories.TotalCell.Row - 1
+    For Index = 60 To 68
+        Set CurrentCell = CurrentCells(Index)
+        If Not (CurrentCell Is Nothing) Then
+            If MinRow = 1 Or CurrentCell.Row < MinRow Then
+                MinRow = CurrentCell.Row
             End If
         End If
-    Next IndexCode
+    Next Index
+
+    NewLine = InputLineBetween( _
+        "Supprimer la charge de la ligne ?", _
+        "Ligne de charge à supprimer", _
+        MinRow + 1, _
+        MaxRow _
+    )
+
+    If NewLine = 0 Then
+        IsOK = False
+    Else
+        IsOK = True
+        For Index = 60 To 68
+            Set CurrentCell = CurrentCells(Index)
+            If Not (CurrentCell Is Nothing) Then
+                If CurrentCell.Row = NewLine Then
+                    IsOK = False
+                End If
+            End If
+        Next Index
+    End If
+    
+    If Not IsOK Then
+        MsgBox "La ligne entrée n'est pas la ligne d'une charge"
+        Exit Sub
+    End If
+
+    SetSilent
+
+    Range(ChargesSheet.Cells(NewLine, 1), ChargesSheet.Cells(NewLine, 15)).Delete Shift:=xlShiftUp
+    
+    ' update sums
+    For Index = 60 To 68
+        SetOfRange = GetNextCell(SetOfCellsCategories, Index)
+        If SetOfRange.Status Then
+            UpdateChargeFormula SetOfRange
+        End If
+    Next Index
+
+    SetActive
+End Sub
+
+Public Sub CleanCategoryOfCharges(SetOfCellsCategories As SetOfCellsCategories)
+
+    Dim IndexOfCat As Integer
+    Dim SetOfRange As SetOfRange
+
+    For IndexOfCat = 60 To 68
+        SetOfRange = GetNextCell(SetOfCellsCategories, IndexOfCat)
+        If SetOfRange.Status Then
+            ' clean previous
+            SetOfRange.HeadCell.Cells(1, 2).Value = 0
+            SetOfRange.HeadCell.Cells(1, 3).Value = 0
+            SetOfRange.HeadCell.Cells(1, 4).Value = 0
+            If (SetOfRange.HeadCell.Row + 1) < SetOfRange.EndCell Then
+                Range(SetOfRange.HeadCell.Cells(2, 1), SetOfRange.EndCell.Cells(0, 15)).Delete Shift:=xlShiftUp
+            End If
+        End If
+    Next IndexOfCat
 End Sub
 
 Public Function FindNextNotEmpty(BaseCell As Range, directionDown As Boolean) As Range
@@ -2440,13 +2679,13 @@ Public Sub RetirerUnFinanceur()
 
     NewLine = InputLineBetween( _
         "Supprimer le financement de la ligne ?", _
-        "Ligne du financement ï¿½ supprimer", _
+        "Ligne du financement à supprimer", _
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.EndCell.Row _
     )
 
     If NewLine = 0 Then
-        MsgBox "La ligne entrï¿½e n'est pas la ligne d'un financement"
+        MsgBox "La ligne entrée n'est pas la ligne d'un financement"
         Exit Sub
     End If
     
@@ -2505,14 +2744,14 @@ Public Sub RetirerUneDepense()
     NBChantier = GetNbChantiers(wb)
 
     NewLine = InputLineBetween( _
-        "Supprimer la dï¿½pense de la ligne ?", _
-        "Ligne de la dï¿½pense ï¿½ supprimer", _
+        "Supprimer la dépense de la ligne ?", _
+        "Ligne de la dépense à supprimer", _
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.ResultCell.Row - 1 _
     )
 
     If NewLine = 0 Then
-        MsgBox "La ligne entrï¿½e n'est pas la ligne d'une dï¿½pense"
+        MsgBox "La ligne entrée n'est pas la ligne d'une dépense"
         Exit Sub
     End If
     

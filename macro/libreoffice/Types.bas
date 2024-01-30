@@ -86,6 +86,10 @@ Type SetOfCharges
     Charges() As Charge
 End Type
 
+Type TitlesForChargesCat
+    Titles() As String
+End Type
+
 Type Data
     Salaries() As DonneesSalarie
     Chantiers() As Chantier
@@ -117,8 +121,9 @@ Type SetOfRange
     ChantierSheet As Worksheet
 End Type
 
-Type TitlesForChargesCat
-    Titles() As String
+Type SetOfCellsCategories
+    Cells() As Range
+    TotalCell As Range
 End Type
 
 Public Function getDefaultWbRevision() As WbRevision
