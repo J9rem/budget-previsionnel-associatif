@@ -1566,7 +1566,7 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
     Dim NBNewCharges As Integer
     Dim Has3Years As Boolean
     Dim SetOfCharges As SetOfCharges
-    Dim Titles() As Range
+    Dim Titles() As String
     Dim TitlesBaseColumn As Integer
     Dim TitlesForChargesCat As TitlesForChargesCat
     Dim TitlesRow As Integer
@@ -2079,6 +2079,7 @@ Public Function Ajout1Charge(SetOfCellsCategories As SetOfCellsCategories, Charg
 
     Dim CatIndex As Integer
     Dim CurrentCell As Range
+    Dim Offset As Integer
     Dim SetOfRange As SetOfRange
     Dim TypeCharge As TypeCharge
 
@@ -2089,8 +2090,13 @@ Public Function Ajout1Charge(SetOfCellsCategories As SetOfCellsCategories, Charg
         If TypeCharge.Index > 0 Then
             SetOfRange = GetNextCell(SetOfCellsCategories, TypeCharge.Index)
             If SetOfRange.Status Then
+                If SetOfRange.EndCell.Cells(0, 1) = Empty Then
+                    Offset = -1
+                Else
+                    Offset = 0
+                End If
                 Ajout1LigneCharge _
-                    SetOfRange.EndCell, _
+                    SetOfRange.EndCell.Cells(Offset, 1), _
                     False, _
                     Charge.Nom, _
                     Charge.PreviousN2YearValue, _
@@ -2156,7 +2162,7 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Dim Index As Integer
     Dim SetOfRange As SetOfRange
     Dim SetOfCellsCategories As SetOfCellsCategories
-    Dim Titles() As Range
+    Dim Titles() As String
     Dim TitlesBaseColumn As Integer
     Dim TitlesForChargesCat As TitlesForChargesCat
     Dim TitlesRow As Integer
@@ -2191,7 +2197,7 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     For Index = 60 To 68
         SetOfRange = GetNextCell(SetOfCellsCategories, Index)
         If SetOfRange.Status Then
-            Ajout1LigneCharge SetOfRange.EndCell
+            Ajout1LigneCharge SetOfRange.EndCell.Cells(0, 1)
 
             UpdateChargeFormula SetOfRange
         End If
@@ -2339,7 +2345,7 @@ Public Sub CleanCategoryOfCharges(SetOfCellsCategories As SetOfCellsCategories)
             SetOfRange.HeadCell.Cells(1, 2).Value = 0
             SetOfRange.HeadCell.Cells(1, 3).Value = 0
             SetOfRange.HeadCell.Cells(1, 4).Value = 0
-            If (SetOfRange.HeadCell.Row + 1) < SetOfRange.EndCell Then
+            If (SetOfRange.HeadCell.Row + 1) < SetOfRange.EndCell.Row Then
                 Range(SetOfRange.HeadCell.Cells(2, 1), SetOfRange.EndCell.Cells(0, ColumnOfSecondPartInCharge + NBCatOfCharges + 5)).Delete Shift:=xlShiftUp
             End If
         End If
