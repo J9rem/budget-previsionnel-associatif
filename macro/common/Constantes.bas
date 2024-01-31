@@ -5,6 +5,7 @@ Attribute VB_Name = "Constantes"
 Option Explicit
 
 ' constantes
+Public Const ColumnOfSecondPartInCharge As Integer = 6
 Public Const Label_Annees = "Année courante:"
 Public Const Label_Autofinancement_Structure = "Autofinancmt structure"
 Public Const Label_Autofinancement_Structure_Previous = "Autofinancmt structure années précédentes"

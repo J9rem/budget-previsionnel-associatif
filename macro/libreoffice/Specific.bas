@@ -547,10 +547,10 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
 	End With
     
     oSheet = ThisComponent.Sheets.getByName(CurrentCell.Worksheet.Name)
-    For IndexBis = 1 To 9
+    For IndexBis = 1 To (ColumnOfSecondPartInCharge + NBCatOfCharges)
 	    oCellRange = oSheet.getCellByPosition(CurrentCell.Column+IndexBis-2,CurrentCell.Row-1)
 	    
-		If IndexBis = 5 Then
+		If IndexBis = (ColumnOfSecondPartInCharge - 1) Then
 			oCellRange.TopBorder = oNoLine
 			oCellRange.BottomBorder= oNoLine
 		Else
@@ -577,9 +577,13 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
     	oCellRange.CharHeight = 8
 		oCellRange.HoriJustify = com.sun.star.table.CellHoriJustify.LEFT
 		oCellRange.VertJustify  = com.sun.star.table.CellVertJustify.TOP
-		If IndexBis > 1 And IndexBis <> 5 Then
+		If IndexBis > 1 _
+			And IndexBis <> (ColumnOfSecondPartInCharge - 1) _
+			And IndexBis <> ColumnOfSecondPartInCharge  Then
 			oFormat = CellSetNumberFormat("# ##0,00"" €""",ThisComponent)
 			oCellRange.NumberFormat = oFormat
+		Else
+			oCellRange.NumberFormat = 0
 		End If
 	Next IndexBis
 

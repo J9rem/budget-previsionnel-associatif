@@ -423,13 +423,13 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
     End If
 
     ' Format cell
-    For IndexBis = 1 To 9
+    For IndexBis = 1 To (ColumnOfSecondPartInCharge + NBCatOfCharges)
         With CurrentCell.Cells(1, IndexBis)
             For Each VarTmp In Arr1
                 .Borders(VarTmp).LineStyle = xlNone
             Next VarTmp
             For Each VarTmp In Arr2
-                If IndexBis = 5 _
+                If IndexBis = (ColumnOfSecondPartInCharge - 1) _
                     And ( _
                         VarTmp = xlEdgeTop _
                         Or VarTmp = xlEdgeBottom _
@@ -458,6 +458,13 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
                 .TintAndShade = 0
                 .ThemeFont = xlThemeFontNone
             End With
+            If IndexBis = 1 _
+                Or IndexBis = ColumnOfSecondPartInCharge - 1 _
+                Or IndexBis = ColumnOfSecondPartInCharge Then
+                .NumberFormat = "General"
+            Else
+                .NumberFormat = "#,##0.00"" €"""
+            End If
         End With
     Next IndexBis
 End Sub

@@ -1946,34 +1946,34 @@ Public Function InsertNewLineForCharges(CurrentCell As Range) As Range
 
     ' insert line
     CurrentCell.Worksheet.Activate
-    CurrentCell.Cells(1, 10).Select
-    CurrentCell.Cells(1, 10).Copy
-    Range(CurrentCell.Cells(2, 1), CurrentCell.Cells(2, 10)).Insert _
+    CurrentCell.Cells(1, ColumnOfSecondPartInCharge + NBCatOfCharges + 1).Select
+    CurrentCell.Cells(1, ColumnOfSecondPartInCharge + NBCatOfCharges + 1).Copy
+    Range(CurrentCell.Cells(2, 1), CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges + 1)).Insert _
         Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
     ' Copy Format
-    Range(CurrentCell.Cells(1, 6), CurrentCell.Cells(1, 9)).Copy
-    Range(CurrentCell.Cells(2, 6), CurrentCell.Cells(2, 9)).PasteSpecial Paste:=xlPasteFormats
+    Range(CurrentCell.Cells(1, ColumnOfSecondPartInCharge), CurrentCell.Cells(1, ColumnOfSecondPartInCharge + NBCatOfCharges)).Copy
+    Range(CurrentCell.Cells(2, ColumnOfSecondPartInCharge), CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges)).PasteSpecial Paste:=xlPasteFormats
     ' Create formulae
-    CurrentCell.Cells(2, 7).FormulaLocal = "=SI(" _
+    CurrentCell.Cells(2, ColumnOfSecondPartInCharge + 1).FormulaLocal = "=SI(" _
         & "ET(" _
-            & CurrentCell.Cells(2, 6).address(False, False, xlA1, False) & "<>2;" _
-            & CurrentCell.Cells(2, 6).address(False, False, xlA1, False) & "<>3" _
+            & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "<>2;" _
+            & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "<>3" _
         & ");" _
         & CurrentCell.Cells(2, 4).address(False, False, xlA1, False) _
         & ";0" _
     & ")"
-    CurrentCell.Cells(2, 8).FormulaLocal = "=SI(" _
-        & CurrentCell.Cells(2, 6).address(False, False, xlA1, False) & "=2;" _
+    CurrentCell.Cells(2, ColumnOfSecondPartInCharge + 2).FormulaLocal = "=SI(" _
+        & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "=2;" _
         & CurrentCell.Cells(2, 4).address(False, False, xlA1, False) _
         & ";0" _
     & ")"
-    CurrentCell.Cells(2, 9).FormulaLocal = "=SI(" _
-        & CurrentCell.Cells(2, 6).address(False, False, xlA1, False) & "=3;" _
+    CurrentCell.Cells(2, ColumnOfSecondPartInCharge + 3).FormulaLocal = "=SI(" _
+        & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "=3;" _
         & CurrentCell.Cells(2, 4).address(False, False, xlA1, False) _
         & ";0" _
     & ")"
     ' Validation for first cell
-    With CurrentCell.Cells(2, 6).Validation
+    With CurrentCell.Cells(2, ColumnOfSecondPartInCharge).Validation
         .Delete
         .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
         xlBetween, Formula1:="=VAL_CAT"
@@ -2023,13 +2023,13 @@ Public Function GetRowsOfCategoriesOfCharges(ChargesSheet As Worksheet) As SetOf
             For IndexCode = 60 To 68
                 Set CurrentCell = StartCell
                 CurrentCellValue = CurrentCell.Value
-                While Left(CurrentCellValue, 2) <> IndexCode _
-                    And Mid(CurrentCellValue, 3, 2) = " -" _
+                While (Left(CurrentCellValue, 2) <> IndexCode _
+                    Or Mid(CurrentCellValue, 3, 2) <> " -") _
                     And CurrentCell.Row < SetOfCellsCategories.TotalCell.Row
                     Set CurrentCell = CurrentCell.Cells(2, 1)
                     CurrentCellValue = CurrentCell.Value
                 Wend
-                If Left(CurrentCellValue, 2) <> IndexCode Then
+                If Left(CurrentCellValue, 2) = IndexCode Then
                     Set CurrentCells(IndexCode) = CurrentCell
                 End If
 
@@ -2110,7 +2110,7 @@ Public Sub UpdateChargeFormula(SetOfRange As SetOfRange)
 
     If SetOfRange.Status Then
         For ColumnIndex = 2 To 4
-            If (SetOfRange.HeadCell.Row + 1) < SetOfRange.EndCell Then
+            If (SetOfRange.HeadCell.Row + 1) < SetOfRange.EndCell.Row Then
                 SetOfRange.HeadCell.Cells(1, ColumnIndex).Formula = "=SUM(" _
                     & Range( _
                         SetOfRange.HeadCell.Cells(2, ColumnIndex), _
@@ -2142,9 +2142,9 @@ Public Sub Ajout1LigneCharge( _
     CurrentCell.Cells(1, 4).Value = CurrentYearValue
     CurrentCell.Cells(1, 5).Value = ""
     If Category = 0 Then
-        CurrentCell.Cells(1, 6).Value = ""
+        CurrentCell.Cells(1, ColumnOfSecondPartInCharge).Value = ""
     Else
-        CurrentCell.Cells(1, 6).Value = Category
+        CurrentCell.Cells(1, ColumnOfSecondPartInCharge).Value = Category
     End If
     formatChargeCell CurrentCell, NoBorderOnRightAndLeft
 End Sub
@@ -2203,6 +2203,7 @@ Public Sub CreerLigneCharge()
     Dim ChargesSheet As Worksheet
     Dim CodeIndex As Integer
     Dim ExtractedValue As Integer
+    Dim FormattedValue As String
     Dim Offset As Integer
     Dim SetOfRange As SetOfRange
     Dim SetOfCellsCategories As SetOfCellsCategories
@@ -2217,13 +2218,14 @@ Public Sub CreerLigneCharge()
     End If
 
     Value = InputBox("Quel nom de charge ?", "Ajouter une ligne de charge", "650 - Autre")
+    FormattedValue = Trim(Value)
 
-    If Value = "" Then
-        MsgBox "Errur : Le nom fourni pour la charge ne peut pas être vide"
+    If FormattedValue = "" Then
+        MsgBox "Erreur : Le nom fourni pour la charge ne peut pas être vide"
         Exit Sub
     End If
 
-    ExtractedValue = CInt(Left(Value, 2))
+    ExtractedValue = CInt(Left(FormattedValue, 2))
     If ExtractedValue < 60 Or ExtractedValue > 68 Then
         MsgBox "Erreur : les deux premiers caractères du nom doivent être compris entre 60 et 68 inclus."
         Exit Sub
@@ -2239,7 +2241,7 @@ Public Sub CreerLigneCharge()
             Else
                 Offset = 0
             End If
-            Ajout1LigneCharge SetOfRange.EndCell.Cells(Offset, 1), False, Value, "", "", "", 1
+            Ajout1LigneCharge SetOfRange.EndCell.Cells(Offset, 1), False, FormattedValue, 0, 0, 0, 1
             UpdateChargeFormula SetOfRange
         Else
             MsgBox "Erreur : impossible de retrouver les différents types de paiement (60 à 68)"
@@ -2312,7 +2314,7 @@ Public Sub RetirerLigneCharge()
 
     SetSilent
 
-    Range(ChargesSheet.Cells(NewLine, 1), ChargesSheet.Cells(NewLine, 15)).Delete Shift:=xlShiftUp
+    Range(ChargesSheet.Cells(NewLine, 1), ChargesSheet.Cells(NewLine, ColumnOfSecondPartInCharge + NBCatOfCharges + 5)).Delete Shift:=xlShiftUp
     
     ' update sums
     For Index = 60 To 68
@@ -2338,7 +2340,7 @@ Public Sub CleanCategoryOfCharges(SetOfCellsCategories As SetOfCellsCategories)
             SetOfRange.HeadCell.Cells(1, 3).Value = 0
             SetOfRange.HeadCell.Cells(1, 4).Value = 0
             If (SetOfRange.HeadCell.Row + 1) < SetOfRange.EndCell Then
-                Range(SetOfRange.HeadCell.Cells(2, 1), SetOfRange.EndCell.Cells(0, 15)).Delete Shift:=xlShiftUp
+                Range(SetOfRange.HeadCell.Cells(2, 1), SetOfRange.EndCell.Cells(0, ColumnOfSecondPartInCharge + NBCatOfCharges + 5)).Delete Shift:=xlShiftUp
             End If
         End If
     Next IndexOfCat
