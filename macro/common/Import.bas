@@ -148,42 +148,42 @@ Public Function extraireInfos(wb As Workbook) As Informations
     End If
         Set BaseCell = CurrentSheet.Range("A:A").Find(Label_Annees)
         If Not BaseCell Is Nothing Then
-            Result.Annee = BaseCell.Cells(1, 2).value
+            Result.Annee = BaseCell.Cells(1, 2).Value
             If BaseCell.Cells(1, 2).HasFormula = True Then
                 Result.AnneeFormula = BaseCell.Cells(1, 2).Formula
             End If
         End If
         Set BaseCell = CurrentSheet.Range("A:A").Find(Label_Convention_Collective)
         If Not BaseCell Is Nothing Then
-            Result.ConventionCollective = BaseCell.Cells(1, 2).value
+            Result.ConventionCollective = BaseCell.Cells(1, 2).Value
             If BaseCell.Cells(1, 2).HasFormula = True Then
                 Result.ConventionCollective = BaseCell.Cells(1, 2).Formula
             End If
         End If
         Set BaseCell = CurrentSheet.Range("A:A").Find(Label_NBConges)
         If Not BaseCell Is Nothing Then
-            Result.NBConges = BaseCell.Cells(1, 2).value
+            Result.NBConges = BaseCell.Cells(1, 2).Value
             If BaseCell.Cells(1, 2).HasFormula = True Then
                 Result.NBCongesFormula = BaseCell.Cells(1, 2).Formula
             End If
         End If
         Set BaseCell = CurrentSheet.Range("A:A").Find(Label_NBRTT)
         If Not BaseCell Is Nothing Then
-            Result.NBRTT = BaseCell.Cells(1, 2).value
+            Result.NBRTT = BaseCell.Cells(1, 2).Value
             If BaseCell.Cells(1, 2).HasFormula = True Then
                 Result.NBRTTFormula = BaseCell.Cells(1, 2).Formula
             End If
         End If
         Set BaseCell = CurrentSheet.Range("A:A").Find(Label_NB_Jours_speciaux)
         If Not BaseCell Is Nothing Then
-            Result.NBJoursSpeciaux = BaseCell.Cells(1, 2).value
+            Result.NBJoursSpeciaux = BaseCell.Cells(1, 2).Value
             If BaseCell.Cells(1, 2).HasFormula = True Then
                 Result.NBJoursSpeciauxFormula = BaseCell.Cells(1, 2).Formula
             End If
         End If
         Set BaseCell = CurrentSheet.Range("A:A").Find(Label_Pentecote)
         If Not BaseCell Is Nothing Then
-            If BaseCell.Cells(1, 2).value = "Oui" Then
+            If BaseCell.Cells(1, 2).Value = "Oui" Then
                 Result.Pentecote = True
             Else
                 Result.Pentecote = False
@@ -207,7 +207,7 @@ Public Sub importerInfos(wb As Workbook, Informations As Informations)
     Set BaseCell = CurrentSheet.Range("A:A").Find(Label_Annees)
     If Not BaseCell Is Nothing Then
         If Informations.AnneeFormula = "" Then
-            BaseCell.Cells(1, 2).value = Informations.Annee
+            BaseCell.Cells(1, 2).Value = Informations.Annee
         Else
             BaseCell.Cells(1, 2).Formula = Informations.AnneeFormula
         End If
@@ -217,16 +217,16 @@ Public Sub importerInfos(wb As Workbook, Informations As Informations)
         If Left(Informations.ConventionCollective, 1) = "=" Then
             BaseCell.Cells(1, 2).Formula = Informations.ConventionCollective
         Else
-            BaseCell.Cells(1, 2).value = Informations.ConventionCollective
+            BaseCell.Cells(1, 2).Value = Informations.ConventionCollective
         End If
     End If
     Set BaseCell = CurrentSheet.Range("A:A").Find(Label_NBConges)
     If Not BaseCell Is Nothing Then
         If Informations.NBCongesFormula = "" Then
             If Informations.NBConges = 0 Then
-                BaseCell.Cells(1, 2).value = ""
+                BaseCell.Cells(1, 2).Value = ""
             Else
-                BaseCell.Cells(1, 2).value = Informations.NBConges
+                BaseCell.Cells(1, 2).Value = Informations.NBConges
             End If
         Else
             BaseCell.Cells(1, 2).Formula = Informations.NBCongesFormula
@@ -236,9 +236,9 @@ Public Sub importerInfos(wb As Workbook, Informations As Informations)
     If Not BaseCell Is Nothing Then
         If Informations.NBRTTFormula = "" Then
             If Informations.NBRTT = 0 Then
-                BaseCell.Cells(1, 2).value = ""
+                BaseCell.Cells(1, 2).Value = ""
             Else
-                BaseCell.Cells(1, 2).value = Informations.NBRTT
+                BaseCell.Cells(1, 2).Value = Informations.NBRTT
             End If
         Else
             BaseCell.Cells(1, 2).Formula = Informations.NBRTTFormula
@@ -248,9 +248,9 @@ Public Sub importerInfos(wb As Workbook, Informations As Informations)
     If Not BaseCell Is Nothing Then
         If Informations.NBJoursSpeciauxFormula = "" Then
             If Informations.NBJoursSpeciaux = 0 Then
-                BaseCell.Cells(1, 2).value = ""
+                BaseCell.Cells(1, 2).Value = ""
             Else
-                BaseCell.Cells(1, 2).value = Informations.NBJoursSpeciaux
+                BaseCell.Cells(1, 2).Value = Informations.NBJoursSpeciaux
             End If
         Else
             BaseCell.Cells(1, 2).Formula = Informations.NBJoursSpeciauxFormula
@@ -259,9 +259,9 @@ Public Sub importerInfos(wb As Workbook, Informations As Informations)
     Set BaseCell = CurrentSheet.Range("A:A").Find(Label_Pentecote)
     If Not BaseCell Is Nothing Then
         If Informations.Pentecote Then
-            BaseCell.Cells(1, 2).value = "Oui"
+            BaseCell.Cells(1, 2).Value = "Oui"
         Else
-            BaseCell.Cells(1, 2).value = "Non"
+            BaseCell.Cells(1, 2).Value = "Non"
         End If
     End If
 FinSub:
@@ -329,7 +329,7 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
                     MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
                 Else
                     Set BaseCellChantier = FindNextNotEmpty(ChantierSheet.Cells(3, 1), False)
-                    If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.value, Len("Chantier")) <> "Chantier" Then
+                    If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.Value, Len("Chantier")) <> "Chantier" Then
                         Set BaseCellChantier = Nothing
                     Else
                         NBChantiers = GetNbChantiers(oldWorkbook)
@@ -339,24 +339,24 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
                     For Index = 1 To NBSalaries
                         DonneesSalarie = getDefaultDonneesSalarie()
                         DonneesSalarie.Erreur = False
-                        DonneesSalarie.Prenom = BaseCell.Cells(1 + Index, 1).value
-                        DonneesSalarie.Nom = BaseCell.Cells(1 + Index, 2).value
-                        DonneesSalarie.TauxDeTempsDeTravail = BaseCell.Cells(1 + Index, 3).value
+                        DonneesSalarie.Prenom = BaseCell.Cells(1 + Index, 1).Value
+                        DonneesSalarie.Nom = BaseCell.Cells(1 + Index, 2).Value
+                        DonneesSalarie.TauxDeTempsDeTravail = BaseCell.Cells(1 + Index, 3).Value
                         If BaseCell.Cells(1 + Index, 3).HasFormula = True Then
                             DonneesSalarie.TauxDeTempsDeTravailFormula = BaseCell.Cells(1 + Index, 3).Formula
                         End If
-                        DonneesSalarie.MasseSalarialeAnnuelle = BaseCell.Cells(1 + Index, 4).value
+                        DonneesSalarie.MasseSalarialeAnnuelle = BaseCell.Cells(1 + Index, 4).Value
                         If BaseCell.Cells(1 + Index, 4).HasFormula = True Then
                             DonneesSalarie.MasseSalarialeAnnuelleFormula = BaseCell.Cells(1 + Index, 4).Formula
                         End If
-                        DonneesSalarie.TauxOperateur = BaseCell.Cells(1 + Index, 5).value
+                        DonneesSalarie.TauxOperateur = BaseCell.Cells(1 + Index, 5).Value
                         If BaseCell.Cells(1 + Index, 5).HasFormula = True Then
                             DonneesSalarie.TauxOperateurFormula = BaseCell.Cells(1 + Index, 5).Formula
                         End If
                         If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
                             DonneesSalarie.JoursChantiers = geDefaultJoursChantiers(NBChantiers)
                             For IndexChantiers = 1 To NBChantiers
-                                DonneesSalarie.JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(4 + Index, IndexChantiers).value
+                                DonneesSalarie.JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(4 + Index, IndexChantiers).Value
                             Next IndexChantiers
                         End If
                         DonneesSalaries(Index) = DonneesSalarie
@@ -414,27 +414,27 @@ Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbR
             MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
         Else
             Set BaseCellChantier = FindNextNotEmpty(ChantierSheet.Cells(2, 1), False)
-            If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.value, Len("Chantier")) <> "Chantier" Then
+            If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.Value, Len("Chantier")) <> "Chantier" Then
                 Set BaseCellChantier = Nothing
             Else
                 NBChantiers = GetNbChantiers(oldWorkbook, 2)
             End If
             
             ReDim DonneesSalaries(1 To NBSalaries)
-            NBJoursTot = BaseCell.Worksheet.Cells(1, 7).EntireColumn.Find("Nb jours travaillables").Cells(1, 2).value
+            NBJoursTot = BaseCell.Worksheet.Cells(1, 7).EntireColumn.Find("Nb jours travaillables").Cells(1, 2).Value
             ' NBJoursTot = BaseCell.Cells(1 + NBSalaries + 1, 8).Value
             For Index = 1 To NBSalaries
                 DonneesSalarie = getDefaultDonneesSalarie()
                 DonneesSalarie.Erreur = False
-                DonneesSalarie.Prenom = BaseCell.Cells(1 + Index, 1).value
+                DonneesSalarie.Prenom = BaseCell.Cells(1 + Index, 1).Value
                 DonneesSalarie.Nom = ""
-                DonneesSalarie.TauxDeTempsDeTravail = WorksheetFunction.Round(BaseCell.Cells(1 + Index, 2).value / NBJoursTot, 2)
-                DonneesSalarie.MasseSalarialeAnnuelle = BaseCell.Cells(1 + NBSalaries + 5 + Index, 3).value
-                DonneesSalarie.TauxOperateur = BaseCell.Cells(1 + Index, 3).value
+                DonneesSalarie.TauxDeTempsDeTravail = WorksheetFunction.Round(BaseCell.Cells(1 + Index, 2).Value / NBJoursTot, 2)
+                DonneesSalarie.MasseSalarialeAnnuelle = BaseCell.Cells(1 + NBSalaries + 5 + Index, 3).Value
+                DonneesSalarie.TauxOperateur = BaseCell.Cells(1 + Index, 3).Value
                 If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
                     DonneesSalarie.JoursChantiers = geDefaultJoursChantiers(NBChantiers)
                     For IndexChantiers = 1 To NBChantiers
-                        DonneesSalarie.JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(3 + Index, IndexChantiers).value
+                        DonneesSalarie.JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(3 + Index, IndexChantiers).Value
                     Next IndexChantiers
                 End If
                 DonneesSalaries(Index) = DonneesSalarie
