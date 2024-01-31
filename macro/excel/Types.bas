@@ -84,16 +84,12 @@ Public Type SetOfCharges
     Charges() As Charge
 End Type
 
-Public Type TitlesForChargesCat
-    Titles() As String
-End Type
-
 Public Type Data
     Salaries() As DonneesSalarie
     Chantiers() As Chantier
     Informations As Informations
     Charges() As Charge
-    TitlesForChargesCat As TitlesForChargesCat
+    TitlesForChargesCat() As String
 End Type
 
 Public Type TypeCharge
@@ -120,7 +116,7 @@ Public Type SetOfRange
 End Type
 
 Public Type SetOfCellsCategories
-    Cells() As Range
+    Cells(60 To 68) As Range
     TotalCell As Range
 End Type
 
@@ -135,10 +131,12 @@ Public Function getDefaultWbRevision() As WbRevision
 
 End Function
 
-Public Function getDefaultData(Data As Data) As Data
+Public Function getDefaultData() As Data
+    Dim Data As Data
     Dim EmptyArrayDonneesSalarie() As DonneesSalarie
     Dim EmptyChantiers() As Chantier
     Dim EmptyCharges() As Charge
+    Dim EmptyTitles(1 To 3) As String
     ReDim EmptyArrayDonneesSalarie(0)
     ReDim EmptyChantiers(0)
     ReDim EmptyCharges(0)
@@ -148,6 +146,7 @@ Public Function getDefaultData(Data As Data) As Data
     Data.Chantiers = EmptyChantiers
     Data.Informations = getDefaultInformations()
     Data.Charges = EmptyCharges
+    Data.TitlesForChargesCat = EmptyTitles
 
     getDefaultData = Data
 End Function

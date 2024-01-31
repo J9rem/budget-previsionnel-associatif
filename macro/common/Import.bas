@@ -298,7 +298,7 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
     Dim BaseCellChantier As Range
     Dim DonneesSalaries() As DonneesSalarie
     
-    Data = getDefaultData(Data)
+    Data = getDefaultData()
     DonneesSalarie = getDefaultDonneesSalarie()
     
     ReDim DonneesSalaries(0 To 0)
@@ -394,7 +394,7 @@ Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbR
     Dim NBJoursTot As Double
     Dim DonneesSalaries() As DonneesSalarie
     
-    Data = getDefaultData(Data)
+    Data = getDefaultData()
     DonneesSalarie = getDefaultDonneesSalarie()
     
     ReDim DonneesSalaries(0 To 0)
