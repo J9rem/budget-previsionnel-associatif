@@ -1580,6 +1580,11 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
         MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
         GoTo FinFunction
     End If
+    
+    HasRealValues = False
+    If (Revision.Majeure = 2 And Revision.Mineure > 1) Or Revision.Majeure > 2 Then
+        HasRealValues = True
+    End If
 
     ' Get Titles for categories for charges
     If Revision.Majeure <= 1 Then
@@ -1587,7 +1592,11 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
         Titles(2) = "Cat. 2"
         Titles(3) = "Cat. 3"
     Else
-        TitlesBaseColumn = 6
+        If HasRealValues Then
+            TitlesBaseColumn = ColumnOfSecondPartInCharge
+        Else
+            TitlesBaseColumn = 6
+        End If
         TitlesRow = 3
         Titles(1) = ChargesSheet.Cells(TitlesRow, TitlesBaseColumn + 1).Value
         Titles(2) = ChargesSheet.Cells(TitlesRow, TitlesBaseColumn + 2).Value
@@ -1606,10 +1615,6 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
         Has3Years = True
     Else
         Has3Years = False
-    End If
-    HasRealValues = False
-    If (Revision.Majeure = 2 And Revision.Mineure > 1) Or Revision.Majeure > 2 Then
-        HasRealValues = True
     End If
     
     While CurrentIndexTypeCharge > 0
@@ -2197,7 +2202,6 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Dim SetOfRange As SetOfRange
     Dim SetOfCellsCategories As SetOfCellsCategories
     Dim Titles() As String
-    Dim TitlesBaseColumn As Integer
     Dim TitlesRow As Integer
 
     On Error Resume Next
@@ -2209,11 +2213,10 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     End If
 
     ' update titles for categories
-    TitlesBaseColumn = 6
     TitlesRow = 3
     Titles = Data.TitlesForChargesCat
     For Index = LBound(Titles) To UBound(Titles)
-        ChargesSheet.Cells(TitlesRow, TitlesBaseColumn + Index).Value = Titles(Index)
+        ChargesSheet.Cells(TitlesRow, ColumnOfSecondPartInCharge + Index).Value = Titles(Index)
     Next Index
 
     SetOfCellsCategories = GetRowsOfCategoriesOfCharges(ChargesSheet)
