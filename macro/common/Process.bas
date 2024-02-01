@@ -2280,7 +2280,7 @@ Public Sub CreerLigneCharge()
             Else
                 Offset = 0
             End If
-            Ajout1LigneCharge SetOfRange.EndCell.Cells(Offset, 1), False, FormattedValue, 0, 0, 0, 1
+            Ajout1LigneCharge SetOfRange.EndCell.Cells(Offset, 1), False, FormattedValue, 0, 0, 0, 0, 1
             UpdateChargeFormula SetOfRange
         Else
             MsgBox "Erreur : impossible de retrouver les différents types de paiement (60 à 68)"
@@ -2353,7 +2353,7 @@ Public Sub RetirerLigneCharge()
 
     SetSilent
 
-    Range(ChargesSheet.Cells(NewLine, 1), ChargesSheet.Cells(NewLine, ColumnOfSecondPartInCharge + NBCatOfCharges + 5)).Delete Shift:=xlShiftUp
+    Range(ChargesSheet.Cells(NewLine, 1), ChargesSheet.Cells(NewLine, ColumnOfSecondPartInCharge + NBCatOfCharges * 2 + 5)).Delete Shift:=xlShiftUp
     
     ' update sums
     For Index = 60 To 68
@@ -2383,7 +2383,7 @@ Public Sub CleanCategoryOfCharges(SetOfCellsCategories As SetOfCellsCategories)
             SetOfRange.HeadCell.Cells(1, ColumnOfSecondPartInCharge + 2).Value = 0
             SetOfRange.HeadCell.Cells(1, ColumnOfSecondPartInCharge + 3).Value = 0
             If (SetOfRange.HeadCell.Row + 1) < SetOfRange.EndCell.Row Then
-                Range(SetOfRange.HeadCell.Cells(2, 1), SetOfRange.EndCell.Cells(0, ColumnOfSecondPartInCharge + NBCatOfCharges + 5)).Delete Shift:=xlShiftUp
+                Range(SetOfRange.HeadCell.Cells(2, 1), SetOfRange.EndCell.Cells(0, ColumnOfSecondPartInCharge + NBCatOfCharges * 2 + 5)).Delete Shift:=xlShiftUp
             End If
         End If
     Next IndexOfCat
