@@ -1565,6 +1565,7 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
     Dim PreviousIndex As Integer
     Dim NBNewCharges As Integer
     Dim Has3Years As Boolean
+    Dim HasRealValues As Boolean
     Dim SetOfCharges As SetOfCharges
     Dim Titles() As String
     Dim TitlesBaseColumn As Integer
@@ -1606,6 +1607,10 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
     Else
         Has3Years = False
     End If
+    HasRealValues = False
+    If (Revision.Majeure = 2 And Revision.Mineure > 1) Or Revision.Majeure > 2 Then
+        HasRealValues = True
+    End If
     
     While CurrentIndexTypeCharge > 0
         ' Find NB new charges
@@ -1638,12 +1643,26 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
                     TmpCharge.PreviousYearValue = CurrentCell.Cells(1 + Index, 2).Value
                     TmpCharge.PreviousN2YearValue = 0
                 End If
-                If Revision.Majeure > 1 _
-                    And CurrentCell.Cells(1 + Index, 6).Value > 0 _
-                    And CurrentCell.Cells(1 + Index, 6).Value < 4 Then
-                    TmpCharge.Category = CInt(CurrentCell.Cells(1 + Index, 6).Value)
+                If HasRealValues Then
+                    TmpCharge.CurrentRealizedYearValue = CurrentCell.Cells(1 + Index, 5).Value
                 Else
-                    TmpCharge.Category = 1
+                    TmpCharge.CurrentRealizedYearValue = 0
+                End If
+                If HasRealValues Then
+                    If CurrentCell.Cells(1 + Index, ColumnOfSecondPartInCharge).Value > 0 _
+                        And CurrentCell.Cells(1 + Index, ColumnOfSecondPartInCharge).Value < 4 Then
+                        TmpCharge.Category = CInt(CurrentCell.Cells(1 + Index, ColumnOfSecondPartInCharge).Value)
+                    Else
+                        TmpCharge.Category = 1
+                    End If
+                Else
+                    If Revision.Majeure > 1 _
+                        And CurrentCell.Cells(1 + Index, 6).Value > 0 _
+                        And CurrentCell.Cells(1 + Index, 6).Value < 4 Then
+                        TmpCharge.Category = CInt(CurrentCell.Cells(1 + Index, 6).Value)
+                    Else
+                        TmpCharge.Category = 1
+                    End If
                 End If
                 Set TmpCharge.ChargeCell = CurrentCell.Cells(1 + Index, 1)
                 Charges(PreviousIndex + Index) = TmpCharge
@@ -1942,34 +1961,37 @@ End Sub
 
 Public Function InsertNewLineForCharges(CurrentCell As Range) As Range
 
+    Dim Offset As Integer
+    Dim ColumnOffset As Integer
+
     ' insert line
     CurrentCell.Worksheet.Activate
-    CurrentCell.Cells(1, ColumnOfSecondPartInCharge + NBCatOfCharges + 1).Select
-    CurrentCell.Cells(1, ColumnOfSecondPartInCharge + NBCatOfCharges + 1).Copy
-    Range(CurrentCell.Cells(2, 1), CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges + 1)).Insert _
+    CurrentCell.Cells(1, ColumnOfSecondPartInCharge + NBCatOfCharges * 2 + 1).Select
+    CurrentCell.Cells(1, ColumnOfSecondPartInCharge + NBCatOfCharges * 2 + 1).Copy
+    Range(CurrentCell.Cells(2, 1), CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges * 2 + 1)).Insert _
         Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
     ' Copy Format
-    Range(CurrentCell.Cells(1, ColumnOfSecondPartInCharge), CurrentCell.Cells(1, ColumnOfSecondPartInCharge + NBCatOfCharges)).Copy
-    Range(CurrentCell.Cells(2, ColumnOfSecondPartInCharge), CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges)).PasteSpecial Paste:=xlPasteFormats
+    Range(CurrentCell.Cells(1, ColumnOfSecondPartInCharge), CurrentCell.Cells(1, ColumnOfSecondPartInCharge + NBCatOfCharges * 2)).Copy
+    Range(CurrentCell.Cells(2, ColumnOfSecondPartInCharge), CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges * 2)).PasteSpecial Paste:=xlPasteFormats
     ' Create formulae
-    CurrentCell.Cells(2, ColumnOfSecondPartInCharge + 1).FormulaLocal = "=SI(" _
-        & "ET(" _
-            & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "<>2;" _
-            & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "<>3" _
-        & ");" _
-        & CurrentCell.Cells(2, 4).address(False, False, xlA1, False) _
-        & ";0" _
-    & ")"
-    CurrentCell.Cells(2, ColumnOfSecondPartInCharge + 2).FormulaLocal = "=SI(" _
-        & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "=2;" _
-        & CurrentCell.Cells(2, 4).address(False, False, xlA1, False) _
-        & ";0" _
-    & ")"
-    CurrentCell.Cells(2, ColumnOfSecondPartInCharge + 3).FormulaLocal = "=SI(" _
-        & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "=3;" _
-        & CurrentCell.Cells(2, 4).address(False, False, xlA1, False) _
-        & ";0" _
-    & ")"
+    For Offset = 0 To 1
+        CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges * Offset + 1).FormulaLocal = "=SI(" _
+            & "ET(" _
+                & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "<>2;" _
+                & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "<>3" _
+            & ");" _
+            & CurrentCell.Cells(2, 4 + Offset).address(False, False, xlA1, False) _
+            & ";0" _
+        & ")"
+        For ColumnOffset = 2 To 3
+        CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges * Offset + ColumnOffset).FormulaLocal = "=SI(" _
+                & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "=" _
+                & ColumnOffset & ";" _
+                & CurrentCell.Cells(2, 4 + Offset).address(False, False, xlA1, False) _
+                & ";0" _
+            & ")"
+        Next ColumnOffset
+    Next Offset
     ' Validation for first cell
     With CurrentCell.Cells(2, ColumnOfSecondPartInCharge).Validation
         .Delete
@@ -2096,6 +2118,7 @@ Public Function Ajout1Charge(SetOfCellsCategories As SetOfCellsCategories, Charg
                     Charge.PreviousN2YearValue, _
                     Charge.PreviousYearValue, _
                     Charge.CurrentYearValue, _
+                    Charge.CurrentRealizedYearValue, _
                     Charge.Category
             End If
         End If
@@ -2107,9 +2130,10 @@ End Function
 Public Sub UpdateChargeFormula(SetOfRange As SetOfRange)
 
     Dim ColumnIndex As Integer
+    Dim RowIndex As Integer
 
     If SetOfRange.Status Then
-        For ColumnIndex = 2 To 4
+        For ColumnIndex = 2 To 5
             If (SetOfRange.HeadCell.Row + 1) < SetOfRange.EndCell.Row Then
                 SetOfRange.HeadCell.Cells(1, ColumnIndex).Formula = "=SUM(" _
                     & Range( _
@@ -2120,9 +2144,18 @@ Public Sub UpdateChargeFormula(SetOfRange As SetOfRange)
                 SetOfRange.HeadCell.Cells(1, ColumnIndex).Value = 0
             End If
         Next ColumnIndex
+        If (SetOfRange.HeadCell.Row + 1) < SetOfRange.EndCell.Row Then
+            For RowIndex = 1 To (SetOfRange.EndCell.Row - SetOfRange.HeadCell.Row + 1)
+                SetOfRange.HeadCell.Cells(RowIndex, 6).Formula = "=" _
+                    & SetOfRange.HeadCell.Cells(RowIndex, 5).address(False, False, xlA1) _
+                    & "/(" _
+                        & SetOfRange.HeadCell.Cells(RowIndex, 4).address(False, False, xlA1) _
+                    & "+1E-9)"
+            Next RowIndex
+        End If
         SetOfRange.HeadCell.Cells(1, ColumnOfSecondPartInCharge).Value = ""
         
-        For ColumnIndex = (ColumnOfSecondPartInCharge + 1) To (ColumnOfSecondPartInCharge + NBCatOfCharges)
+        For ColumnIndex = (ColumnOfSecondPartInCharge + 1) To (ColumnOfSecondPartInCharge + NBCatOfCharges * 2)
             SetOfRange.HeadCell.Cells(1, ColumnIndex).Value = 0
         Next ColumnIndex
     End If
@@ -2135,6 +2168,7 @@ Public Sub Ajout1LigneCharge( _
         Optional PreviousN2YearValue As Double = 0, _
         Optional PreviousYearValue As Double = 0, _
         Optional CurrentYearValue As Double = 0, _
+        Optional CurrentRealizedYearValue As Double = 0, _
         Optional Category As Integer = 0 _
     )
     
@@ -2145,7 +2179,8 @@ Public Sub Ajout1LigneCharge( _
     CurrentCell.Cells(1, 2).Value = PreviousN2YearValue
     CurrentCell.Cells(1, 3).Value = PreviousYearValue
     CurrentCell.Cells(1, 4).Value = CurrentYearValue
-    CurrentCell.Cells(1, 5).Value = ""
+    CurrentCell.Cells(1, 5).Value = CurrentRealizedYearValue
+    CurrentCell.Cells(1, ColumnOfSecondPartInCharge - 1).Value = ""
     If Category = 0 Then
         CurrentCell.Cells(1, ColumnOfSecondPartInCharge).Value = ""
     Else

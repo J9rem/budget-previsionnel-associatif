@@ -423,7 +423,7 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
     End If
 
     ' Format cell
-    For IndexBis = 1 To (ColumnOfSecondPartInCharge + NBCatOfCharges)
+    For IndexBis = 1 To (ColumnOfSecondPartInCharge + NBCatOfCharges * 2)
         With CurrentCell.Cells(1, IndexBis)
             For Each VarTmp In Arr1
                 .Borders(VarTmp).LineStyle = xlNone
@@ -463,7 +463,11 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
                 Or IndexBis = ColumnOfSecondPartInCharge Then
                 .NumberFormat = "General"
             Else
-                .NumberFormat = "#,##0.00"" €"""
+                If IndexBis = 6 Then
+                    .NumberFormat = "0\ %"
+                Else
+                    .NumberFormat = "#,##0.00"" €"""
+                End If
             End If
         End With
     Next IndexBis

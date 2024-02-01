@@ -74,6 +74,7 @@ Public Type Charge
     Nom As String
     IndexTypeCharge As Integer
     CurrentYearValue As Double
+    CurrentRealizedYearValue As Double
     PreviousYearValue As Double
     PreviousN2YearValue As Double
     ChargeCell As Range
