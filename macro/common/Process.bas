@@ -476,7 +476,8 @@ Public Sub ChangeSalaries(wb As Workbook, PreviousNB As Integer, FinalNB As Inte
     
     ChangeNBSalarieDansPersonnel wb, PreviousNB, FinalNB
     ChangerNBSalariesDansCoutJSalaires wb, PreviousNB, FinalNB
-    ChangeNBSalariesDansChantier wb, PreviousNB, FinalNB
+    ChangeNBSalariesDansChantier wb, PreviousNB, FinalNB, False
+    ChangeNBSalariesDansChantier wb, PreviousNB, FinalNB, True
 
 End Sub
 
@@ -651,15 +652,32 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     End If
     
 End Sub
-Public Sub ChangeNBSalariesDansChantier(wb As Workbook, PreviousNB As Integer, FinalNB As Integer)
-    Dim CurrentSheet As Worksheet
+Public Sub ChangeNBSalariesDansChantier( _
+        wb As Workbook, _
+        PreviousNB As Integer, _
+        FinalNB As Integer, _
+        Optional IsRealSheet As Boolean = False _
+    )
     Dim BaseCell As Range
+    Dim CurrentSheet As Worksheet
+    Dim CurrentSheetName As String
+    Dim NBChantier As Integer
+    Dim NBExtraColsInternal As Integer
     Dim RealFinalNB As Integer
     Dim TmpRange As Range
     
-    Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
+    If IsRealSheet Then
+        CurrentSheetName = Nom_Feuille_Budget_chantiers_realise
+        NBChantier = GetNbChantiers(wb)
+        NBExtraColsInternal = 3 * NBChantier + 1 + NBExtraCols
+    Else
+        CurrentSheetName = Nom_Feuille_Budget_chantiers
+        NBExtraColsInternal = NBExtraCols
+    End If
+
+    Set CurrentSheet = wb.Worksheets(CurrentSheetName)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+        MsgBox "'" & CurrentSheetName & "' n'a pas été trouvée"
         Exit Sub
     End If
     Set BaseCell = CurrentSheet.Range("A:A").Find("Salarié")
@@ -677,8 +695,8 @@ Public Sub ChangeNBSalariesDansChantier(wb As Workbook, PreviousNB As Integer, F
     End If
 
     If PreviousNB < RealFinalNB Then
-        InsertRows BaseCell, PreviousNB, RealFinalNB, False, NBExtraCols, True
-        Set TmpRange = InsertRows(BaseCell.Cells(1 + RealFinalNB + 2, 1), PreviousNB, RealFinalNB, False, NBExtraCols, False)
+        InsertRows BaseCell, PreviousNB, RealFinalNB, False, NBExtraColsInternal, True
+        Set TmpRange = InsertRows(BaseCell.Cells(1 + RealFinalNB + 2, 1), PreviousNB, RealFinalNB, False, NBExtraColsInternal, False)
 
         UpdateSumsByColumn _
             Range( _
@@ -689,8 +707,8 @@ Public Sub ChangeNBSalariesDansChantier(wb As Workbook, PreviousNB As Integer, F
             PreviousNB
     Else
         If PreviousNB > RealFinalNB Then
-            RemoveRows BaseCell, PreviousNB, RealFinalNB, NBExtraCols
-            RemoveRows BaseCell.Cells(1 + RealFinalNB + 2, 1), PreviousNB, RealFinalNB, NBExtraCols
+            RemoveRows BaseCell, PreviousNB, RealFinalNB, NBExtraColsInternal
+            RemoveRows BaseCell.Cells(1 + RealFinalNB + 2, 1), PreviousNB, RealFinalNB, NBExtraColsInternal
         End If
     End If
     If FinalNB <= 1 And PreviousNB > 1 Then
