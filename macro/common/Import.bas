@@ -491,6 +491,7 @@ Public Function prepareFichier(wb As Workbook, PreviousNBSalarie As Integer, Pre
     NBChantiersInWorkingWk = GetNbChantiers(wb)
     If PreviousNBChantiers > 0 And NBChantiersInWorkingWk > 0 Then
         ChangeChantiers wb, NBChantiersInWorkingWk, PreviousNBChantiers
+        ChangeChantiersReel wb, NBChantiersInWorkingWk, PreviousNBChantiers
     End If
     
     prepareFichier = True

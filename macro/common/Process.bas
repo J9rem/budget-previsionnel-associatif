@@ -511,9 +511,9 @@ Public Sub ChangeChantiers(wb As Workbook, PreviousNB As Integer, FinalNB As Int
         BaseCell.Cells(1, 1).Worksheet.Activate
         BaseCell.Cells(1, PreviousNB).EntireColumn.Select
         BaseCell.Cells(1, PreviousNB).EntireColumn.Copy
-        Range(BaseCell.Cells(1, PreviousNB).EntireColumn, BaseCell.Cells(1, FinalNB - 1).EntireColumn).Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
-        BaseCell.Cells(1, FinalNB).EntireColumn.Copy
-        Range(BaseCell.Cells(1, PreviousNB).EntireColumn, BaseCell.Cells(1, FinalNB - 1).EntireColumn).PasteSpecial _
+        Range(BaseCell.Cells(1, PreviousNB + 1).EntireColumn, BaseCell.Cells(1, FinalNB).EntireColumn).Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+        BaseCell.Cells(1, PreviousNB).EntireColumn.Copy
+        Range(BaseCell.Cells(1, PreviousNB + 1).EntireColumn, BaseCell.Cells(1, FinalNB).EntireColumn).PasteSpecial _
             Paste:=xlAll
         ' Clear contents
         For Index = PreviousNB + 1 To FinalNB
@@ -540,12 +540,223 @@ Public Sub ChangeChantiers(wb As Workbook, PreviousNB As Integer, FinalNB As Int
                 Range(StartRange, EndRange).ClearContents
             End If
         End If
+        UpdateSums wb, BaseCell
     Else
         If FinalNB < PreviousNB Then
             Range(BaseCell.Cells(1, FinalNB + 1).EntireColumn, BaseCell.Cells(1, PreviousNB).EntireColumn).Delete Shift:=xlToLeft
         End If
     End If
     
+
+End Sub
+
+Public Sub ChangeChantiersReel(wb As Workbook, PreviousNB As Integer, FinalNB As Integer)
+
+    Dim BaseCell As Range
+    Dim BaseCellReal As Range
+    Dim ChantierSheet As Worksheet
+    Dim ChantierSheetReal As Worksheet
+    Dim EndRange As Range
+    Dim Index As Integer
+    Dim IndexLevel2 As Integer
+    Dim NBSalaries As Integer
+    Dim SetOfRange As SetOfRange
+    Dim SetOfRangeF As SetOfRange
+    Dim SetOfRangeFReel As SetOfRange
+    Dim StartRange As Range
+    
+    If FinalNB < 1 Then
+        Exit Sub
+    End If
+    
+    Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
+    If ChantierSheet Is Nothing Then
+        Exit Sub
+    End If
+    Set ChantierSheetReal = wb.Worksheets(Nom_Feuille_Budget_chantiers_realise)
+    If ChantierSheetReal Is Nothing Then
+        Exit Sub
+    End If
+    Set BaseCell = FindNextNotEmpty(ChantierSheet.Cells(3, 1), False)
+    If BaseCell.Column > 1000 Then
+        Exit Sub
+    End If
+    If Left(BaseCell.Value, Len("Chantier")) <> "Chantier" Then
+        Exit Sub
+    End If
+    Set BaseCellReal = FindNextNotEmpty(ChantierSheetReal.Cells(3, 1), False)
+    If BaseCellReal.Column > 1000 Then
+        Exit Sub
+    End If
+    If Left(BaseCellReal.Value, Len("Chantier")) <> "Chantier" Then
+        Exit Sub
+    End If
+    
+    If FinalNB > PreviousNB Then
+        BaseCellReal.Cells(1, 1).Worksheet.Activate
+        BaseCellReal.Cells(1, 1 + 3 * (PreviousNB - 1)).EntireColumn.Select
+        Range( _
+            BaseCellReal.Cells(1, 1 + 3 * (PreviousNB - 1)).EntireColumn, _
+            BaseCellReal.Cells(1, 3 + 3 * (PreviousNB - 1)).EntireColumn _
+            ).Copy
+        Range( _
+            BaseCellReal.Cells(1, 1 + 3 * PreviousNB).EntireColumn, _
+            BaseCellReal.Cells(1, 3 + 3 * (FinalNB - 1)).EntireColumn _
+            ).Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+        Range( _
+            BaseCellReal.Cells(1, 1 + 3 * (PreviousNB - 1)).EntireColumn, _
+            BaseCellReal.Cells(1, 3 + 3 * (PreviousNB - 1)).EntireColumn _
+            ).Copy
+        Range( _
+            BaseCellReal.Cells(1, 1 + 3 * PreviousNB).EntireColumn, _
+            BaseCellReal.Cells(1, 3 + 3 * (FinalNB - 1)).EntireColumn _
+        ).PasteSpecial _
+            Paste:=xlAll
+
+        ' update contents
+        NBSalaries = GetNbSalaries(wb)
+        SetOfRange = GetCellsForDepense(ChantierSheetReal)
+        SetOfRangeF = GetCellsForFinancement(ChantierSheet)
+        SetOfRangeFReel = GetCellsForFinancement(ChantierSheetReal)
+        For Index = (PreviousNB + 1) To FinalNB
+            ' title
+            BaseCellReal.Cells(1, 1 + 3 * (Index - 1)).Formula = "=" & _
+                CleanAddress(BaseCell.Cells(1, Index).address(False, False, xlA1, True))
+            ' name
+            BaseCellReal.Cells(2, 1 + 3 * (Index - 1)).Formula = "=" & _
+                CleanAddress(BaseCell.Cells(2, Index).address(False, False, xlA1, True))
+            If NBSalaries > 0 Then
+                ' empty first part for time for salarie
+                Set StartRange = BaseCellReal.Cells(5, 2 + 3 * (Index - 1))
+                Set EndRange = BaseCellReal.Cells(5 + NBSalaries - 1, 2 + 3 * (Index - 1))
+                Range(StartRange, EndRange).ClearContents
+
+                ' update formula
+                For IndexLevel2 = 1 To NBSalaries
+                    BaseCellReal.Cells(4 + IndexLevel2, 1 + 3 * (Index - 1)).Formula = "=" & _
+                        CleanAddress(BaseCell.Cells(4 + IndexLevel2, Index).address(False, False, xlA1, True))
+                Next IndexLevel2
+                
+                ' charges indirectes
+                For IndexLevel2 = 1 To 4
+                    BaseCellReal.Cells(6 + 2 * NBSalaries + IndexLevel2, 1 + 3 * (Index - 1)).Formula = "=" & _
+                        CleanAddress(BaseCell.Cells(6 + 2 * NBSalaries + IndexLevel2, Index).address(False, False, xlA1, True))
+                Next IndexLevel2
+
+                ' empty depenses for salarie
+                If SetOfRange.Status Then
+                    Range( _
+                        SetOfRange.HeadCell.Cells(2, 3 + 3 * PreviousNB), _
+                        SetOfRange.ResultCell.Cells(1, 2 + 3 * PreviousNB) _
+                    ).ClearContents
+                End If
+                
+                ' depenses
+                For IndexLevel2 = (SetOfRange.HeadCell.Row - BaseCellReal.Row + 1) To (SetOfRange.ResultCell.Row - BaseCellReal.Row)
+                    BaseCellReal.Cells(IndexLevel2, 1 + 3 * (Index - 1)).Formula = "=" & _
+                        CleanAddress(BaseCell.Cells(IndexLevel2, Index).address(False, False, xlA1, True))
+                Next IndexLevel2
+            End If
+
+            ' financements
+            If SetOfRangeF.Status And SetOfRangeFReel.Status Then
+                For IndexLevel2 = 2 To (SetOfRangeFReel.ResultCell.Row - SetOfRangeFReel.HeadCell.Row)
+                    If SetOfRangeFReel.HeadCell.Cells(IndexLevel2, 2).Value = "Statut" Then
+                        SetOfRangeFReel.HeadCell.Cells(IndexLevel2, 3 + 3 * (Index - 1)).Formula = "=" _
+                            & "IF(" _
+                            & CleanAddress(SetOfRangeF.HeadCell.Cells(IndexLevel2, 2 + Index).address(False, False, xlA1, True)) _
+                            & "="""",""""," _
+                            & CleanAddress(SetOfRangeF.HeadCell.Cells(IndexLevel2, 2 + Index).address(False, False, xlA1, True)) _
+                            & ")"
+                    Else
+                        SetOfRangeFReel.HeadCell.Cells(IndexLevel2, 3 + 3 * (Index - 1)).Formula = "=" _
+                            & CleanAddress(SetOfRangeF.HeadCell.Cells(IndexLevel2, 2 + Index).address(False, False, xlA1, True))
+                        SetOfRangeFReel.HeadCell.Cells(IndexLevel2, 4 + 3 * (Index - 1)).Value = ""
+                    End If
+                Next IndexLevel2
+                SetOfRangeFReel.ResultCell.Cells(2, 2 + 3 * (Index - 1)).Formula = "=" _
+                    & CleanAddress(SetOfRangeF.ResultCell.Cells(2, 1 + Index).address(False, False, xlA1, True))
+                SetOfRangeFReel.ResultCell.Cells(2, 3 + 3 * (Index - 1)).Value = ""
+                For IndexLevel2 = 9 To 11
+                    SetOfRangeFReel.ResultCell.Cells(IndexLevel2, 2 + 3 * (Index - 1)).Formula = "=" _
+                        & CleanAddress(SetOfRangeF.ResultCell.Cells(IndexLevel2, 1 + Index).address(False, False, xlA1, True))
+                    SetOfRangeFReel.ResultCell.Cells(IndexLevel2, 3 + 3 * (Index - 1)).Value = ""
+                Next IndexLevel2
+            End If
+        Next Index
+    Else
+        If FinalNB < PreviousNB Then
+            Range( _
+                BaseCellReal.Cells(1, 1 + 3 * FinalNB).EntireColumn, _
+                BaseCellReal.Cells(1, 3 + 3 * (PreviousNB - 1)).EntireColumn _
+            ).Delete Shift:=xlToLeft
+        End If
+    End If
+
+    UpdateSumsReal wb, BaseCellReal
+
+End Sub
+
+Public Sub UpdateSums(wb As Workbook, BaseCell As Range)
+
+    Dim FirstCellAddress As String
+    Dim FoundCell As Range
+    Dim NBChantiers As Integer
+    Dim ResultCell As Range
+    Dim RowIndex As Integer
+    
+    NBChantiers = GetNbChantiers(wb)
+
+    Set FoundCell = BaseCell.Cells(1, 0).EntireColumn.Find(Label_Total_Financements)
+    If FoundCell Is Nothing Then
+        Exit Sub
+    End If
+    For RowIndex = 3 To (FoundCell.Row + 7 - BaseCell.Row)
+        FirstCellAddress = BaseCell.Cells(RowIndex, 1).address(False, False, xlA1, False)
+        Set ResultCell = BaseCell.Cells(RowIndex, 1 + NBChantiers)
+        If Left(ResultCell.Formula, Len(FirstCellAddress) + 5) = ("=SUM(" & FirstCellAddress) Then
+            ResultCell.Formula = "=SUM(" _
+                & CleanAddress(Range( _
+                        BaseCell.Cells(RowIndex, 1), _
+                        BaseCell.Cells(RowIndex, NBChantiers) _
+                    ).address(False, False, xlA1, False)) _
+                & ")"
+        End If
+    Next RowIndex
+
+End Sub
+
+Public Sub UpdateSumsReal(wb As Workbook, BaseCellReal As Range)
+
+    Dim ChantierIndex As Integer
+    Dim FirstCellAddress As String
+    Dim FormulaForSum As String
+    Dim FoundCell As Range
+    Dim NBChantiers As Integer
+    Dim ResultCell As Range
+    Dim RowIndex As Integer
+    
+    NBChantiers = GetNbChantiers(wb)
+
+    Set FoundCell = BaseCellReal.Cells(1, 0).EntireColumn.Find(Label_Total_Financements)
+    If FoundCell Is Nothing Then
+        Exit Sub
+    End If
+    For RowIndex = 3 To (FoundCell.Row + 7 - BaseCellReal.Row)
+        FirstCellAddress = BaseCellReal.Cells(RowIndex, 2).address(False, False, xlA1, False)
+        Set ResultCell = BaseCellReal.Cells(RowIndex, 1 + 3 * NBChantiers)
+        If Left(ResultCell.Formula, Len(FirstCellAddress) + 1) = ("=" & FirstCellAddress) Then
+            FormulaForSum = "="
+            For ChantierIndex = 1 To NBChantiers
+                If ChantierIndex > 1 Then
+                    FormulaForSum = FormulaForSum & "+"
+                End If
+                FormulaForSum = FormulaForSum & _
+                    BaseCellReal.Cells(RowIndex, 2 + 3 * (ChantierIndex - 1)).address(False, False, xlA1, False)
+            Next ChantierIndex
+            ResultCell.Formula = FormulaForSum
+        End If
+    Next RowIndex
 
 End Sub
 
@@ -569,6 +780,7 @@ Public Sub ChangeUnChantier(Delta As Integer)
     End If
     
     ChangeChantiers wb, CurrentNBChantier, CurrentNBChantier + Delta
+    ChangeChantiersReel wb, CurrentNBChantier, CurrentNBChantier + Delta
     
 FinSub:
 
@@ -2644,7 +2856,7 @@ Public Sub InsererUneDepenseInternalReal(NBChantiers As Integer)
     ' SetOfRangeReal.EndCell = Cout_Journalier cell
     NBSalariesAndCat = SetOfRangeReal.HeadCell.Row - SetOfRangeReal.EndCell.Row
 
-    FormulaForSum = "=0"
+    FormulaForSum = "="
     SetOfRangeReal.ResultCell.Cells(0, 1).Formula = "=" & _
         CleanAddress(SetOfRange.ResultCell.Cells(0, 1).address(False, False, xlA1, True))
 
@@ -2652,7 +2864,10 @@ Public Sub InsererUneDepenseInternalReal(NBChantiers As Integer)
         SetOfRangeReal.ResultCell.Cells(0, (Index - 1) * 3 + 2).Formula = "=" & _
             CleanAddress(SetOfRange.ResultCell.Cells(0, Index + 1).address(False, False, xlA1, True))
         SetOfRangeReal.ResultCell.Cells(0, (Index - 1) * 3 + 3).ClearContents
-        FormulaForSum = FormulaForSum & "+" & SetOfRangeReal.ResultCell.Cells(0, (Index - 1) * 3 + 3).address(False, False, xlA1, False)
+        If Index > 1 Then
+            FormulaForSum = FormulaForSum & "+"
+        End If
+        FormulaForSum = FormulaForSum & SetOfRangeReal.ResultCell.Cells(0, (Index - 1) * 3 + 3).address(False, False, xlA1, False)
 
         For ColIndex = 1 To 2
             UpdateSumsByColumn _
