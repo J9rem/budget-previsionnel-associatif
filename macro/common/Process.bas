@@ -2545,7 +2545,7 @@ Public Function getChargesDefaultPreserve(PreviousSetOfCharges As SetOfCharges, 
     
 End Function
 
-Public Sub InsererUneDepenseInternal()
+Public Function InsererUneDepenseInternal() As Integer
     
     Dim ChantierSheet As Worksheet
     Dim NBChantiers As Integer
@@ -2553,18 +2553,20 @@ Public Sub InsererUneDepenseInternal()
     Dim Previous As Integer
     Dim SetOfRange As SetOfRange
     
+    InsererUneDepenseInternal = 0
     Set ChantierSheet = ThisWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
-        Exit Sub
+        Exit Function
     End If
     SetOfRange = GetCellsForDepense(ChantierSheet)
     If Not SetOfRange.Status Then
-        Exit Sub
+        Exit Function
     End If
     
     SetSilent
 
     NBChantiers = GetNbChantiers(ThisWorkbook)
+    InsererUneDepenseInternal = NBChantiers
     Previous = SetOfRange.ResultCell.Row - SetOfRange.HeadCell.Row - 1
 
     InsertRows _
@@ -2590,6 +2592,79 @@ Public Sub InsererUneDepenseInternal()
         ), _
         SetOfRange.ResultCell.Cells(1, 2), _
         Previous + NBSalariesAndCat
+    
+    SetActive
+    
+End Function
+
+Public Sub InsererUneDepenseInternalReal(NBChantiers As Integer)
+    
+    Dim ChantierSheet As Worksheet
+    Dim ChantierSheetReal As Worksheet
+    Dim ColIndex As Integer
+    Dim FormulaForSum As String
+    Dim Index As Integer
+    Dim NBSalariesAndCat As Integer
+    Dim Previous As Integer
+    Dim SetOfRange As SetOfRange
+    Dim SetOfRangeReal As SetOfRange
+    
+    If NBChantiers < 1 Then
+        Exit Sub
+    End If
+    Set ChantierSheet = ThisWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
+    If ChantierSheet Is Nothing Then
+        Exit Sub
+    End If
+    Set ChantierSheetReal = ThisWorkbook.Worksheets(Nom_Feuille_Budget_chantiers_realise)
+    If ChantierSheetReal Is Nothing Then
+        Exit Sub
+    End If
+    SetOfRange = GetCellsForDepense(ChantierSheet)
+    If Not SetOfRange.Status Then
+        Exit Sub
+    End If
+    SetOfRangeReal = GetCellsForDepense(ChantierSheetReal)
+    If Not SetOfRangeReal.Status Then
+        Exit Sub
+    End If
+    
+    SetSilent
+
+    Previous = SetOfRangeReal.ResultCell.Row - SetOfRangeReal.HeadCell.Row - 1
+
+    InsertRows _
+        SetOfRangeReal.HeadCell, _
+        Previous, _
+        Previous + 1, _
+        False, _
+        3 * NBChantiers + 1 + NBExtraCols, _
+        False
+
+    ' SetOfRangeReal.EndCell = Cout_Journalier cell
+    NBSalariesAndCat = SetOfRangeReal.HeadCell.Row - SetOfRangeReal.EndCell.Row
+
+    FormulaForSum = "=0"
+    SetOfRangeReal.ResultCell.Cells(0, 1).Formula = "=" & _
+        CleanAddress(SetOfRange.ResultCell.Cells(0, 1).address(False, False, xlA1, True))
+
+    For Index = 1 To NBChantiers
+        SetOfRangeReal.ResultCell.Cells(0, (Index - 1) * 3 + 2).Formula = "=" & _
+            CleanAddress(SetOfRange.ResultCell.Cells(0, Index + 1).address(False, False, xlA1, True))
+        SetOfRangeReal.ResultCell.Cells(0, (Index - 1) * 3 + 3).ClearContents
+        FormulaForSum = FormulaForSum & "+" & SetOfRangeReal.ResultCell.Cells(0, (Index - 1) * 3 + 3).address(False, False, xlA1, False)
+
+        For ColIndex = 1 To 2
+            UpdateSumsByColumn _
+                Range( _
+                    SetOfRangeReal.EndCell.Cells(2, 1 + (Index - 1) * 3 + ColIndex), _
+                    SetOfRangeReal.ResultCell.Cells(0, 1 + (Index - 1) * 3 + ColIndex) _
+                ), _
+                SetOfRangeReal.ResultCell.Cells(1, 1 + (Index - 1) * 3 + ColIndex), _
+                Previous + NBSalariesAndCat
+        Next ColIndex
+    Next Index
+    SetOfRangeReal.ResultCell.Cells(0, NBChantiers * 3 + 2).Formula = FormulaForSum
     
     SetActive
     
@@ -2790,14 +2865,17 @@ End Sub
 Public Sub RetirerUneDepense()
 
     Dim ChantierSheet As Worksheet
+    Dim ChantierSheetReal As Worksheet
     Dim CurrentRange As Range
     Dim NewLine As Integer
     Dim NBChantier As Integer
     Dim SetOfRange As SetOfRange
+    Dim SetOfRangeReal As SetOfRange
     Dim wb As Workbook
 
     Set wb = ThisWorkbook
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
+    Set ChantierSheetReal = wb.Worksheets(Nom_Feuille_Budget_chantiers_realise)
     If ChantierSheet Is Nothing Then
         Exit Sub
     End If
@@ -2824,6 +2902,17 @@ Public Sub RetirerUneDepense()
     SetSilent
 
     Set CurrentRange = SetOfRange.HeadCell.Cells(NewLine - SetOfRange.HeadCell.Row + 1, 1)
+
+    If Not (ChantierSheetReal Is Nothing) Then
+        SetOfRangeReal = GetCellsForDepense(ChantierSheetReal)
+        If SetOfRangeReal.Status Then
+            RemoveRows _
+                SetOfRangeReal.HeadCell, _
+                NewLine - SetOfRangeReal.HeadCell.Row, _
+                NewLine - SetOfRangeReal.HeadCell.Row - 1, _
+                1 + NBChantier * 3 + NBExtraCols
+        End If
+    End If
 
     RemoveRows _
         SetOfRange.HeadCell, _

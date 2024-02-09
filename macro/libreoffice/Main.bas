@@ -162,5 +162,7 @@ End Sub
 
 ' Macro pour insérer une dépense
 Public Sub InsererUneDepense()
-    InsererUneDepenseInternal
+    Dim NBChantiers As Integer
+    NBChantiers = InsererUneDepenseInternal()
+    InsererUneDepenseInternalReal NBChantiers
 End Sub
