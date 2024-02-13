@@ -7,7 +7,7 @@ Option Explicit
 ' pour pouvoir l'utiliser directement dans les cases
 
 Public Function LastSaveDate() As String
-  ' Volatile est présent pour indiquer que c'est une macro qui est recalculée en même temps que le fichier
+  ' Volatile est présent pour indiquer que c'est une macro qui est recalculée en méme temps que le fichier
   Application.Volatile
   On Error Resume Next
   LastSaveDate = ThisWorkbook.BuiltinDocumentProperties("Last Save Time")
