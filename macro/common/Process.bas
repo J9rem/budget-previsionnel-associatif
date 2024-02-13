@@ -1,6 +1,6 @@
 Attribute VB_Name = "Process"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dï¿½claration de toutes les variables
 Option Explicit
 
 Public Sub CleanDepenses(BaseCell)
@@ -119,7 +119,7 @@ Public Function AddDepenses(wb As Workbook, Data As Data, BaseCell As Range) As 
                 ' ajouter les d?penses de personnel
                 Set CurrentCell = InsertLineAndFormat(CurrentCell, HeadCell, False)
                 CurrentCell.Value = ""
-                CurrentCell.Cells(1, 2).Value = "Rémunération des personnels"
+                CurrentCell.Cells(1, 2).Value = "Rï¿½munï¿½ration des personnels"
                 CurrentCell.Cells(1, 2).Font.Bold = True
                 CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress(SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True)) & "/1.5"
                 Set CurrentCell = InsertLineAndFormat(CurrentCell, HeadCell, False)
@@ -225,7 +225,7 @@ Public Function AddFinancements(wb As Workbook, Data As Data, StartCell As Range
     AddFinancements = True
 End Function
 
-' Macro pour mettre à jour le budget update
+' Macro pour mettre ï¿½ jour le budget update
 Public Sub MettreAJourBudgetGlobal(wb As Workbook)
 
     Dim Data As Data
@@ -240,12 +240,12 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Data = extraireDonneesVersion1(wb, rev)
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_global)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_global & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Budget_global & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         GoTo EndSub
     End If
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         GoTo EndSub
     End If
     
@@ -323,7 +323,7 @@ Public Function SearchRangeForEmployeesSalary(wb As Workbook) As Range
         GoTo EndFunction
     End If
     
-    Set BaseCell = CoutJSalaireSheet.Cells.Find("Masse salariale des " & Chr(10) & "opérateurs : ")
+    Set BaseCell = CoutJSalaireSheet.Cells.Find("Masse salariale des " & Chr(10) & "opï¿½rateurs : ")
     If BaseCell Is Nothing Then
         GoTo EndFunction
     End If
@@ -342,14 +342,14 @@ Public Sub EgaliserLesColonnes(ws As Worksheet)
     Dim BaseCell As Range
     Dim HeadCell
     
-    Set EndFirstCol = ws.Cells.Find("Total Dépenses (1) + (2)")
+    Set EndFirstCol = ws.Cells.Find("Total Dï¿½penses (1) + (2)")
     Set EndSecondCol = ws.Cells.Find("Total Financements (1) + (2)+ (3)")
     Ecart = EndFirstCol.Row - EndSecondCol.Row
     
     If Ecart > 0 Then
         Set BaseCell = ws.Cells(1, 5).EntireColumn.Find(75).Cells(0, 1)
     Else
-        Set BaseCell = ws.Cells.Find("Total Dépenses (1)").Cells(0, 1)
+        Set BaseCell = ws.Cells.Find("Total Dï¿½penses (1)").Cells(0, 1)
         Ecart = -Ecart
     End If
     
@@ -375,7 +375,7 @@ Public Function GetNbSalaries(wb As Workbook)
         GetNbSalaries = -1
         Exit Function
     End If
-    Set BaseCell = CoutJSalaireSheet.Range("A:A").Find("Prénom")
+    Set BaseCell = CoutJSalaireSheet.Range("A:A").Find("Prï¿½nom")
     If BaseCell Is Nothing Then
         GetNbSalaries = -2
         Exit Function
@@ -385,7 +385,7 @@ Public Function GetNbSalaries(wb As Workbook)
         Exit Function
     End If
     ' TODO find dynamically the right row
-    If BaseCell.Value <> "Prénom" Then
+    If BaseCell.Value <> "Prï¿½nom" Then
         GetNbSalaries = -4
         Exit Function
     End If
@@ -395,7 +395,7 @@ Public Function GetNbSalaries(wb As Workbook)
     End If
     
     Set TmpRange = FindNextNotEmpty(BaseCell.Cells(2, 1), True)
-    If TmpRange.Value = "Prénom" Or TmpRange.Value = Label_Cout_J_Salaire_Part_B Then
+    If TmpRange.Value = "Prï¿½nom" Or TmpRange.Value = Label_Cout_J_Salaire_Part_B Then
         GetNbSalaries = -6
         Exit Function
     End If
@@ -562,7 +562,6 @@ Public Sub ChangeChantiersReel(wb As Workbook, PreviousNB As Integer, FinalNB As
     Dim NBSalaries As Integer
     Dim SetOfRange As SetOfRange
     Dim SetOfRangeF As SetOfRange
-    Dim SetOfRangeFReel As SetOfRange
     Dim StartRange As Range
     
     If FinalNB < 1 Then
@@ -616,8 +615,7 @@ Public Sub ChangeChantiersReel(wb As Workbook, PreviousNB As Integer, FinalNB As
         ' update contents
         NBSalaries = GetNbSalaries(wb)
         SetOfRange = GetCellsForDepense(ChantierSheetReal)
-        SetOfRangeF = GetCellsForFinancement(ChantierSheet)
-        SetOfRangeFReel = GetCellsForFinancement(ChantierSheetReal)
+        SetOfRangeF = GetCellsForFinancement(ChantierSheet, ChantierSheetReal)
         For Index = (PreviousNB + 1) To FinalNB
             ' title
             BaseCellReal.Cells(1, 1 + 3 * (Index - 1)).Formula = "=" & _
@@ -659,28 +657,28 @@ Public Sub ChangeChantiersReel(wb As Workbook, PreviousNB As Integer, FinalNB As
             End If
 
             ' financements
-            If SetOfRangeF.Status And SetOfRangeFReel.Status Then
-                For IndexLevel2 = 2 To (SetOfRangeFReel.ResultCell.Row - SetOfRangeFReel.HeadCell.Row)
-                    If SetOfRangeFReel.HeadCell.Cells(IndexLevel2, 2).Value = "Statut" Then
-                        SetOfRangeFReel.HeadCell.Cells(IndexLevel2, 3 + 3 * (Index - 1)).Formula = "=" _
+            If SetOfRangeF.Status And SetOfRangeF.StatusReal Then
+                For IndexLevel2 = 2 To (SetOfRangeF.ResultCellReal.Row - SetOfRangeF.HeadCellReal.Row)
+                    If SetOfRangeF.HeadCellReal.Cells(IndexLevel2, 2).Value = "Statut" Then
+                        SetOfRangeF.HeadCellReal.Cells(IndexLevel2, 3 + 3 * (Index - 1)).Formula = "=" _
                             & "IF(" _
                             & CleanAddress(SetOfRangeF.HeadCell.Cells(IndexLevel2, 2 + Index).address(False, False, xlA1, True)) _
                             & "="""",""""," _
                             & CleanAddress(SetOfRangeF.HeadCell.Cells(IndexLevel2, 2 + Index).address(False, False, xlA1, True)) _
                             & ")"
                     Else
-                        SetOfRangeFReel.HeadCell.Cells(IndexLevel2, 3 + 3 * (Index - 1)).Formula = "=" _
+                        SetOfRangeF.HeadCellReal.Cells(IndexLevel2, 3 + 3 * (Index - 1)).Formula = "=" _
                             & CleanAddress(SetOfRangeF.HeadCell.Cells(IndexLevel2, 2 + Index).address(False, False, xlA1, True))
-                        SetOfRangeFReel.HeadCell.Cells(IndexLevel2, 4 + 3 * (Index - 1)).Value = ""
+                        SetOfRangeF.HeadCellReal.Cells(IndexLevel2, 4 + 3 * (Index - 1)).Value = ""
                     End If
                 Next IndexLevel2
-                SetOfRangeFReel.ResultCell.Cells(2, 2 + 3 * (Index - 1)).Formula = "=" _
+                SetOfRangeF.ResultCellReal.Cells(2, 2 + 3 * (Index - 1)).Formula = "=" _
                     & CleanAddress(SetOfRangeF.ResultCell.Cells(2, 1 + Index).address(False, False, xlA1, True))
-                SetOfRangeFReel.ResultCell.Cells(2, 3 + 3 * (Index - 1)).Value = ""
+                SetOfRangeF.ResultCellReal.Cells(2, 3 + 3 * (Index - 1)).Value = ""
                 For IndexLevel2 = 9 To 11
-                    SetOfRangeFReel.ResultCell.Cells(IndexLevel2, 2 + 3 * (Index - 1)).Formula = "=" _
+                    SetOfRangeF.ResultCellReal.Cells(IndexLevel2, 2 + 3 * (Index - 1)).Formula = "=" _
                         & CleanAddress(SetOfRangeF.ResultCell.Cells(IndexLevel2, 1 + Index).address(False, False, xlA1, True))
-                    SetOfRangeFReel.ResultCell.Cells(IndexLevel2, 3 + 3 * (Index - 1)).Value = ""
+                    SetOfRangeF.ResultCellReal.Cells(IndexLevel2, 3 + 3 * (Index - 1)).Value = ""
                 Next IndexLevel2
             End If
         Next Index
@@ -802,10 +800,10 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Cout_J_Salaire)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Exit Sub
     End If
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -832,7 +830,7 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     If BaseCell.Value <> Label_Cout_J_Salaire_Part_B Then
         Exit Sub
     End If
-    If BaseCell.Cells(3, 1).Value <> "Prénom" Then
+    If BaseCell.Cells(3, 1).Value <> "Prï¿½nom" Then
         Exit Sub
     End If
     Set BaseCell = BaseCell.Cells(3, 1)
@@ -850,7 +848,7 @@ Public Sub ChangerNBSalariesDansCoutJSalaires(wb As Workbook, PreviousNB As Inte
     If BaseCell Is Nothing Then
         Exit Sub
     End If
-    If BaseCell.Cells(5, 1).Value <> "Prénom" Then
+    If BaseCell.Cells(5, 1).Value <> "Prï¿½nom" Then
         Exit Sub
     End If
     Set BaseCell = BaseCell.Cells(5, 1)
@@ -889,10 +887,10 @@ Public Sub ChangeNBSalariesDansChantier( _
 
     Set CurrentSheet = wb.Worksheets(CurrentSheetName)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & CurrentSheetName & "' n'a pas été trouvée"
+        MsgBox "'" & CurrentSheetName & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Exit Sub
     End If
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Salarié")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("Salariï¿½")
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -959,6 +957,7 @@ Public Sub RetirerLignesVidesFunc( _
 
     Dim CurrentIndex As Integer
     Dim FirstCellOfLine As Range
+    Dim FirstCellOfLineReal As Range
     Dim NBRows As Integer
     Dim IndexLine As Integer
     Dim ValueOfFirstCellOfLine As String
@@ -970,6 +969,7 @@ Public Sub RetirerLignesVidesFunc( _
 
     For IndexLine = 1 To NBRows
         Set FirstCellOfLine = SetOfRange.HeadCell.Cells(1 + CurrentIndex, 1)
+        Set FirstCellOfLineReal = SetOfRange.HeadCellReal.Cells(1 + CurrentIndex, 1)
         ValueOfFirstCellOfLine = FirstCellOfLine.Value
         ValueOfSecondCellOfLine = FirstCellOfLine.Cells(1, 2).Value
         ValueOfSecondCellOfNextLine = FirstCellOfLine.Cells(2, 2).Value
@@ -983,6 +983,10 @@ Public Sub RetirerLignesVidesFunc( _
                     FirstCellOfLine, _
                     FirstCellOfLine.Cells(2, 3 + NBChantiers + NBExtraCols) _
                 ).Delete Shift:=xlUp
+                Range( _
+                    FirstCellOfLineReal, _
+                    FirstCellOfLineReal.Cells(2, 3 + 3 * NBChantiers + NBExtraCols) _
+                ).Delete Shift:=xlUp
                 CurrentIndex = CurrentIndex - 2
             End If
         Else
@@ -994,6 +998,10 @@ Public Sub RetirerLignesVidesFunc( _
                     Range( _
                         FirstCellOfLine, _
                         FirstCellOfLine.Cells(1, 3 + NBChantiers + NBExtraCols) _
+                    ).Delete Shift:=xlUp
+                    Range( _
+                        FirstCellOfLineReal, _
+                        FirstCellOfLineReal.Cells(1, 3 + 3 * NBChantiers + NBExtraCols) _
                     ).Delete Shift:=xlUp
                     CurrentIndex = CurrentIndex - 1
                 End If
@@ -1039,22 +1047,31 @@ Public Function PrepareAjoutFinancement( _
     ) As SetOfRange
 
     Dim ChantierSheet As Worksheet
+    Dim ChantierSheetReal As Worksheet
     Dim SetOfRange As SetOfRange
 
     ' Default
     SetOfRange.Status = False
+    SetOfRange.StatusReal = False
     PrepareAjoutFinancement = SetOfRange
 
     
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Exit Function
     End If
     Set SetOfRange.ChantierSheet = ChantierSheet
+
+    Set ChantierSheetReal = wb.Worksheets(Nom_Feuille_Budget_chantiers_realise)
+    If ChantierSheetReal Is Nothing Then
+        MsgBox "'" & Nom_Feuille_Budget_chantiers_realise & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+        Exit Function
+    End If
+    Set SetOfRange.ChantierSheetReal = ChantierSheetReal
     PrepareAjoutFinancement = SetOfRange
 
-    SetOfRange = GetCellsForFinancement(SetOfRange.ChantierSheet)
+    SetOfRange = GetCellsForFinancement(SetOfRange.ChantierSheet, SetOfRange.ChantierSheetReal)
     PrepareAjoutFinancement = SetOfRange
     If Not SetOfRange.Status Then
         Exit Function
@@ -1062,7 +1079,7 @@ Public Function PrepareAjoutFinancement( _
 
     If RetirerLignesVides Then
         RetirerLignesVidesFunc SetOfRange, NBChantiers
-        SetOfRange = GetCellsForFinancement(SetOfRange.ChantierSheet)
+        SetOfRange = GetCellsForFinancement(SetOfRange.ChantierSheet, SetOfRange.ChantierSheetReal)
         PrepareAjoutFinancement = SetOfRange
     End If
 
@@ -1078,6 +1095,7 @@ Public Function AjoutFinancementInternal( _
     ) As SetOfRange
 
     Dim BaseCell As Range
+    Dim CurrentAddress As String
     Dim Index As Integer
     Dim IsEmptyRow As Boolean
     Dim NBLinesToClean As Integer
@@ -1089,6 +1107,7 @@ Public Function AjoutFinancementInternal( _
     Dim ValueOfFirstCellOnCurrentLine As String
     Dim ValueOfSecondCellOnNextLine As String
     Dim WorkingRange As Range
+    Dim WorkingRangeReal As Range
     
     TypeFinancementStr = GetTypeFinancementStr(wb, TypeFinancement, NewFinancementInChantier)
     AjoutFinancementInternal = SetOfRange
@@ -1174,8 +1193,38 @@ Public Function AjoutFinancementInternal( _
         ' Clean values
         Range(WorkingRange, WorkingRange.Cells(NBLinesToClean, 2 + NBChantiers)).Value = ""
         Range(WorkingRange, WorkingRange.Cells(NBLinesToClean, 3 + NBChantiers)).MergeCells = False
+
+        ' real
+        If SetOfRange.StatusReal Then
+            InsertRows _
+                SetOfRange.HeadCellReal, _
+                BaseCell.Row - SetOfRange.HeadCellReal.Row, _
+                BaseCell.Row - SetOfRange.HeadCellReal.Row + NBNewLines, _
+                False, _
+                1 + 3 * NBChantiers + NBExtraCols, _
+                False
+            ' Clean values
+            Set WorkingRangeReal = SetOfRange.HeadCellReal.Cells(WorkingRange.Row - SetOfRange.HeadCell + 1, 1)
+            ' Reset formula and clean other values
+            Range(WorkingRangeReal, WorkingRangeReal.Cells(NBLinesToClean, 2)).Value = ""
+            For Index = 1 To NBChantiers
+                setRealFinancementForChantier _
+                    SetOfRange, _
+                    WorkingRange.Row - SetOfRange.HeadCell, _
+                    Index, _
+                    "", _
+                    (NBLinesToClean > 1)
+            Next Index
+            Range( _
+                WorkingRangeReal.Cells(1, 3 + 3 * NBChantiers), _
+                WorkingRangeReal.Cells(NBLinesToClean, 3 + 3 * NBChantiers) _
+                ).MergeCells = False
+        End If
     Else
         Set WorkingRange = BaseCell
+        If SetOfRange.StatusReal Then
+            Set WorkingRangeReal = SetOfRange.HeadCellReal.Cells(WorkingRange.Row - SetOfRange.HeadCell + 1, 1)
+        End If
     End If
 
     WorkingRange.Cells(1, NBChantiers + 3).Formula = "=SUM(" & _
@@ -1184,6 +1233,11 @@ Public Function AjoutFinancementInternal( _
             WorkingRange.Cells(1, NBChantiers + 2) _
         ).address(False, False, xlA1) & _
     ")"
+
+    If SetOfRange.StatusReal Then
+        WorkingRangeReal.Cells(1, 3 * NBChantiers + 3).Formula = "=" & _
+            WorkingRangeReal.Cells(1, 3).address(False, False, xlA1, False)
+    End If
 
     If TypeFinancementStr <> "" Then
         WorkingRange.Cells(1, 1).Value = TypeFinancementStr
@@ -1199,11 +1253,14 @@ Public Function AjoutFinancementInternal( _
         For Index = 1 To UBound(NewFinancementInChantier.Financements)
             TmpFinancement = NewFinancementInChantier.Financements(Index)
             If TmpFinancement.Valeur <> 0 Then
-                WorkingRange.Cells(1, 2 + Index) = TmpFinancement.Valeur
+                WorkingRange.Cells(1, 2 + Index).Value = TmpFinancement.Valeur
+            End If
+            If SetOfRange.StatusReal And TmpFinancement.ValeurReal <> 0 Then
+                WorkingRangeReal.Cells(1, 3 * Index + 1).Value = TmpFinancement.ValeurReal
             End If
             If TypeFinancementStr <> "" Then
                 If TmpFinancement.Statut <> 0 Then
-                    WorkingRange.Cells(2, 2 + Index) = TypeStatut()(TmpFinancement.Statut)
+                    WorkingRange.Cells(2, 2 + Index).Value = TypeStatut()(TmpFinancement.Statut)
                 End If
             End If
         Next Index
@@ -1212,8 +1269,38 @@ Public Function AjoutFinancementInternal( _
     Set AjoutFinancementInternal.EndCell = SetOfRange.ResultCell.Cells(0, 0)
 End Function
 
+Public Sub setRealFinancementForChantier( _
+    SetOfRange as SetOfRange, _
+    NBFirstLineOfFinancement As Integer, _
+    NBofChantier As Integer, _
+    ValueToSet As String, _
+    Optional IsTwoLines As Boolean = False
+    )
+
+    Dim CurrentAddress As String
+    Dim CurrentBaseCell As Range
+
+    Set CurrentBaseCell = SetOfRange.HeadCellReal.Cells(1 + NBFirstLineOfFinancement, 3 + 3 * (NBofChantier - 1))
+    CurrentBaseCell.Formula = "=" & CleanAddress(SetOfRange.HeadCell.Cells(1 + NBFirstLineOfFinancement, 2 + NBofChantier).Address(False, False, xlA1, True))
+    If ValueToSet = "" Then
+        CurrentBaseCell.Cells(1, 2).Value = ""
+    Else
+        CurrentBaseCell.Cells(1, 2).Value = CDbl(ValueToSet)
+    End If
+    CurrentBaseCell.Cells(1, 3).Formula = "=" _
+        & CleanAddress(CurrentBaseCell.Cells(1,2).Address(False, False, xlA1, True)) _
+        & "/(" _
+        & CleanAddress(CurrentBaseCell.Address(False, False, xlA1, True)) _
+        & "+1E-9)"
+    If IsTwoLines Then
+        CurrentAddress = CleanAddress(SetOfRange.HeadCell.Cells(2 + NBFirstLineOfFinancement, 2 + NBofChantier).Address(False, False, xlA1, True))
+        CurrentBaseCell.Cells(2, 1).Formula = "=IF(" & CurrentAddress & "="""",""""," & CurrentAddress & ")"
+    End If
+End Sub
+
 Public Sub DefinirFormatChantiers( _
         ChantierSheet As Worksheet, _
+        ChantierSheetReal As Worksheet, _
         NBChantiers As Integer, _
         Optional AddTopBorder As Boolean = True, _
         Optional AddBottomBorder As Boolean = True _
@@ -1227,7 +1314,9 @@ Public Sub DefinirFormatChantiers( _
     Dim SetOfRange As SetOfRange
     Dim ValueOfSecondCellOfLine As String
 
-    SetOfRange = GetCellsForFinancement(ChantierSheet)
+    ' TODO update format for chantier real
+
+    SetOfRange = GetCellsForFinancement(ChantierSheet, ChantierSheetReal)
     If Not SetOfRange.Status Then
         Exit Sub
     End If
@@ -1295,8 +1384,7 @@ Public Sub AjoutFinancement(wb As Workbook, _
 
     SetOfRange = AjoutFinancementInternal(SetOfRange, wb, NBChantiers, NewFinancementInChantier, Nom, TypeFinancement)
     
-    RenewFormulaForTotalFinancement SetOfRange.ChantierSheet, NBChantiers
-    DefinirFormatChantiers SetOfRange.ChantierSheet, NBChantiers
+    UpdateSumsAndFormat wb, SetOfRange, NBChantiers
 
 End Sub
 
@@ -1470,13 +1558,13 @@ Public Sub ChangeNBSalarieDansPersonnel(wb As Workbook, PreviousNB As Integer, F
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Personnel)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Exit Sub
     End If
     
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+    Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
     If BaseCell Is Nothing Then
-        MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
+        MsgBox "'Prï¿½nom' non trouvï¿½ dans '" & Nom_Feuille_Personnel & "' !"
         Exit Sub
     End If
     
@@ -1628,23 +1716,24 @@ Public Function extraireFinancementChantier( _
         Data As Data, _
         Optional ForV0 As Boolean = False _
         ) As SetOfChantiers
-    Dim Chantiers() As Chantier
-    Dim SetOfChantiers As SetOfChantiers
-    Dim ChantierTmp As Chantier
     Dim BaseCell As Range
-    Dim FoundCell As Range
-    Dim IndexChantiers As Integer
-    Dim IndexFinancement As Integer
-    Dim IndexType As Integer
-    Dim NBFinancements As Integer
-    Dim TypesFinancements As Variant
-    Dim TypesStatuts As Variant
-    Dim IndexTypeName As Integer
-    Dim ColCounter As Integer
+    Dim ChantierTmp As Chantier
+    Dim Chantiers() As Chantier
+    Dim LocalCounter As Integer
     Dim FinancementTmp As Financement
     Dim FinancementTmp1 As Financement
     Dim FinancementsTmp() As Financement
     Dim FinancementsTmp1() As Financement
+    Dim FoundCell As Range
+    Dim IndexChantiers As Integer
+    Dim IndexFinancement As Integer
+    Dim IndexType As Integer
+    Dim IndexTypeName As Integer
+    Dim NBFinancements As Integer
+    Dim SetOfChantiers As SetOfChantiers
+    Dim SetOfRange As SetOfRange
+    Dim TypesFinancements As Variant
+    Dim TypesStatuts As Variant
     
     TypesFinancements = TypeFinancementsFromWb(BaseCellChantier.Worksheet.Parent)
     TypesStatuts = TypeStatut()
@@ -1657,31 +1746,37 @@ Public Function extraireFinancementChantier( _
         If BaseCell.address = BaseCellChantier.address Then
             GoTo FinFunction
         End If
+        If BaseCell Is Nothing Then
+            GoTo FinFunction
+        End If
+        Set BaseCell = BaseCell.Cells(2, 1)
+        Set FoundCell = BaseCell.Cells(1, 2).EntireColumn.Find(Label_Total_Financements)
+        If Not (FoundCell Is Nothing) Then
+            NBFinancements = FoundCell.Row - BaseCell.Row
+        Else
+            NBFinancements = -1
+        End If
+        Set FoundCell = BaseCell.Cells(1, 2).EntireColumn.Find(Label_Autofinancement_Structure)
+        If NBFinancements < 0 Or (FoundCell.Row < BaseCell.Row + NBFinancements) Then
+            NBFinancements = FoundCell.Row - BaseCell.Row
+        End If
     Else
-        Set BaseCell = BaseCellChantier.EntireRow.Cells(1, 1).EntireColumn.Find(Label_Type_Financeur)
-    End If
-    If BaseCell Is Nothing Then
-        GoTo FinFunction
+        SetOfRange = GetCellsForFinancement(BaseCellChantier.Worksheet)
+        If Not(SetOfRange.Status) Then
+            GoTo FinFunction
+        End If
+        Set BaseCell = SetOfRange.HeadCell.Cells(2, 1)
+        NBFinancements =  SetOfRange.EndCell.Row - SetOfRange.HeadCell.Row
     End If
     
-    Set BaseCell = BaseCell.Cells(2, 1)
-    Set FoundCell = BaseCell.Cells(1, 2).EntireColumn.Find(Label_Total_Financements)
-    If Not (FoundCell Is Nothing) Then
-        NBFinancements = FoundCell.Row - BaseCell.Row
-    Else
-        NBFinancements = -1
-    End If
-    Set FoundCell = BaseCell.Cells(1, 2).EntireColumn.Find(Label_Autofinancement_Structure)
-    If NBFinancements < 0 Or (FoundCell.Row < BaseCell.Row + NBFinancements) Then
-        NBFinancements = FoundCell.Row - BaseCell.Row
-    End If
-    ColCounter = 0
+    ' Filter only financement removing second lines if begining by "statut"
+    LocalCounter = 0
     For IndexFinancement = 1 To NBFinancements
         If BaseCell.Cells(IndexFinancement, 2).Value <> "Statut" Then
-            ColCounter = ColCounter + 1
+            LocalCounter = LocalCounter + 1
         End If
     Next IndexFinancement
-    NBFinancements = ColCounter
+    NBFinancements = LocalCounter
     
     For IndexChantiers = 1 To NBChantiers
         ChantierTmp = Chantiers(IndexChantiers)
@@ -1691,21 +1786,21 @@ Public Function extraireFinancementChantier( _
     Next IndexChantiers
     
     ' Extraction des types avec le chantier 1
-    ColCounter = 1
+    LocalCounter = 1
     ChantierTmp = Chantiers(1)
     FinancementsTmp1 = ChantierTmp.Financements
     For IndexFinancement = 1 To NBFinancements
         FinancementTmp1 = FinancementsTmp1(IndexFinancement)
-        FinancementTmp1.Nom = BaseCell.Cells(ColCounter, 2).Value
+        FinancementTmp1.Nom = BaseCell.Cells(LocalCounter, 2).Value
         IndexType = 0
         For IndexTypeName = 1 To UBound(TypesFinancements)
-            If TypesFinancements(IndexTypeName) = BaseCell.Cells(ColCounter, 1).Value Then
+            If TypesFinancements(IndexTypeName) = BaseCell.Cells(LocalCounter, 1).Value Then
                 IndexType = IndexTypeName
             End If
         Next IndexTypeName
         FinancementTmp1.TypeFinancement = IndexType
         If IndexType > 0 Then
-            ColCounter = ColCounter + 1
+            LocalCounter = LocalCounter + 1
         Else
             If ForV0 And FinancementTmp1.Nom <> "" Then
                 If Trim(FinancementTmp1.Nom) = "Formations" Or _
@@ -1718,40 +1813,58 @@ Public Function extraireFinancementChantier( _
             End If
         End If
         FinancementsTmp1(IndexFinancement) = FinancementTmp1
-        ColCounter = ColCounter + 1
+        LocalCounter = LocalCounter + 1
     Next IndexFinancement
     ChantierTmp.Financements = FinancementsTmp1
     Chantiers(1) = ChantierTmp
     
     ' Extraction des valeurs
     For IndexChantiers = 1 To NBChantiers
-        ColCounter = 1
+        LocalCounter = 1
         ChantierTmp = Chantiers(IndexChantiers)
         For IndexFinancement = 1 To NBFinancements
             FinancementsTmp = ChantierTmp.Financements
             FinancementTmp = FinancementsTmp(IndexFinancement)
             FinancementTmp1 = FinancementsTmp1(IndexFinancement)
-            ' récupération du type depuis le chantier 1
+            ' rï¿½cupï¿½ration du type depuis le chantier 1
             If IndexChantiers > 1 Then
                 FinancementTmp.Nom = FinancementTmp1.Nom
                 FinancementTmp.TypeFinancement = FinancementTmp1.TypeFinancement
             End If
-            FinancementTmp.Valeur = BaseCell.Cells(ColCounter, IndexChantiers + 2).Value
-            Set FinancementTmp.BaseCell = BaseCell.Cells(ColCounter, IndexChantiers + 2)
+            FinancementTmp.Valeur = BaseCell.Cells(LocalCounter, IndexChantiers + 2).Value
+            Set FinancementTmp.BaseCell = BaseCell.Cells(LocalCounter, IndexChantiers + 2)
+            If Not ForV0 Then
+                If SetOfRange.StatusReal Then
+                    FinancementTmp.ValeurReal = SetOfRange.HeadCellReal.Cells( _
+                            1 + LocalCounter, _
+                            3 * IndexChantiers + 1 _
+                        ).Value
+                    Set FinancementTmp.BaseCellReal = SetOfRange.HeadCellReal.Cells( _
+                            1 + LocalCounter, _
+                            3 * IndexChantiers + 1 _
+                        )
+                Else
+                    FinancementTmp.ValeurReal = 0
+                    Set FinancementTmp.BaseCellReal = Nothing
+                End If
+            Else
+                FinancementTmp.ValeurReal = 0
+                Set FinancementTmp.BaseCellReal = Nothing
+            End If
             
             If FinancementTmp.TypeFinancement > 0 And Not ForV0 Then
                 IndexType = 0
                 For IndexTypeName = 1 To UBound(TypesStatuts)
-                    If TypesStatuts(IndexTypeName) = BaseCell.Cells(ColCounter + 1, IndexChantiers + 2).Value Then
+                    If TypesStatuts(IndexTypeName) = BaseCell.Cells(LocalCounter + 1, IndexChantiers + 2).Value Then
                         IndexType = IndexTypeName
                     End If
                 Next IndexTypeName
                 FinancementTmp.Statut = IndexType
-                ColCounter = ColCounter + 1
+                LocalCounter = LocalCounter + 1
             Else
                 FinancementTmp.Statut = 0
             End If
-            ColCounter = ColCounter + 1
+            LocalCounter = LocalCounter + 1
             FinancementsTmp(IndexFinancement) = FinancementTmp
             ChantierTmp.Financements = FinancementsTmp
         Next IndexFinancement
@@ -1807,7 +1920,7 @@ Public Function extraireCharges(wb As Workbook, Data As Data, Revision As WbRevi
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     On Error GoTo 0
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         GoTo FinFunction
     End If
     
@@ -1922,12 +2035,13 @@ End Function
 
 Public Sub ClearFinancements( _
         ChantierSheet As Worksheet, _
+        ChantierSheetReal As Worksheet, _
         NBChantiers As Integer _
     )
     Dim Index As Integer
     Dim SetOfRange As SetOfRange
     
-    SetOfRange = GetCellsForFinancement(ChantierSheet)
+    SetOfRange = GetCellsForFinancement(ChantierSheet, ChantierSheetReal)
     If SetOfRange.Status Then
         If SetOfRange.EndCell.Row > SetOfRange.HeadCell.Row + 1 Then
             Range( _
@@ -1942,6 +2056,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
     Dim BaseCell As Range
     Dim BaseCellChantier As Range
     Dim ChantierSheet As Worksheet
+    Dim ChantierSheetReal As Worksheet
     Dim Chantiers() As Chantier
     Dim CurrentSheet As Worksheet
     Dim DepenseTmp As DepenseChantier
@@ -1969,14 +2084,15 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
     If NBSalaries > 0 Then
         Set CurrentSheet = NewWorkbook.Worksheets(Nom_Feuille_Personnel)
         If CurrentSheet Is Nothing Then
-            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
+            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Else
-            Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+            Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
             If BaseCell Is Nothing Then
-                MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
+                MsgBox "'Prï¿½nom' non trouvï¿½ dans '" & Nom_Feuille_Personnel & "' !"
             Else
                 On Error Resume Next
                 Set ChantierSheet = NewWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
+                Set ChantierSheetReal = NewWorkbook.Worksheets(Nom_Feuille_Budget_chantiers_realise)
                 On Error GoTo 0
                 NBChantiers = 0
                 If ChantierSheet Is Nothing Then
@@ -2025,7 +2141,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                     End If
                 Next IndexTab
                 If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) And UBound(Data.Chantiers) > 1 Then
-                    ' nom des dépenses
+                    ' nom des dï¿½penses
                     SetOfRange = GetCellsForDepense(ChantierSheet)
                     If SetOfRange.Status Then
                         Set BaseCell = SetOfRange.HeadCell.Cells(2, 2)
@@ -2071,7 +2187,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                     Set TotalCell = BaseCell.Cells(UBound(DepensesTmp) + 1, 1)
                     
                     ' Financements
-                    ClearFinancements ChantierSheet, NBChantiers
+                    ClearFinancements ChantierSheet, ChantierSheetReal, NBChantiers
                     Financements = TmpChantier1.Financements
                     If UBound(Chantiers) > 0 And UBound(Financements) > 0 Then
                         ReDim FinancementsTmp(1 To UBound(Chantiers))
@@ -2087,8 +2203,8 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                                 FinancementCompletTmp.Status = True
                                 SetOfRange = AjoutFinancementInternal(SetOfRange, NewWorkbook, NBChantiers, FinancementCompletTmp, "", 0)
                             Next Index
-                            RenewFormulaForTotalFinancement SetOfRange.ChantierSheet, NBChantiers
-                            DefinirFormatChantiers SetOfRange.ChantierSheet, NBChantiers
+                            
+                            UpdateSumsAndFormat NewWorkbook, SetOfRange, NBChantiers
                         End If
                     End If
                     
@@ -2189,9 +2305,8 @@ Public Sub InitialiserLesFinancements(wb As Workbook, NBFinancements As Integer,
     For IndexLoop = 1 To NBFinancements
         SetOfRange = AjoutFinancementInternal(SetOfRange, wb, NBChantiers, FinancementCompletTmp, "Cotisations", 0)
     Next IndexLoop
-    
-    RenewFormulaForTotalFinancement SetOfRange.ChantierSheet, NBChantiers
-    DefinirFormatChantiers SetOfRange.ChantierSheet, NBChantiers
+
+    UpdateSumsAndFormat wb, SetOfRange, NBChantiers
 End Sub
 
 Public Function InsertNewLineForCharges(CurrentCell As Range) As Range
@@ -2302,6 +2417,7 @@ Public Function GetNextCell(SetOfCellsCategories As SetOfCellsCategories, IndexO
     Dim SetOfRange As SetOfRange
 
     SetOfRange.Status = False
+    SetOfRange.StatusReal = False
 
     CurrentCells = SetOfCellsCategories.Cells
     Set HeadCell = CurrentCells(IndexOfCat)
@@ -2438,7 +2554,7 @@ Public Sub AjoutCharges(wb As Workbook, Data As Data)
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     On Error GoTo 0
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Exit Sub
     End If
 
@@ -2485,7 +2601,7 @@ Public Sub CreerLigneCharge()
     Set wb = ThisWorkbook
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Exit Sub
     End If
 
@@ -2493,13 +2609,13 @@ Public Sub CreerLigneCharge()
     FormattedValue = Trim(Value)
 
     If FormattedValue = "" Then
-        MsgBox "Erreur : Le nom fourni pour la charge ne peut pas être vide"
+        MsgBox "Erreur : Le nom fourni pour la charge ne peut pas ï¿½tre vide"
         Exit Sub
     End If
 
     ExtractedValue = CInt(Left(FormattedValue, 2))
     If ExtractedValue < 60 Or ExtractedValue > 68 Then
-        MsgBox "Erreur : les deux premiers caractères du nom doivent être compris entre 60 et 68 inclus."
+        MsgBox "Erreur : les deux premiers caractï¿½res du nom doivent ï¿½tre compris entre 60 et 68 inclus."
         Exit Sub
     End If
 
@@ -2516,10 +2632,10 @@ Public Sub CreerLigneCharge()
             Ajout1LigneCharge SetOfRange.EndCell.Cells(Offset, 1), False, FormattedValue, 0, 0, 0, 0, 1
             UpdateChargeFormula SetOfRange
         Else
-            MsgBox "Erreur : impossible de retrouver les différents types de paiement (60 à 68)"
+            MsgBox "Erreur : impossible de retrouver les diffï¿½rents types de paiement (60 ï¿½ 68)"
         End If
     Else
-        MsgBox "Erreur : impossible d'associer cette ligne à un type de paiement (entre 60 et 68)"
+        MsgBox "Erreur : impossible d'associer cette ligne ï¿½ un type de paiement (entre 60 et 68)"
     End If
 
 End Sub
@@ -2541,7 +2657,7 @@ Public Sub RetirerLigneCharge()
     Set wb = ThisWorkbook
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas ï¿½tï¿½ trouvï¿½e"
         Exit Sub
     End If
     SetOfCellsCategories = GetRowsOfCategoriesOfCharges(ChargesSheet)
@@ -2560,7 +2676,7 @@ Public Sub RetirerLigneCharge()
 
     NewLine = InputLineBetween( _
         "Supprimer la charge de la ligne ?", _
-        "Ligne de charge à supprimer", _
+        "Ligne de charge ï¿½ supprimer", _
         MinRow + 1, _
         MaxRow _
     )
@@ -2580,7 +2696,7 @@ Public Sub RetirerLigneCharge()
     End If
     
     If Not IsOK Then
-        MsgBox "La ligne entrée n'est pas la ligne d'une charge"
+        MsgBox "La ligne entrï¿½e n'est pas la ligne d'une charge"
         Exit Sub
     End If
 
@@ -2887,6 +3003,7 @@ End Sub
 
 Public Sub RenewFormulaForTotalFinancement( _
         ChantierSheet As Worksheet, _
+        ChantierSheetReal As Worksheet, _
         NBChantiers As Integer _
     )
     Dim Formula As String
@@ -2895,7 +3012,7 @@ Public Sub RenewFormulaForTotalFinancement( _
     Dim NBRowsFinancements As Integer
     Dim SetOfRange As SetOfRange
 
-    SetOfRange = GetCellsForFinancement(ChantierSheet)
+    SetOfRange = GetCellsForFinancement(ChantierSheet, ChantierSheetReal)
     If SetOfRange.Status Then
         NBRowsFinancements = SetOfRange.EndCell.Row - SetOfRange.HeadCell.Row
         For IndexChantier = 1 To NBChantiers
@@ -2912,20 +3029,32 @@ Public Sub RenewFormulaForTotalFinancement( _
     End If
 End Sub
 Public Function GetCellsForFinancement( _
-        ChantierSheet As Worksheet _
+        ChantierSheet As Worksheet, _
+        ChantierSheetReal As Worksheet _
     ) As SetOfRange
 
     Dim SetOfRange As SetOfRange
 
     SetOfRange.Status = False
+    SetOfRange.StatusReal = False
     Set SetOfRange.ChantierSheet = ChantierSheet
+    Set SetOfRange.ChantierSheetReal = ChantierSheetReal
     Set SetOfRange.HeadCell = ChantierSheet.Cells(1, 1).EntireColumn.Find(Label_Type_Financeur)
+    Set SetOfRange.HeadCellReal = ChantierSheetReal.Cells(1, 1).EntireColumn.Find(Label_Type_Financeur)
     If Not (SetOfRange.HeadCell Is Nothing) Then
         Set SetOfRange.EndCell = ChantierSheet.Cells(1, 2).EntireColumn.Find(Label_Total_Financements)
         If Not (SetOfRange.EndCell Is Nothing) Then
             Set SetOfRange.ResultCell = SetOfRange.EndCell
             Set SetOfRange.EndCell = SetOfRange.EndCell.Cells(0, 0)
             SetOfRange.Status = True
+        End If
+    End If
+    If Not (SetOfRange.HeadCellReal Is Nothing) Then
+        Set SetOfRange.EndCellReal = ChantierSheetReal.Cells(1, 2).EntireColumn.Find(Label_Total_Financements)
+        If Not (SetOfRange.EndCellReal Is Nothing) Then
+            Set SetOfRange.ResultCellReal = SetOfRange.EndCellReal
+            Set SetOfRange.EndCellReal = SetOfRange.EndCellReal.Cells(0, 0)
+            SetOfRange.StatusReal = True
         End If
     End If
     GetCellsForFinancement = SetOfRange
@@ -2944,6 +3073,7 @@ Public Function GetCellsForDepense( _
     Dim StructureCell As Range
 
     SetOfRange.Status = False
+    SetOfRange.StatusReal = False
     Set SetOfRange.ChantierSheet = ChantierSheet
 
     Set BaseCell = FindNextNotEmpty(ChantierSheet.Cells(3, 1), False)
@@ -3013,6 +3143,7 @@ End Function
 Public Sub RetirerUnFinanceur()
 
     Dim ChantierSheet As Worksheet
+    Dim ChantierSheetReal As Worksheet
     Dim CurrentRange As Range
     Dim NewLine As Integer
     Dim NBChantier As Integer
@@ -3025,8 +3156,12 @@ Public Sub RetirerUnFinanceur()
     If ChantierSheet Is Nothing Then
         Exit Sub
     End If
+    Set ChantierSheetReal = wb.Worksheets(Nom_Feuille_Budget_chantiers_realise)
+    If ChantierSheetReal Is Nothing Then
+        Exit Sub
+    End If
 
-    SetOfRange = GetCellsForFinancement(ChantierSheet)
+    SetOfRange = GetCellsForFinancement(ChantierSheet, ChantierSheetReal)
     If Not SetOfRange.Status Then
         Exit Sub
     End If
@@ -3035,13 +3170,13 @@ Public Sub RetirerUnFinanceur()
 
     NewLine = InputLineBetween( _
         "Supprimer le financement de la ligne ?", _
-        "Ligne du financement à supprimer", _
+        "Ligne du financement ï¿½ supprimer", _
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.EndCell.Row _
     )
 
     If NewLine = 0 Then
-        MsgBox "La ligne entrée n'est pas la ligne d'un financement"
+        MsgBox "La ligne entrï¿½e n'est pas la ligne d'un financement"
         Exit Sub
     End If
     
@@ -3072,9 +3207,26 @@ Public Sub RetirerUnFinanceur()
         End If
     End If
 
-    RenewFormulaForTotalFinancement ChantierSheet, NBChantier
+    UpdateSumsAndFormat wb, SetOfRange, NBChantiers, False
 
     SetActive
+End Sub
+
+Public Sub UpdateSumsAndFormat( _
+    wb As Workbook, _
+    SetOfRange As SetOfRange, _
+    NBChantiers As Integer, _
+    Optional SetFormat As Boolean = True _
+    )
+
+    If SetOfRange.StatusReal Then
+        ' Be carefull if position of cells changes for real
+        UpdateSumsReal wb, SetOfRange.ChantierSheetReal.Cells(1, 3)
+    End If
+    RenewFormulaForTotalFinancement SetOfRange.ChantierSheet, SetOfRange.ChantierSheetReal, NBChantiers
+    If SetFormat Then
+        DefinirFormatChantiers SetOfRange.ChantierSheet, SetOfRange.ChantierSheetReal, NBChantiers
+    End If
 End Sub
 
 Public Sub RetirerUneDepense()
@@ -3103,14 +3255,14 @@ Public Sub RetirerUneDepense()
     NBChantier = GetNbChantiers(wb)
 
     NewLine = InputLineBetween( _
-        "Supprimer la dépense de la ligne ?", _
-        "Ligne de la dépense à supprimer", _
+        "Supprimer la dï¿½pense de la ligne ?", _
+        "Ligne de la dï¿½pense ï¿½ supprimer", _
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.ResultCell.Row - 1 _
     )
 
     If NewLine = 0 Then
-        MsgBox "La ligne entrée n'est pas la ligne d'une dépense"
+        MsgBox "La ligne entrï¿½e n'est pas la ligne d'une dï¿½pense"
         Exit Sub
     End If
     

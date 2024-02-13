@@ -35,8 +35,10 @@ Type Financement
     Nom As String
     TypeFinancement As Integer ' Index in TypeFinancements
     Valeur As Double
+    ValeurReal As Double
     Statut As Integer ' 0 = empty
     BaseCell As Range
+    BaseCellReal As Range
 End Type
 
 Type Chantier
@@ -112,10 +114,15 @@ End Type
 
 Type SetOfRange
     EndCell As Range
+    EndCellReal As Range
     HeadCell As Range
+    HeadCellReal As Range
     ResultCell As Range
+    ResultCellReal As Range
     Status As Boolean
+    StatusReal As Boolean
     ChantierSheet As Worksheet
+    ChantierSheetReal As Worksheet
 End Type
 
 Type SetOfCellsCategories
