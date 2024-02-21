@@ -645,7 +645,7 @@ Public Sub ChangeChantiersReel(wb As Workbook, PreviousNB As Integer, FinalNB As
                 If SetOfRange.Status Then
                     Range( _
                         SetOfRange.HeadCell.Cells(2, 3 + 3 * PreviousNB), _
-                        SetOfRange.ResultCell.Cells(1, 2 + 3 * PreviousNB) _
+                        SetOfRange.ResultCell.Cells(0, 2 + 3 * PreviousNB) _
                     ).ClearContents
                 End If
                 
