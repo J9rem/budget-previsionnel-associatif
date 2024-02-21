@@ -1223,7 +1223,7 @@ Public Function AjoutFinancementInternal( _
     Else
         Set WorkingRange = BaseCell
         If SetOfRange.StatusReal Then
-            Set WorkingRangeReal = SetOfRange.HeadCellReal.Cells(WorkingRange.Row - SetOfRange.HeadCell + 1, 1)
+            Set WorkingRangeReal = SetOfRange.HeadCellReal.Cells(WorkingRange.Row - SetOfRange.HeadCell.Row + 1, 1)
         End If
     End If
 
@@ -1731,8 +1731,9 @@ Public Function extraireFinancementChantier( _
         Optional ForV0 As Boolean = False _
         ) As SetOfChantiers
     Dim BaseCell As Range
-    Dim ChantierTmp As Chantier
+    Dim ChantierSheetReal As Worksheet
     Dim Chantiers() As Chantier
+    Dim ChantierTmp As Chantier
     Dim LocalCounter As Integer
     Dim FinancementTmp As Financement
     Dim FinancementTmp1 As Financement
@@ -1748,8 +1749,10 @@ Public Function extraireFinancementChantier( _
     Dim SetOfRange As SetOfRange
     Dim TypesFinancements As Variant
     Dim TypesStatuts As Variant
+    Dim wb As Workbook
     
-    TypesFinancements = TypeFinancementsFromWb(BaseCellChantier.Worksheet.Parent)
+    Set wb = BaseCellChantier.Worksheet.Parent
+    TypesFinancements = TypeFinancementsFromWb(wb)
     TypesStatuts = TypeStatut()
     
     Chantiers = Data.Chantiers
@@ -1775,7 +1778,10 @@ Public Function extraireFinancementChantier( _
             NBFinancements = FoundCell.Row - BaseCell.Row
         End If
     Else
-        SetOfRange = GetCellsForFinancement(BaseCellChantier.Worksheet)
+        On Error Resume Next
+        Set ChantierSheetReal = wb.Worksheets(Nom_Feuille_Budget_chantiers_realise)
+        On Error GoTo 0
+        SetOfRange = GetCellsForFinancement(BaseCellChantier.Worksheet, ChantierSheetReal)
         If Not (SetOfRange.Status) Then
             GoTo FinFunction
         End If
@@ -2066,6 +2072,14 @@ Public Sub ClearFinancements( _
                 ).Delete Shift:=xlUp
         End If
     End If
+    If SetOfRange.StatusReal Then
+        If SetOfRange.EndCellReal.Row > SetOfRange.HeadCellReal.Row + 1 Then
+            Range( _
+                    SetOfRange.HeadCellReal.Cells(2, 1), _
+                    SetOfRange.EndCellReal.Cells(1, 3 + 3 * NBChantiers + NBExtraCols) _
+                ).Delete Shift:=xlUp
+        End If
+    End If
 End Sub
 
 Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
@@ -2227,7 +2241,7 @@ Public Sub insererDonnees(NewWorkbook As Workbook, Data As Data)
                     
                     ' Autofinancement
                     Application.Calculate
-                    SetOfRange = GetCellsForFinancement(ChantierSheet)
+                    SetOfRange = GetCellsForFinancement(ChantierSheet, ChantierSheetReal)
                     If SetOfRange.Status Then
                         For IndexChantier = 1 To UBound(Chantiers)
                             TmpChantier = Chantiers(IndexChantier)
@@ -2699,6 +2713,11 @@ Public Sub RetirerLigneCharge()
         MaxRow _
     )
 
+    If NewLine = -1 Then
+        ' Cancel button
+        Exit Sub
+    End If
+
     If NewLine = 0 Then
         IsOK = False
     Else
@@ -3087,15 +3106,27 @@ Public Function GetCellsForFinancement( _
     SetOfRange.Status = False
     SetOfRange.StatusReal = False
     Set SetOfRange.ChantierSheet = ChantierSheet
-    Set SetOfRange.ChantierSheetReal = ChantierSheetReal
     Set SetOfRange.HeadCell = ChantierSheet.Cells(1, 1).EntireColumn.Find(Label_Type_Financeur)
-    Set SetOfRange.HeadCellReal = ChantierSheetReal.Cells(1, 1).EntireColumn.Find(Label_Type_Financeur)
+    If ChantierSheetReal Is Nothing Then
+        Set SetOfRange.ChantierSheetReal = Nothing
+        Set SetOfRange.HeadCellReal = Nothing
+    Else
+        Set SetOfRange.ChantierSheetReal = ChantierSheetReal
+        Set SetOfRange.HeadCellReal = ChantierSheetReal.Cells(1, 1).EntireColumn.Find(Label_Type_Financeur)
+    End If
     If Not (SetOfRange.HeadCell Is Nothing) Then
         Set SetOfRange.EndCell = ChantierSheet.Cells(1, 2).EntireColumn.Find(Label_Total_Financements)
         If Not (SetOfRange.EndCell Is Nothing) Then
             Set SetOfRange.ResultCell = SetOfRange.EndCell
             Set SetOfRange.EndCell = SetOfRange.EndCell.Cells(0, 0)
             SetOfRange.Status = True
+        Else
+            Set SetOfRange.EndCell = ChantierSheet.Cells(1, 2).EntireColumn.Find(Label_Autofinancement_Structure)
+            If Not (SetOfRange.EndCell Is Nothing) Then
+                Set SetOfRange.ResultCell = SetOfRange.EndCell
+                Set SetOfRange.EndCell = SetOfRange.EndCell.Cells(0, 0)
+                SetOfRange.Status = True
+            End If
         End If
     End If
     If Not (SetOfRange.HeadCellReal Is Nothing) Then
@@ -3223,6 +3254,11 @@ Public Sub RetirerUnFinanceur()
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.EndCell.Row _
     )
+    
+    If NewLine = -1 Then
+        ' Cancel button
+        Exit Sub
+    End If
 
     If NewLine = 0 Then
         MsgBox "La ligne entrée n'est pas la ligne d'un financement"
@@ -3323,6 +3359,11 @@ Public Sub RetirerUneDepense()
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.ResultCell.Row - 1 _
     )
+    
+    If NewLine = -1 Then
+        ' Cancel button
+        Exit Sub
+    End If
 
     If NewLine = 0 Then
         MsgBox "La ligne entrée n'est pas la ligne d'une dépense"
@@ -3365,12 +3406,16 @@ Public Function InputLineBetween( _
     Value = InputBox(Message, Title, MaxLine)
 
     InputLineBetween = 0
-    If Value > 0 And Value <> "" Then
-        FormatValue = CInt(Value)
-        If FormatValue <= MaxLine _
-            And FormatValue >= MinLine Then
-            InputLineBetween = FormatValue
+    If Value <> "" Then
+        If Value > 0 Then
+            FormatValue = CInt(Value)
+            If FormatValue <= MaxLine _
+                And FormatValue >= MinLine Then
+                InputLineBetween = FormatValue
+            End If
         End If
+    Else
+        InputLineBetween = -1
     End If
 End Function
 
