@@ -1207,6 +1207,10 @@ Public Function AjoutFinancementInternal( _
             Set WorkingRangeReal = SetOfRange.HeadCellReal.Cells(WorkingRange.Row - SetOfRange.HeadCell.Row + 1, 1)
             ' Reset formula and clean other values
             Range(WorkingRangeReal, WorkingRangeReal.Cells(NBLinesToClean, 2)).Value = ""
+            Range( _
+                WorkingRangeReal.Cells(1, 3 + 3 * NBChantiers), _
+                WorkingRangeReal.Cells(NBLinesToClean, 3 + 3 * NBChantiers) _
+                ).MergeCells = False
             For Index = 1 To NBChantiers
                 setRealFinancementForChantier _
                     SetOfRange, _
@@ -1215,10 +1219,6 @@ Public Function AjoutFinancementInternal( _
                     "", _
                     (NBLinesToClean > 1)
             Next Index
-            Range( _
-                WorkingRangeReal.Cells(1, 3 + 3 * NBChantiers), _
-                WorkingRangeReal.Cells(NBLinesToClean, 3 + 3 * NBChantiers) _
-                ).MergeCells = False
         End If
     Else
         Set WorkingRange = BaseCell
@@ -1306,6 +1306,7 @@ Public Sub setRealFinancementForChantier( _
     If IsTwoLines Then
         CurrentAddress = CleanAddress(SetOfRange.HeadCell.Cells(2 + NBFirstLineOfFinancement, 2 + NBofChantier).address(False, False, xlA1, True))
         CurrentBaseCell.Cells(2, 1).Formula = "=IF(" & CurrentAddress & "="""",""""," & CurrentAddress & ")"
+        Range(CurrentBaseCell.Cells(2, 1), CurrentBaseCell.Cells(2, 3)).MergeCells = True
     End If
 End Sub
 
