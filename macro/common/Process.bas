@@ -3364,7 +3364,7 @@ Public Function InputLineBetween( _
     Value = InputBox(Message, Title, MaxLine)
 
     InputLineBetween = 0
-    If Value > 0 Then
+    If Value > 0 And Value <> "" Then
         FormatValue = CInt(Value)
         If FormatValue <= MaxLine _
             And FormatValue >= MinLine Then
