@@ -205,13 +205,13 @@ Public Function FindWorkSheet(wb As Workbook, ByRef ws As Worksheet, SheetName A
     
 End Function
 
-Public Function inArray(value As String, Arr As Variant) As Boolean
+Public Function inArray(StrValue As String, Arr As Variant) As Boolean
 
     Dim Index As Integer
     
     inArray = False
     For Index = LBound(Arr) To UBound(Arr)
-        If value = Arr(Index) Then
+        If StrValue = Arr(Index) Then
             inArray = True
         End If
     Next Index
@@ -261,7 +261,7 @@ Public Function DetecteVersion(wb As Workbook) As WbRevision
     Dim Cout_Chantier As Worksheet
     Dim BaseCell As Range
     Dim ExplodedRevisions As Variant
-    Dim value As String
+    Dim StrValue As String
     Dim rev As WbRevision
     rev = getDefaultWbRevision()
     
@@ -287,13 +287,13 @@ Public Function DetecteVersion(wb As Workbook) As WbRevision
                 rev.Majeure = 1
                 rev.Mineure = 0
             Else
-                value = BaseCell.Cells(1, 2).value
-                If value = "" Then
+                StrValue = BaseCell.Cells(1, 2).Value
+                If StrValue = "" Then
                     rev.Error = True
                     rev.Majeure = 1
                     rev.Mineure = 0
                 Else
-                    ExplodedRevisions = Split(value, ".")
+                    ExplodedRevisions = Split(StrValue, ".")
                     rev.Error = False
                     rev.Majeure = ExplodedRevisions(0)
                     rev.Mineure = ExplodedRevisions(1)
@@ -305,7 +305,7 @@ Public Function DetecteVersion(wb As Workbook) As WbRevision
 
 End Function
 
-Public Function FindTypeChargeIndex(value As String) As Integer
+Public Function FindTypeChargeIndex(StrValue As String) As Integer
     ' return 0 if not found
     Dim TypesCharges() As TypeCharge
     Dim Index As Integer
@@ -334,7 +334,9 @@ Public Function FindTypeChargeIndex(value As String) As Integer
         OtherName = Replace(OtherName, "Õ", "O")
         OtherName = Replace(OtherName, "Ö", "O")
         OtherName = Replace(OtherName, "Ô", "O")
-        If IndexFound = 0 And Len(tmpName) > 0 And (Left(value, Len(tmpName)) = tmpName Or Left(value, Len(OtherName)) = OtherName) Then
+        If IndexFound = 0 And Len(tmpName) > 0 _
+            And (Left(StrValue, Len(tmpName)) = tmpName _
+            Or Left(StrValue, Len(OtherName)) = OtherName) Then
             IndexFound = Index
         End If
     Next Index
@@ -357,7 +359,7 @@ Public Function FindTypeChargeIndex(value As String) As Integer
 End Function
 
 
-Public Function FindTypeFinancementIndex(value As String) As Integer
+Public Function FindTypeFinancementIndex(StrValue As String) As Integer
     ' return 0 if not found
     Dim TypesFinancements() As String
     Dim Index As Integer
@@ -368,7 +370,7 @@ Public Function FindTypeFinancementIndex(value As String) As Integer
     IndexFound = 0
     IndexAutre = 0
     For Index = 1 To UBound(TypesFinancements)
-        If IndexFound = 0 And value = TypesFinancements(Index) Then
+        If IndexFound = 0 And StrValue = TypesFinancements(Index) Then
             IndexFound = Index
         End If
         If IndexAutre = 0 And "Autres" = TypesFinancements(Index) Then
@@ -384,13 +386,13 @@ Public Function FindTypeFinancementIndex(value As String) As Integer
 
 End Function
     
-Public Function FindTypeChargeIndexFromCode(value As Integer) As Integer
+Public Function FindTypeChargeIndexFromCode(IntegerValue As Integer) As Integer
     ' return 0 if not found
     Dim TypesCharges() As TypeCharge
     Dim Index As Integer
     Dim IndexFound As Integer
     Dim TypeCharge As TypeCharge
-    Dim currentIndex As Integer
+    Dim CurrentIndex As Integer
     
     On Error GoTo ManageLocalError:
 
@@ -398,8 +400,8 @@ Public Function FindTypeChargeIndexFromCode(value As Integer) As Integer
     IndexFound = 0
     For Index = 1 To UBound(TypesCharges)
         TypeCharge = TypesCharges(Index)
-        currentIndex = TypeCharge.Index
-        If IndexFound = 0 And currentIndex = value Then
+        CurrentIndex = TypeCharge.Index
+        If IndexFound = 0 And CurrentIndex = IntegerValue Then
             IndexFound = Index
         End If
     Next Index
