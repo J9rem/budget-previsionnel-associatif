@@ -117,7 +117,7 @@ Public Sub AjoutUnFinancement()
     End If
     
     FinancementFantome.Status = False
-    AjoutFinancement wb, CurrentNBChantier, FinancementFantome
+    Chantiers_Financements_Add_One wb, CurrentNBChantier, FinancementFantome
     
 FinSub:
 
@@ -152,7 +152,7 @@ End Sub
 ' Macro pour insérer une dépense
 Public Sub InsererUneDepense()
     Dim NBChantiers As Integer
-    NBChantiers = InsererUneDepenseInternal()
-    InsererUneDepenseInternalReal NBChantiers
+    NBChantiers = Chantiers_Depenses_Insert_One()
+    Chantiers_Depenses_Insert_Real_One NBChantiers
 End Sub
 

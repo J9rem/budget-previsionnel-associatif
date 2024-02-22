@@ -20,6 +20,10 @@ Private Sub NomFinancement_Change()
 
 End Sub
 
+Private Sub UserForm_Click()
+
+End Sub
+
 Private Sub Validate_Click()
     Dim Nom As String
     Dim TypeFinancement As Integer
@@ -87,6 +91,6 @@ Private Sub Validate_Click()
     End If
     
     FinancementFantome.Status = False
-    AjoutFinancement wb, CurrentNBChantier, FinancementFantome, Nom, TypeFinancement
+    Chantiers_Financements_Add_One wb, CurrentNBChantier, FinancementFantome, Nom, TypeFinancement
     
 End Sub

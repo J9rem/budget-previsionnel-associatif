@@ -1,6 +1,6 @@
 Attribute VB_Name = "Import"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la dï¿½claration de toutes les variables
+' Pour forcer la déclaration de toutes les variables
 Option Explicit
 
 Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
@@ -16,7 +16,7 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
         & "Excel avec macro (*.xlsm),*.xlsm," _
         & "Libre Office (*.ods),*.ods", _
         0, _
-        "Choisir le fichier ï¿½ importer" _
+        "Choisir le fichier à importer" _
     )
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" _
@@ -110,7 +110,7 @@ Public Function importData(FileName As String) As Boolean
     ' Copie du logo
     CopieLogo oldWorkbook, ThisWorkbook, Nom_Feuille_Cout_J_Salaire
     CopieLogo oldWorkbook, ThisWorkbook, Nom_Feuille_Personnel
-    ' copie des onglets avant la copie des donnï¿½es pour ï¿½viter les erreurs
+    ' copie des onglets avant la copie des données pour éviter les erreurs
     ImportSheets oldWorkbook, ThisWorkbook
      
     ' copy data
@@ -120,7 +120,7 @@ Public Function importData(FileName As String) As Boolean
     MettreAJourBudgetGlobal ThisWorkbook
     On Error GoTo 0
     
-    ' copie des onglets avant la copie des donnï¿½es pour ï¿½viter les autres erreurs
+    ' copie des onglets avant la copie des données pour éviter les autres erreurs
     ImportSheets oldWorkbook, ThisWorkbook
     
     ' save file
@@ -281,7 +281,7 @@ Public Sub CopyPreviousValues(oldWorkbook As Workbook, NewWorkbook As Workbook, 
         Data = extraireDonneesVersion0(oldWorkbook, PreviousRevision)
     End If
         
-    insererDonnees NewWorkbook, Data
+    Chantiers_Import NewWorkbook, Data
 
 End Sub
 
@@ -315,20 +315,20 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
         Set CurrentSheet = oldWorkbook.Worksheets(Nom_Feuille_Personnel)
         On Error GoTo 0
         If CurrentSheet Is Nothing Then
-            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
         Else
-            Set BaseCell = CurrentSheet.Range("A:A").Find("Prï¿½nom")
+            Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
             If BaseCell Is Nothing Then
-                MsgBox "'Prï¿½nom' non trouvï¿½ dans '" & Nom_Feuille_Personnel & "' !"
+                MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
             Else
                 NBChantiers = 0
                 On Error Resume Next
                 Set ChantierSheet = oldWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
                 On Error GoTo 0
                 If ChantierSheet Is Nothing Then
-                    MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+                    MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
                 Else
-                    Set BaseCellChantier = FindNextNotEmpty(ChantierSheet.Cells(3, 1), False)
+                    Set BaseCellChantier = Common_FindNextNotEmpty(ChantierSheet.Cells(3, 1), False)
                     If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.Value, Len("Chantier")) <> "Chantier" Then
                         Set BaseCellChantier = Nothing
                     Else
@@ -411,9 +411,9 @@ Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbR
         Set ChantierSheet = oldWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
         On Error GoTo 0
         If ChantierSheet Is Nothing Then
-            MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas ï¿½tï¿½ trouvï¿½e"
+            MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
         Else
-            Set BaseCellChantier = FindNextNotEmpty(ChantierSheet.Cells(2, 1), False)
+            Set BaseCellChantier = Common_FindNextNotEmpty(ChantierSheet.Cells(2, 1), False)
             If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.Value, Len("Chantier")) <> "Chantier" Then
                 Set BaseCellChantier = Nothing
             Else

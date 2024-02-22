@@ -371,7 +371,7 @@ Public Sub Validate_Click(document)
     End If
     
     FinancementFantome.Status = False
-    AjoutFinancement wb, CurrentNBChantier, FinancementFantome, Nom, TypeFinancement
+    Chantiers_Financements_Add_One wb, CurrentNBChantier, FinancementFantome, Nom, TypeFinancement
     
 End Sub
 
