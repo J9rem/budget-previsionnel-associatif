@@ -2124,7 +2124,7 @@ Public Sub Chantiers_Import(NewWorkbook As Workbook, Data As Data)
                 
                 If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) And UBound(Data.Chantiers) > 1 Then
                     ' depenses
-                    Chantiers_Import_Title_And_Depenses Data, ChantierSheet, ChantierSheetReal, NBSalaries, NBChantiers
+                    Chantiers_Import_Title_And_Depenses Data, ChantierSheet, ChantierSheetReal, BaseCellChantier, NBSalaries, NBChantiers
                     
                     ' Financements
                     Chantiers_Import_Financements NewWorkbook, Data, ChantierSheet, ChantierSheetReal, NBChantiers
@@ -2250,6 +2250,7 @@ Public Sub Chantiers_Import_Title_And_Depenses( _
         Data As Data, _
         ChantierSheet As Worksheet, _
         ChantierSheetReal As Worksheet, _
+        BaseCellChantier As Range, _
         NBSalaries As Integer, _
         NBChantiers As Integer _
     )
@@ -2294,8 +2295,8 @@ Public Sub Chantiers_Import_Title_And_Depenses( _
         End If
         If SetOfRange.StatusReal Then
             StrAddress = CleanAddress(BaseCell.Cells(Index, 1).address(False, False, xlA1, True))
-            SetOfRange.HeadCellReal.Cells(1 + Index, 2).Formula = "=" _
-                & "SI(" & StrAddress & "="""";" & StrAddress & ; """"")"
+            SetOfRange.HeadCellReal.Cells(1 + Index, 2).FormulaLocal = _
+                Replace("=SI(%ADR%="""";"""";%ADR%)", "%ADR%", StrAddress)
         End If
     Next Index
     
@@ -2318,8 +2319,8 @@ Public Sub Chantiers_Import_Title_And_Depenses( _
             End If
             If SetOfRange.StatusReal Then
                 StrAddress = CleanAddress(BaseCell.Cells(Index, 1 + IndexChantier).address(False, False, xlA1, True))
-                SetOfRange.HeadCellReal.Cells(1 + Index, 3 * IndexChantier).Formula = "=" _
-                    & "SI(" & StrAddress & "="""";" & StrAddress & ; """"")"
+                SetOfRange.HeadCellReal.Cells(1 + Index, 3 * IndexChantier).FormulaLocal = _
+                    Replace("=SI(%ADR%="""";0;%ADR%)", "%ADR%", StrAddress)
                 ' Todo import it and manage formula
                 SetOfRange.HeadCellReal.Cells(1 + Index, 3 * IndexChantier + 1).Value = 0
             End If
