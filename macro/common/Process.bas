@@ -1,6 +1,6 @@
 Attribute VB_Name = "Process"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la declaration de toutes les variables
 Option Explicit
 
 Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
@@ -105,10 +105,10 @@ Public Function BudgetGlobal_Depenses_Add(wb As Workbook, Data As Data, BaseCell
             Set CurrentCell = BudgetGlobal_Depenses_Add_From_Chantiers(Data, CurrentCell, HeadCell, CodeValue)
 
             If CodeValue = 64 Then
-                ' ajouter les dépenses de personnel
+                ' ajouter les depenses de personnel
                 Set CurrentCell = BudgetGlobal_InsertLineAndFormat(CurrentCell, HeadCell, False)
                 CurrentCell.Value = ""
-                CurrentCell.Cells(1, 2).Value = "Rémunération des personnels"
+                CurrentCell.Cells(1, 2).Value = T_Salary
                 CurrentCell.Cells(1, 2).Font.Bold = True
                 CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress( _
                     BudgetGlobal_Depenses_SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True) _
@@ -155,7 +155,7 @@ Public Function BudgetGlobal_Depenses_SearchRangeForEmployeesSalary(wb As Workbo
         GoTo EndFunction
     End If
     
-    Set BaseCell = CoutJSalaireSheet.Cells.Find("Masse salariale des " & Chr(10) & "opérateurs : ")
+    Set BaseCell = CoutJSalaireSheet.Cells.Find(T_Amout_Salary_of_WorkingPeople)
     If BaseCell Is Nothing Then
         GoTo EndFunction
     End If
@@ -175,14 +175,14 @@ Public Sub BudgetGlobal_EgaliserLesColonnes(ws As Worksheet)
     Dim BaseCell As Range
     Dim HeadCell
     
-    Set EndFirstCol = ws.Cells.Find("Total Dépenses (1) + (2)")
+    Set EndFirstCol = ws.Cells.Find(T_Total_Charges & " (1) + (2)")
     Set EndSecondCol = ws.Cells.Find("Total Financements (1) + (2)+ (3)")
     Ecart = EndFirstCol.Row - EndSecondCol.Row
     
     If Ecart > 0 Then
         Set BaseCell = ws.Cells(1, 5).EntireColumn.Find(75).Cells(0, 1)
     Else
-        Set BaseCell = ws.Cells.Find("Total Dépenses (1)").Cells(0, 1)
+        Set BaseCell = ws.Cells.Find(T_Total_Charges & " (1)").Cells(0, 1)
         Ecart = -Ecart
     End If
     
@@ -612,13 +612,13 @@ Public Sub ChangeNBSalarieDansPersonnel(wb As Workbook, PreviousNB As Integer, F
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Personnel)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Personnel)
         Exit Sub
     End If
     
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+    Set BaseCell = CurrentSheet.Range("A:A").Find(T_FirstName)
     If BaseCell Is Nothing Then
-        MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
+        MsgBox Replace(T_NotFoundFirstName, "%PageName%", Nom_Feuille_Personnel)
         Exit Sub
     End If
     
@@ -1368,7 +1368,7 @@ Public Function Chantiers_Financements_Extract( _
             FinancementsTmp = ChantierTmp.Financements
             FinancementTmp = FinancementsTmp(IndexFinancement)
             FinancementTmp1 = FinancementsTmp1(IndexFinancement)
-            ' récupération du type depuis le chantier 1
+            ' recuperation du type depuis le chantier 1
             If IndexChantiers > 1 Then
                 FinancementTmp.Nom = FinancementTmp1.Nom
                 FinancementTmp.TypeFinancement = FinancementTmp1.TypeFinancement
@@ -1680,14 +1680,14 @@ Public Function Chantiers_Financements_Add_Prepare( _
     
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Budget_chantiers)
         Exit Function
     End If
     Set SetOfRange.ChantierSheet = ChantierSheet
 
     Set ChantierSheetReal = wb.Worksheets(Nom_Feuille_Budget_chantiers_realise)
     If ChantierSheetReal Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers_realise & "' n'a pas été trouvée"
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Budget_chantiers_realise)
         Exit Function
     End If
     Set SetOfRange.ChantierSheetReal = ChantierSheetReal
@@ -2097,11 +2097,11 @@ Public Sub Chantiers_Import(NewWorkbook As Workbook, Data As Data)
     If NBSalaries > 0 Then
         Set CurrentSheet = NewWorkbook.Worksheets(Nom_Feuille_Personnel)
         If CurrentSheet Is Nothing Then
-            MsgBox "'" & Nom_Feuille_Personnel & "' n'a pas été trouvée"
+            MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Personnel)
         Else
-            Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+            Set BaseCell = CurrentSheet.Range("A:A").Find(T_FirstName)
             If BaseCell Is Nothing Then
-                MsgBox "'Prénom' non trouvé dans '" & Nom_Feuille_Personnel & "' !"
+                MsgBox Replace(T_NotFoundFirstName, "%PageName%", Nom_Feuille_Personnel)
             Else
                 On Error Resume Next
                 Set ChantierSheet = NewWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
@@ -2262,7 +2262,7 @@ Public Sub Chantiers_Import_Title_And_Depenses( _
     
     Chantiers = Data.Chantiers
 
-    ' nom des dépenses
+    ' nom des depenses
     SetOfRange = Chantiers_Depenses_SetOfRange_Get(ChantierSheet, ChantierSheetReal)
     If SetOfRange.Status Then
         Set BaseCell = SetOfRange.HeadCell.Cells(2, 2)
@@ -2370,10 +2370,10 @@ Public Sub Chantiers_Salaries_ChangeNB( _
 
     Set CurrentSheet = wb.Worksheets(CurrentSheetName)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & CurrentSheetName & "' n'a pas été trouvée"
+        MsgBox Replace(T_NotFoundPage, "%PageName%", CurrentSheetName)
         Exit Sub
     End If
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Salarié")
+    Set BaseCell = CurrentSheet.Range("A:A").Find(T_WorkingPeople)
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -2506,7 +2506,7 @@ Public Sub Charges_Add_One_From_Button()
     Set wb = ThisWorkbook
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Charges)
         Exit Sub
     End If
 
@@ -2514,7 +2514,7 @@ Public Sub Charges_Add_One_From_Button()
     FormattedValue = Trim(Value)
 
     If FormattedValue = "" Then
-        MsgBox "Erreur : Le nom fourni pour la charge ne peut pas étre vide"
+        MsgBox "Erreur : Le nom fourni pour la charge ne peut pas être vide"
         Exit Sub
     End If
 
@@ -2764,7 +2764,7 @@ Public Function Charges_Extract(wb As Workbook, Data As Data, Revision As WbRevi
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     On Error GoTo 0
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Charges)
         GoTo FinFunction
     End If
     
@@ -2891,7 +2891,7 @@ Public Sub Charges_Import(wb As Workbook, Data As Data)
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     On Error GoTo 0
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Charges)
         Exit Sub
     End If
 
@@ -2963,7 +2963,7 @@ Public Sub Charges_Remove_One()
     Set wb = ThisWorkbook
     Set ChargesSheet = wb.Worksheets(Nom_Feuille_Charges)
     If ChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Charges & "' n'a pas été trouvée"
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Charges)
         Exit Sub
     End If
     SetOfCellsCategories = Charges_Categories_GetRows(ChargesSheet)
@@ -3315,10 +3315,10 @@ Public Sub CoutJSalaires_Salaries_ChangeNB(wb As Workbook, PreviousNB As Integer
     
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Cout_J_Salaire)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas été trouvée"
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Cout_J_Salaire)
         Exit Sub
     End If
-    Set BaseCell = CurrentSheet.Range("A:A").Find("Prénom")
+    Set BaseCell = CurrentSheet.Range("A:A").Find(T_FirstName)
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -3345,7 +3345,7 @@ Public Sub CoutJSalaires_Salaries_ChangeNB(wb As Workbook, PreviousNB As Integer
     If BaseCell.Value <> Label_Cout_J_Salaire_Part_B Then
         Exit Sub
     End If
-    If BaseCell.Cells(3, 1).Value <> "Prénom" Then
+    If BaseCell.Cells(3, 1).Value <> T_FirstName Then
         Exit Sub
     End If
     Set BaseCell = BaseCell.Cells(3, 1)
@@ -3363,7 +3363,7 @@ Public Sub CoutJSalaires_Salaries_ChangeNB(wb As Workbook, PreviousNB As Integer
     If BaseCell Is Nothing Then
         Exit Sub
     End If
-    If BaseCell.Cells(5, 1).Value <> "Prénom" Then
+    If BaseCell.Cells(5, 1).Value <> T_FirstName Then
         Exit Sub
     End If
     Set BaseCell = BaseCell.Cells(5, 1)
@@ -3389,7 +3389,7 @@ Public Function GetNbSalaries(wb As Workbook)
         GetNbSalaries = -1
         Exit Function
     End If
-    Set BaseCell = CoutJSalaireSheet.Range("A:A").Find("Prénom")
+    Set BaseCell = CoutJSalaireSheet.Range("A:A").Find(T_FirstName)
     If BaseCell Is Nothing Then
         GetNbSalaries = -2
         Exit Function
@@ -3399,7 +3399,7 @@ Public Function GetNbSalaries(wb As Workbook)
         Exit Function
     End If
     ' TODO find dynamically the right row
-    If BaseCell.Value <> "Prénom" Then
+    If BaseCell.Value <> T_FirstName Then
         GetNbSalaries = -4
         Exit Function
     End If
@@ -3409,7 +3409,7 @@ Public Function GetNbSalaries(wb As Workbook)
     End If
     
     Set TmpRange = Common_FindNextNotEmpty(BaseCell.Cells(2, 1), True)
-    If TmpRange.Value = "Prénom" Or TmpRange.Value = Label_Cout_J_Salaire_Part_B Then
+    If TmpRange.Value = T_FirstName Or TmpRange.Value = Label_Cout_J_Salaire_Part_B Then
         GetNbSalaries = -6
         Exit Function
     End If
@@ -3484,7 +3484,7 @@ Public Function GetNbChantiers(wb As Workbook, Optional BaseRow As Integer = 3)
     
 End Function
 
-' Macro pour mettre à jour le budget update
+' Macro pour mettre a jour le budget update
 Public Sub MettreAJourBudgetGlobal(wb As Workbook)
 
     Dim Data As Data
@@ -3499,12 +3499,12 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     Data = extraireDonneesVersion1(wb, rev)
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_global)
     If CurrentSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_global & "' n'a pas été trouvée"
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Budget_global)
         GoTo EndSub
     End If
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Budget_chantiers & "' n'a pas été trouvée"
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Budget_chantiers)
         GoTo EndSub
     End If
     
