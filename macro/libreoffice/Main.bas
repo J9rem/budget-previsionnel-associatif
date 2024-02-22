@@ -119,6 +119,8 @@ Public Sub AjoutUnFinancement()
     End If
     
     Set wb = ThisWorkbook
+
+    Set CurrentWs = wb.ActiveSheet
 	
 	SetSilent
     
@@ -133,8 +135,6 @@ Public Sub AjoutUnFinancement()
     Chantiers_Financements_Add_One wb, CurrentNBChantier, FinancementFantome
     
 FinSub:
-
-    Set CurrentWs = wb.ActiveSheet
     For Each ws In wb.Worksheets
         ws.Activate
         ws.Cells(1, 1).Select
