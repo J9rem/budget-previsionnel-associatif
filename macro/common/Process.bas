@@ -1012,8 +1012,8 @@ Public Sub Chantiers_Depenses_Remove_One()
     NBChantiers = GetNbChantiers(wb)
 
     NewLine = Common_InputBox_Get_Line_Between( _
-        "Supprimer la dépense de la ligne ?", _
-        "Ligne de la dépense à supprimer", _
+        "Supprimer la dï¿½pense de la ligne ?", _
+        "Ligne de la dï¿½pense ï¿½ supprimer", _
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.ResultCell.Row - 1 _
     )
@@ -1024,7 +1024,7 @@ Public Sub Chantiers_Depenses_Remove_One()
     End If
 
     If NewLine = 0 Then
-        MsgBox "La ligne entrée n'est pas la ligne d'une dépense"
+        MsgBox "La ligne entrï¿½e n'est pas la ligne d'une dï¿½pense"
         Exit Sub
     End If
     
@@ -1903,7 +1903,7 @@ Public Sub Chantiers_Financements_Remove_One()
 
     NewLine = Common_InputBox_Get_Line_Between( _
         "Supprimer le financement de la ligne ?", _
-        "Ligne du financement à supprimer", _
+        "Ligne du financement ï¿½ supprimer", _
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.EndCell.Row _
     )
@@ -1914,7 +1914,7 @@ Public Sub Chantiers_Financements_Remove_One()
     End If
 
     If NewLine = 0 Then
-        MsgBox "La ligne entrée n'est pas la ligne d'un financement"
+        MsgBox "La ligne entrï¿½e n'est pas la ligne d'un financement"
         Exit Sub
     End If
     
@@ -2521,13 +2521,13 @@ Public Sub Charges_Add_One_From_Button()
     FormattedValue = Trim(Value)
 
     If FormattedValue = "" Then
-        MsgBox "Erreur : Le nom fourni pour la charge ne peut pas être vide"
+        MsgBox "Erreur : Le nom fourni pour la charge ne peut pas ï¿½tre vide"
         Exit Sub
     End If
 
     ExtractedValue = CInt(Left(FormattedValue, 2))
     If ExtractedValue < 60 Or ExtractedValue > 68 Then
-        MsgBox "Erreur : les deux premiers caractères du nom doivent être compris entre 60 et 68 inclus."
+        MsgBox "Erreur : les deux premiers caractï¿½res du nom doivent ï¿½tre compris entre 60 et 68 inclus."
         Exit Sub
     End If
 
@@ -2544,10 +2544,10 @@ Public Sub Charges_Add_One_From_Button()
             Charges_Add_One_Line SetOfRange.EndCell.Cells(Offset, 1), False, FormattedValue, 0, 0, 0, 0, 1
             Charges_UpdateFormula SetOfRange
         Else
-            MsgBox "Erreur : impossible de retrouver les différents types de paiement (60 à 68)"
+            MsgBox "Erreur : impossible de retrouver les diffï¿½rents types de paiement (60 ï¿½ 68)"
         End If
     Else
-        MsgBox "Erreur : impossible d'associer cette ligne à un type de paiement (entre 60 et 68)"
+        MsgBox "Erreur : impossible d'associer cette ligne ï¿½ un type de paiement (entre 60 et 68)"
     End If
 
 End Sub
@@ -2989,7 +2989,7 @@ Public Sub Charges_Remove_One()
 
     NewLine = Common_InputBox_Get_Line_Between( _
         "Supprimer la charge de la ligne ?", _
-        "Ligne de charge à supprimer", _
+        "Ligne de charge ï¿½ supprimer", _
         MinRow + 1, _
         MaxRow _
     )
@@ -3014,7 +3014,7 @@ Public Sub Charges_Remove_One()
     End If
     
     If Not IsOK Then
-        MsgBox "La ligne entrée n'est pas la ligne d'une charge"
+        MsgBox "La ligne entrï¿½e n'est pas la ligne d'une charge"
         Exit Sub
     End If
 
@@ -3252,6 +3252,18 @@ Public Function Common_InsertRows( _
     On Error GoTo 0
     Set Common_InsertRows = Range(BaseCell.Cells(1 + FinalNB + 1, 1), endOfRow.Cells(1 + FinalNB + 1, 1))
     BaseCell.Select 'Force Selection
+End Function
+
+Public Function Common_IsFormula(wRange As Range) As Boolean
+
+    Dim Cell AS Range
+
+    If wRange Is Nothing Then
+        Common_IsFormula = False<
+    Else
+        Set Cell = wRange.Cells(1, 1)
+        Common_IsFormula = (Left(Cell.Formula, 1) = "=" And Cell.Formula <> Cell.Value)
+    End If
 End Function
 
 Public Sub Common_RemoveRows(BaseCell As Range, PreviousNB As Integer, FinalNB As Integer, Optional ExtraCols As Integer = 0, Optional AutoFitNext As Boolean = False)
