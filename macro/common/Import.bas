@@ -276,27 +276,25 @@ Public Sub CopyPreviousValues(oldWorkbook As Workbook, NewWorkbook As Workbook, 
     End If
     
     If PreviousRevision.Majeure > 0 Then
-        Data = extraireDonneesVersion1(oldWorkbook, PreviousRevision)
+        Data = Extract_Data_From_Table(oldWorkbook, PreviousRevision)
     Else
-        Data = extraireDonneesVersion0(oldWorkbook, PreviousRevision)
+        Data = Extract_Data_From_Revision_0(oldWorkbook, PreviousRevision)
     End If
         
     Chantiers_Import NewWorkbook, Data
 
 End Sub
 
-Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbRevision) As Data
-    Dim DonneesSalarie As DonneesSalarie
-    Dim Data As Data
-    Dim NBSalaries As Integer
-    Dim NBChantiers As Integer
-    Dim Index As Integer
-    Dim IndexChantiers As Integer
-    Dim CurrentSheet As Worksheet
+Public Function Extract_Data_From_Table(oldWorkbook As Workbook, Revision As WbRevision) As Data
+
     Dim BaseCell As Range
-    Dim ChantierSheet As Worksheet
     Dim BaseCellChantier As Range
+    Dim ChantierSheet As Worksheet
+    Dim CurrentSheet As Worksheet
+    Dim Data As Data
     Dim DonneesSalaries() As DonneesSalarie
+    Dim NBChantiers As Integer
+    Dim NBSalaries As Integer
     
     Data = getDefaultData()
     DonneesSalarie = getDefaultDonneesSalarie()
@@ -335,33 +333,7 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
                         NBChantiers = GetNbChantiers(oldWorkbook)
                     End If
                     
-                    ReDim DonneesSalaries(1 To NBSalaries)
-                    For Index = 1 To NBSalaries
-                        DonneesSalarie = getDefaultDonneesSalarie()
-                        DonneesSalarie.Erreur = False
-                        DonneesSalarie.Prenom = BaseCell.Cells(1 + Index, 1).Value
-                        DonneesSalarie.Nom = BaseCell.Cells(1 + Index, 2).Value
-                        DonneesSalarie.TauxDeTempsDeTravail = BaseCell.Cells(1 + Index, 3).Value
-                        If BaseCell.Cells(1 + Index, 3).HasFormula = True Then
-                            DonneesSalarie.TauxDeTempsDeTravailFormula = BaseCell.Cells(1 + Index, 3).Formula
-                        End If
-                        DonneesSalarie.MasseSalarialeAnnuelle = BaseCell.Cells(1 + Index, 4).Value
-                        If BaseCell.Cells(1 + Index, 4).HasFormula = True Then
-                            DonneesSalarie.MasseSalarialeAnnuelleFormula = BaseCell.Cells(1 + Index, 4).Formula
-                        End If
-                        DonneesSalarie.TauxOperateur = BaseCell.Cells(1 + Index, 5).Value
-                        If BaseCell.Cells(1 + Index, 5).HasFormula = True Then
-                            DonneesSalarie.TauxOperateurFormula = BaseCell.Cells(1 + Index, 5).Formula
-                        End If
-                        If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
-                            DonneesSalarie.JoursChantiers = geDefaultJoursChantiers(NBChantiers)
-                            For IndexChantiers = 1 To NBChantiers
-                                DonneesSalarie.JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(4 + Index, IndexChantiers).Value
-                            Next IndexChantiers
-                        End If
-                        DonneesSalaries(Index) = DonneesSalarie
-                    Next Index
-                    Data.Salaries = DonneesSalaries
+                    Data = Extract_Salaries(Data, BaseCell, BaseCellChantier, NBSalaries, NBChantiers)
                     
                     If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
                         Data.Chantiers = Chantiers_Depenses_Extract(BaseCellChantier, NBSalaries, NBChantiers).Chantiers
@@ -375,24 +347,21 @@ Public Function extraireDonneesVersion1(oldWorkbook As Workbook, Revision As WbR
     End If
     Data = Charges_Extract(oldWorkbook, Data, Revision)
     
-    extraireDonneesVersion1 = Data
+    Extract_Data_From_Table = Data
 
 End Function
-Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbRevision) As Data
+Public Function Extract_Data_From_Revision_0(oldWorkbook As Workbook, Revision As WbRevision) As Data
 
-    Dim DonneesSalarie As DonneesSalarie
+    Dim BaseCell As Range
+    Dim BaseCellChantier As Range
+    Dim ChantierSheet As Worksheet
     Dim Data As Data
+    Dim DonneesSalarie As DonneesSalarie
+    Dim DonneesSalaries() As DonneesSalarie
+    Dim NBChantiers As Integer
     Dim NBSalariesAndRange As NBAndRange
     Dim NBSalaries As Integer
-    Dim NBChantiers As Integer
-    Dim Index As Integer
-    Dim IndexChantiers As Integer
-    Dim CurrentSheet As Worksheet
-    Dim BaseCell As Range
-    Dim ChantierSheet As Worksheet
-    Dim BaseCellChantier As Range
     Dim NBJoursTot As Double
-    Dim DonneesSalaries() As DonneesSalarie
     
     Data = getDefaultData()
     DonneesSalarie = getDefaultDonneesSalarie()
@@ -420,26 +389,10 @@ Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbR
                 NBChantiers = GetNbChantiers(oldWorkbook, 2)
             End If
             
-            ReDim DonneesSalaries(1 To NBSalaries)
             NBJoursTot = BaseCell.Worksheet.Cells(1, 7).EntireColumn.Find("Nb jours travaillables").Cells(1, 2).Value
             ' NBJoursTot = BaseCell.Cells(1 + NBSalaries + 1, 8).Value
-            For Index = 1 To NBSalaries
-                DonneesSalarie = getDefaultDonneesSalarie()
-                DonneesSalarie.Erreur = False
-                DonneesSalarie.Prenom = BaseCell.Cells(1 + Index, 1).Value
-                DonneesSalarie.Nom = ""
-                DonneesSalarie.TauxDeTempsDeTravail = WorksheetFunction.Round(BaseCell.Cells(1 + Index, 2).Value / NBJoursTot, 2)
-                DonneesSalarie.MasseSalarialeAnnuelle = BaseCell.Cells(1 + NBSalaries + 5 + Index, 3).Value
-                DonneesSalarie.TauxOperateur = BaseCell.Cells(1 + Index, 3).Value
-                If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
-                    DonneesSalarie.JoursChantiers = geDefaultJoursChantiers(NBChantiers)
-                    For IndexChantiers = 1 To NBChantiers
-                        DonneesSalarie.JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(3 + Index, IndexChantiers).Value
-                    Next IndexChantiers
-                End If
-                DonneesSalaries(Index) = DonneesSalarie
-            Next Index
-            Data.Salaries = DonneesSalaries
+            
+            Data = Extract_Salaries(Data, BaseCell, BaseCellChantier, NBSalaries, NBChantiers, True, NBJoursTot)
             
             If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
                 Set BaseCell = BaseCellChantier.Cells(4 + NBSalaries, 0)
@@ -452,9 +405,65 @@ Public Function extraireDonneesVersion0(oldWorkbook As Workbook, Revision As WbR
     End If
     Data = Charges_Extract(oldWorkbook, Data, Revision)
     
-    extraireDonneesVersion0 = Data
+    Extract_Data_From_Revision_0 = Data
 
 
+End Function
+
+Public Function Extract_Salaries( _
+        Data As Data, _
+        BaseCell As Range, _
+        BaseCellChantier As Range, _
+        NBSalaries As Integer, _
+        NBChantiers As Integer, _
+        Optional IsV0 As Boolean = False, _
+        Optional NBJoursTot As Integer = 0 _
+    ) As Data
+    
+    Dim DonneesSalarie As DonneesSalarie
+    Dim DonneesSalaries() As DonneesSalarie
+    Dim Index As Integer
+    Dim IndexChantiers As Integer
+
+    ReDim DonneesSalaries(1 To NBSalaries)
+    For Index = 1 To NBSalaries
+        DonneesSalarie = getDefaultDonneesSalarie()
+        DonneesSalarie.Erreur = False
+        DonneesSalarie.Prenom = BaseCell.Cells(1 + Index, 1).Value
+        If IsV0 Then
+            DonneesSalarie.Nom = ""
+            DonneesSalarie.TauxDeTempsDeTravail = WorksheetFunction.Round(BaseCell.Cells(1 + Index, 2).Value / NBJoursTot, 2)
+            DonneesSalarie.MasseSalarialeAnnuelle = BaseCell.Cells(1 + NBSalaries + 5 + Index, 3).Value
+            DonneesSalarie.TauxOperateur = BaseCell.Cells(1 + Index, 3).Value
+        Else
+            DonneesSalarie.Nom = BaseCell.Cells(1 + Index, 2).Value
+            DonneesSalarie.TauxDeTempsDeTravail = BaseCell.Cells(1 + Index, 3).Value
+            If BaseCell.Cells(1 + Index, 3).HasFormula = True Then
+                DonneesSalarie.TauxDeTempsDeTravailFormula = BaseCell.Cells(1 + Index, 3).Formula
+            End If
+            DonneesSalarie.MasseSalarialeAnnuelle = BaseCell.Cells(1 + Index, 4).Value
+            If BaseCell.Cells(1 + Index, 4).HasFormula = True Then
+                DonneesSalarie.MasseSalarialeAnnuelleFormula = BaseCell.Cells(1 + Index, 4).Formula
+            End If
+            DonneesSalarie.TauxOperateur = BaseCell.Cells(1 + Index, 5).Value
+            If BaseCell.Cells(1 + Index, 5).HasFormula = True Then
+                DonneesSalarie.TauxOperateurFormula = BaseCell.Cells(1 + Index, 5).Formula
+            End If
+        End If
+        If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
+            DonneesSalarie.JoursChantiers = geDefaultJoursChantiers(NBChantiers)
+            For IndexChantiers = 1 To NBChantiers
+                If IsV0 Then
+                        DonneesSalarie.JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(3 + Index, IndexChantiers).Value
+                Else
+                    DonneesSalarie.JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(4 + Index, IndexChantiers).Value
+                End If
+            Next IndexChantiers
+        End If
+        DonneesSalaries(Index) = DonneesSalarie
+    Next Index
+    Data.Salaries = DonneesSalaries
+    Extract_Salaries= Data
 End Function
 Public Function getPrevious(wb As Workbook, ByRef PreviousNBSalarie As Integer, ByRef PreviousNBChantiers As Integer, PreviousRevision As WbRevision) As WbRevision
 

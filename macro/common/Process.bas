@@ -3515,7 +3515,7 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     SetSilent
     
     rev = DetecteVersion(wb)
-    Data = extraireDonneesVersion1(wb, rev)
+    Data = Extract_Data_From_Table(wb, rev)
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_global)
     If CurrentSheet Is Nothing Then
         MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Budget_global)
