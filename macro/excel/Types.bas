@@ -1,6 +1,6 @@
 Attribute VB_Name = "Types"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dï¿½claration de toutes les variables
 Option Explicit
 
 ' Types
@@ -27,6 +27,10 @@ Public Type DepenseChantier
     Nom As String
     Valeur As Double
     BaseCell As Range
+    Formula As String
+    ValeurReal As Double
+    BaseCellReal As Range
+    FormulaReal As String
 End Type
 
 Public Type Financement
@@ -34,6 +38,8 @@ Public Type Financement
     TypeFinancement As Integer ' Index in TypeFinancements
     Valeur As Double
     ValeurReal As Double
+    Formula As String
+    FormulaReal As String
     Statut As Integer ' 0 = empty
     BaseCell As Range
     BaseCellReal As Range
@@ -69,7 +75,10 @@ Public Type DonneesSalarie
     MasseSalarialeAnnuelleFormula As String
     TauxOperateur As Double
     TauxOperateurFormula As String
-    JoursChantiers() As Double ' Tableau de temps de chantiers même index que le tableau Chantiers
+    JoursChantiers() As Double ' Tableau de temps de chantiers mï¿½me index que le tableau Chantiers
+    JoursChantiersFormula() As String
+    JoursChantiersReal() As Double
+    JoursChantiersFormulaReal() As String
 End Type
 
 Public Type Charge
@@ -163,8 +172,14 @@ Public Function getDefaultDonneesSalarie() As DonneesSalarie
 
     Dim Donnees As DonneesSalarie
     Dim EmptyArray() As Double
+    Dim EmptyArray2() As Double
+    Dim EmptyArrayStr() As String
+    Dim EmptyArrayStr2() As String
     
     ReDim EmptyArray(0)
+    ReDim EmptyArray2(0)
+    ReDim EmptyArrayStr(0)
+    ReDim EmptyArrayStr2(0)
 
     Donnees.Erreur = True
     Donnees.Prenom = ""
@@ -176,6 +191,9 @@ Public Function getDefaultDonneesSalarie() As DonneesSalarie
     Donnees.MasseSalarialeAnnuelle = 0
     Donnees.MasseSalarialeAnnuelleFormula = ""
     Donnees.JoursChantiers = EmptyArray
+    Donnees.JoursChantiersReal = EmptyArray2
+    Donnees.JoursChantiersFormula = EmptyArrayStr
+    Donnees.JoursChantiersFormulaReal = EmptyArrayStr2
     
     getDefaultDonneesSalarie = Donnees
 

@@ -420,6 +420,8 @@ Public Function Extract_Salaries( _
         Optional NBJoursTot As Integer = 0 _
     ) As Data
     
+    Dim BaseCellChantierReal As Range
+    Dim CurrentRange As Range
     Dim DonneesSalarie As DonneesSalarie
     Dim DonneesSalaries() As DonneesSalarie
     Dim Index As Integer
@@ -437,26 +439,55 @@ Public Function Extract_Salaries( _
             DonneesSalarie.TauxOperateur = BaseCell.Cells(1 + Index, 3).Value
         Else
             DonneesSalarie.Nom = BaseCell.Cells(1 + Index, 2).Value
-            DonneesSalarie.TauxDeTempsDeTravail = BaseCell.Cells(1 + Index, 3).Value
-            If BaseCell.Cells(1 + Index, 3).HasFormula = True Then
-                DonneesSalarie.TauxDeTempsDeTravailFormula = BaseCell.Cells(1 + Index, 3).Formula
+            ' ----
+            Set CurrentRange = BaseCell.Cells(1 + Index, 3)
+            DonneesSalarie.TauxDeTempsDeTravail = CurrentRange.Value
+            If CurrentRange.HasFormula = True Then
+                DonneesSalarie.TauxDeTempsDeTravailFormula = CurrentRange.Formula
             End If
-            DonneesSalarie.MasseSalarialeAnnuelle = BaseCell.Cells(1 + Index, 4).Value
-            If BaseCell.Cells(1 + Index, 4).HasFormula = True Then
-                DonneesSalarie.MasseSalarialeAnnuelleFormula = BaseCell.Cells(1 + Index, 4).Formula
+            ' -----
+            Set CurrentRange = BaseCell.Cells(1 + Index, 4)
+            DonneesSalarie.MasseSalarialeAnnuelle = CurrentRange.Value
+            If CurrentRange.HasFormula = True Then
+                DonneesSalarie.MasseSalarialeAnnuelleFormula = CurrentRange.Formula
             End If
-            DonneesSalarie.TauxOperateur = BaseCell.Cells(1 + Index, 5).Value
-            If BaseCell.Cells(1 + Index, 5).HasFormula = True Then
-                DonneesSalarie.TauxOperateurFormula = BaseCell.Cells(1 + Index, 5).Formula
+            ' -----
+            Set CurrentRange = BaseCell.Cells(1 + Index, 5)
+            DonneesSalarie.TauxOperateur = CurrentRange.Value
+            If CurrentRange.HasFormula = True Then
+                DonneesSalarie.TauxOperateurFormula = CurrentRange.Formula
             End If
         End If
         If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
             DonneesSalarie.JoursChantiers = geDefaultJoursChantiers(NBChantiers)
+            DonneesSalarie.JoursChantiersReal = geDefaultJoursChantiers(NBChantiers)
+            Set BaseCellChantierReal = Common_getBaseCellChantierRealFromBaseCellChantier(BaseCellChantier)
             For IndexChantiers = 1 To NBChantiers
                 If IsV0 Then
-                        DonneesSalarie.JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(3 + Index, IndexChantiers).Value
+                    DonneesSalarie.JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(3 + Index, IndexChantiers).Value
+                    DonneesSalarie.JoursChantiersFormula(IndexChantiers) = ""
+                    DonneesSalarie.JoursChantiersReal(IndexChantiers) = 0
+                    DonneesSalarie.JoursChantiersFormulaReal(IndexChantiers) = ""
                 Else
-                    DonneesSalarie.JoursChantiers(IndexChantiers) = BaseCellChantier.Cells(4 + Index, IndexChantiers).Value
+                    Set CurrentRange = BaseCellChantier.Cells(4 + Index, IndexChantiers)
+                    DonneesSalarie.JoursChantiers(IndexChantiers) = CurrentRange.Value
+                    If CurrentRange.HasFormula = True Then
+                        DonneesSalarie.JoursChantiersFormula(IndexChantiers) = CurrentRange.Formula
+                    Else
+                        DonneesSalarie.JoursChantiersFormula(IndexChantiers) = ""
+                    End If
+                    If Not(BaseCellChantierReal is Nothing) Then
+                        Set CurrentRange = BaseCellChantierReal.Cells(4 + Index, IndexChantiers)
+                        DonneesSalarie.JoursChantiersReal(IndexChantiers) = CurrentRange.Value
+                        If CurrentRange.HasFormula = True Then
+                            DonneesSalarie.JoursChantiersFormulaReal(IndexChantiers) = CurrentRange.Formula
+                        Else
+                            DonneesSalarie.JoursChantiersFormulaReal(IndexChantiers) = ""
+                        End If
+                    Else
+                        DonneesSalarie.JoursChantiersReal(IndexChantiers) = 0
+                        DonneesSalarie.JoursChantiersFormulaReal(IndexChantiers) = ""
+                    End If
                 End If
             Next IndexChantiers
         End If

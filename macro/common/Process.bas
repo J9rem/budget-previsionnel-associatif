@@ -647,6 +647,7 @@ Public Sub Chantiers_And_Personal_Import_Salaries( _
         Data As Data, _
         BaseCell As Range, _
         BaseCellChantier As Range, _
+        BaseCellChantierReal As Range, _
         NBSalaries As Integer, _
         NBChantiers As Integer _
     )
@@ -663,27 +664,34 @@ Public Sub Chantiers_And_Personal_Import_Salaries( _
         If Not DonneesSalarie.Erreur And Index <= NBSalaries Then
             BaseCell.Cells(1 + Index, 1).Value = DonneesSalarie.Prenom
             BaseCell.Cells(1 + Index, 2).Value = DonneesSalarie.Nom
-            If DonneesSalarie.TauxDeTempsDeTravailFormula = "" Then
-                BaseCell.Cells(1 + Index, 3).Value = DonneesSalarie.TauxDeTempsDeTravail
-            Else
-                BaseCell.Cells(1 + Index, 3).Formula = DonneesSalarie.TauxDeTempsDeTravailFormula
-            End If
-            If DonneesSalarie.MasseSalarialeAnnuelleFormula = "" Then
-                BaseCell.Cells(1 + Index, 4).Value = DonneesSalarie.MasseSalarialeAnnuelle
-            Else
-                BaseCell.Cells(1 + Index, 4).Formula = DonneesSalarie.MasseSalarialeAnnuelleFormula
-            End If
-            If DonneesSalarie.TauxOperateurFormula = "" Then
-                BaseCell.Cells(1 + Index, 5).Value = DonneesSalarie.TauxOperateur
-            Else
-                BaseCell.Cells(1 + Index, 5).Formula = DonneesSalarie.TauxOperateurFormula
-            End If
+            Salaries_Import_Value_Or_Formula _
+                BaseCell.Cells(1 + Index, 3), _
+                DonneesSalarie.TauxDeTempsDeTravail, _
+                DonneesSalarie.TauxDeTempsDeTravailFormula
+            
+            Salaries_Import_Value_Or_Formula _
+                BaseCell.Cells(1 + Index, 4), _
+                DonneesSalarie.MasseSalarialeAnnuelle, _
+                DonneesSalarie.MasseSalarialeAnnuelleFormula
+            
+            Salaries_Import_Value_Or_Formula _
+                BaseCell.Cells(1 + Index, 5), _
+                DonneesSalarie.TauxOperateur, _
+                DonneesSalarie.TauxOperateurFormula
+
             If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
                 For IndexChantier = 1 To WorksheetFunction.Min(NBChantiers, UBound(DonneesSalarie.JoursChantiers))
-                    If CInt(DonneesSalarie.JoursChantiers(IndexChantier)) = 0 Or CStr(DonneesSalarie.JoursChantiers(IndexChantier)) = "" Then
-                        BaseCellChantier.Cells(4 + Index, IndexChantier).Value = ""
-                    Else
-                        BaseCellChantier.Cells(4 + Index, IndexChantier).Value = DonneesSalarie.JoursChantiers(IndexChantier)
+                    Salaries_Import_Value_Or_Formula _
+                        BaseCellChantier.Cells(4 + Index, IndexChantier), _
+                        DonneesSalarie.JoursChantiers(IndexChantier), _
+                        DonneesSalarie.JoursChantiersFormula(IndexChantier), _
+                        True
+                    If Not (BaseCellChantierReal Is Nothing) Then
+                        Salaries_Import_Value_Or_Formula _
+                            BaseCellChantierReal.Cells(4 + Index, 1 + 3 *(IndexChantier - 1)), _
+                            DonneesSalarie.JoursChantiersReal(IndexChantier), _
+                            DonneesSalarie.JoursChantiersFormulaReal(IndexChantier), _
+                            True
                     End If
                 Next IndexChantier
             End If
@@ -717,30 +725,31 @@ Public Function Chantiers_Depenses_Extract( _
         Optional BaseCell As Range _
     ) As SetOfChantiers
         
+    Dim BaseCellChantierReal As Range
+    Dim BaseCellLocal As Range
     Dim Chantiers() As Chantier
-    Dim SetOfChantiers As SetOfChantiers
+    Dim ChantierTmp As Chantier
+    Dim ChantierTmp1 As Chantier
+    Dim CurrentRange As Range
+    Dim DepensesTmp1() As DepenseChantier
+    Dim DepenseTmp As DepenseChantier
     Dim IndexChantiers As Integer
     Dim IndexDepense As Integer
     Dim NBDepenses As Integer
     Dim NewFormatForAutofinancement As Integer
-    Dim BaseCellLocal As Range
-    Dim ChantierTmp As Chantier
-    Dim ChantierTmp1 As Chantier
-    Dim DepensesTmp1() As DepenseChantier
-    Dim DepenseTmp As DepenseChantier
+    Dim SetOfChantiers As SetOfChantiers
     Dim SetOfRange As SetOfRange
     Dim TestedValue As String
     
+    Set BaseCellChantierReal = Common_getBaseCellChantierRealFromBaseCellChantier(BaseCellChantier)
+    
     ' Depenses
-    If BaseCell Is Nothing Then
-        ' TODO maage real
-        SetOfRange = Chantiers_Depenses_SetOfRange_Get(BaseCellChantier.Worksheet)
-        If SetOfRange.Status Then
-            Set BaseCell = SetOfRange.HeadCell.Cells(2, 2)
-        Else
-            ' Backup
-            Set BaseCell = BaseCellChantier.Cells(7 + 2 * NBSalaries, 1).EntireRow.Cells(1, 2)
-        End If
+    SetOfRange = Chantiers_Depenses_SetOfRange_Get(BaseCellChantier.Worksheet, BaseCellChantierReal.Worksheet)
+    If SetOfRange.Status Then
+        Set BaseCell = SetOfRange.HeadCell.Cells(2, 2)
+    Else
+        ' Backup
+        Set BaseCell = BaseCellChantier.Cells(7 + 2 * NBSalaries, 1).EntireRow.Cells(1, 2)
     End If
     NBDepenses = Range(BaseCell, Common_FindNextNotEmpty(BaseCell, True).Cells(0, 1)).Rows.Count
     
@@ -761,9 +770,14 @@ Public Function Chantiers_Depenses_Extract( _
                 DepenseTmp = DepensesTmp1(IndexDepense)
                 Chantiers_Depenses_Extract_Name SetOfChantiers, IndexChantiers, IndexDepense, DepenseTmp.Nom
             End If
-            ' TODO manage formula
-            Chantiers_Depenses_Extract_Value SetOfChantiers, IndexChantiers, IndexDepense, BaseCell.Cells(IndexDepense, IndexChantiers + 1).Value
-            Chantiers_Depenses_Extract_BaseCell SetOfChantiers, IndexChantiers, IndexDepense, BaseCell.Cells(IndexDepense, IndexChantiers + 1)
+            Set CurrentRange = BaseCell.Cells(IndexDepense, IndexChantiers + 1)
+            Chantiers_Depenses_Extract_Value SetOfChantiers, IndexChantiers, IndexDepense, CurrentRange
+            Chantiers_Depenses_Extract_BaseCell SetOfChantiers, IndexChantiers, IndexDepense, CurrentRange
+            If SetOf.StatusReal Then
+                Set CurrentRange = SetOfRange.HeadCellReal.Cells(1 + IndexDepense, 2 + IndexChantiers)
+                Chantiers_Depenses_Extract_Value SetOfChantiers, IndexChantiers, IndexDepense, CurrentRange, True
+                Chantiers_Depenses_Extract_BaseCell SetOfChantiers, IndexChantiers, IndexDepense, CurrentRange, True
+            End If
         Next IndexDepense
     Next IndexChantiers
     
@@ -809,7 +823,13 @@ Public Function Chantiers_Depenses_Extract( _
 
 End Function
 
-Public Sub Chantiers_Depenses_Extract_BaseCell(SetOfChantiers As SetOfChantiers, IdxChantiers As Integer, IdxDepense As Integer, newRange As Range)
+Public Sub Chantiers_Depenses_Extract_BaseCell( _
+        SetOfChantiers As SetOfChantiers, _
+        IdxChantiers As Integer, _
+        IdxDepense As Integer, _
+        newRange As Range, _
+        Optional IsReal As Boolean = False _
+    )
     Dim Chantiers() As Chantier
     Dim ChantierTmp As Chantier
     Dim DepensesTmp() As DepenseChantier
@@ -819,7 +839,11 @@ Public Sub Chantiers_Depenses_Extract_BaseCell(SetOfChantiers As SetOfChantiers,
     ChantierTmp = Chantiers(IdxChantiers)
     DepensesTmp = ChantierTmp.Depenses
     TmpDepense = DepensesTmp(IdxDepense)
-    Set TmpDepense.BaseCell = newRange
+    If IsReal Then
+        Set TmpDepense.BaseCellReal = newRange
+    Else
+        Set TmpDepense.BaseCell = newRange
+    End If
     DepensesTmp(IdxDepense) = TmpDepense
     ChantierTmp.Depenses = DepensesTmp
     Chantiers(IdxChantiers) = ChantierTmp
@@ -843,7 +867,13 @@ Public Sub Chantiers_Depenses_Extract_Name(SetOfChantiers As SetOfChantiers, Idx
     SetOfChantiers.Chantiers = Chantiers
 End Sub
 
-Public Sub Chantiers_Depenses_Extract_Value(SetOfChantiers As SetOfChantiers, IdxChantiers As Integer, IdxDepense As Integer, newVal)
+Public Sub Chantiers_Depenses_Extract_Value( _
+        SetOfChantiers As SetOfChantiers, _
+        IdxChantiers As Integer, _
+        IdxDepense As Integer, _
+        CurrentCell As Range, _
+        Optional IsReal As Boolean = False _
+    )
     Dim Chantiers() As Chantier
     Dim ChantierTmp As Chantier
     Dim DepensesTmp() As DepenseChantier
@@ -853,7 +883,21 @@ Public Sub Chantiers_Depenses_Extract_Value(SetOfChantiers As SetOfChantiers, Id
     ChantierTmp = Chantiers(IdxChantiers)
     DepensesTmp = ChantierTmp.Depenses
     TmpDepense = DepensesTmp(IdxDepense)
-    TmpDepense.Valeur = newVal
+    If IsReal Then
+        TmpDepense.ValeurReal = CurrentCell.Value
+        If CurrentCell.HasFormula = True Then
+            TmpDepense.FormulaReal = CurrentCell.Formula
+        Else
+            TmpDepense.FormulaReal = ""
+        End If
+    Else
+        TmpDepense.Valeur = CurrentCell.Value
+        If CurrentCell.HasFormula = True Then
+            TmpDepense.Formula = CurrentCell.Formula
+        Else
+            TmpDepense.Formula = ""
+        End If
+    End If
     DepensesTmp(IdxDepense) = TmpDepense
     ChantierTmp.Depenses = DepensesTmp
     Chantiers(IdxChantiers) = ChantierTmp
@@ -1258,6 +1302,7 @@ Public Function Chantiers_Financements_Extract( _
     Dim ChantierSheetReal As Worksheet
     Dim Chantiers() As Chantier
     Dim ChantierTmp As Chantier
+    Dim CurrentCell As Range
     Dim LocalCounter As Integer
     Dim FinancementTmp As Financement
     Dim FinancementTmp1 As Financement
@@ -1375,20 +1420,27 @@ Public Function Chantiers_Financements_Extract( _
                 FinancementTmp.Nom = FinancementTmp1.Nom
                 FinancementTmp.TypeFinancement = FinancementTmp1.TypeFinancement
             End If
-            ' TODO save formula
-            FinancementTmp.Valeur = BaseCell.Cells(LocalCounter, IndexChantiers + 2).Value
-            Set FinancementTmp.BaseCell = BaseCell.Cells(LocalCounter, IndexChantiers + 2)
+            Set CurrentCell =  BaseCell.Cells(LocalCounter, IndexChantiers + 2)
+            FinancementTmp.Valeur = CurrentCell.Value
+            If CurrentCell.HasFormula = True Then
+                FinancementTmp.Formula = CurrentCell.Formula
+            Else
+                FinancementTmp.Formula = ""
+            End If
+            Set FinancementTmp.BaseCell = CurrentCell
             If Not ForV0 Then
                 If SetOfRange.StatusReal Then
-                    ' TODO save formula
-                    FinancementTmp.ValeurReal = SetOfRange.HeadCellReal.Cells( _
-                            1 + LocalCounter, _
-                            3 * IndexChantiers + 1 _
-                        ).Value
-                    Set FinancementTmp.BaseCellReal = SetOfRange.HeadCellReal.Cells( _
+                    Set CurrentCell = SetOfRange.HeadCellReal.Cells( _
                             1 + LocalCounter, _
                             3 * IndexChantiers + 1 _
                         )
+                    FinancementTmp.ValeurReal = CurrentCell.Value
+                    If CurrentCell.HasFormula = True Then
+                        FinancementTmp.FormulaReal = CurrentCell.Formula
+                    Else
+                        FinancementTmp.FormulaReal = ""
+                    End If
+                    Set FinancementTmp.BaseCellReal = CurrentCell
                 Else
                     FinancementTmp.ValeurReal = 0
                     Set FinancementTmp.BaseCellReal = Nothing
@@ -1646,12 +1698,22 @@ Public Function Chantiers_Financements_Add_Internal( _
         For Index = 1 To UBound(NewFinancementInChantier.Financements)
             TmpFinancement = NewFinancementInChantier.Financements(Index)
             If TmpFinancement.Valeur <> 0 Then
-                ' TODO manage formula
                 WorkingRange.Cells(1, 2 + Index).Value = TmpFinancement.Valeur
             End If
-            If SetOfRange.StatusReal And TmpFinancement.ValeurReal <> 0 Then
-                ' TODO manage formula
-                WorkingRangeReal.Cells(1, 3 * Index + 1).Value = TmpFinancement.ValeurReal
+            If TmpFinancement.Formula <> "" Then
+                On Error Resume Next
+                WorkingRange.Cells(1, 2 + Index).Formula = TmpFinancement.Formula
+                On Error Goto 0
+            End If
+            If SetOfRange.StatusReal Then
+                If TmpFinancement.ValeurReal <> 0 Then
+                    WorkingRangeReal.Cells(1, 3 * Index + 1).Value = TmpFinancement.ValeurReal
+                End If
+                If TmpFinancement.FormulaReal <> "" Then
+                    On Error Resume Next
+                    WorkingRangeReal.Cells(1, 3 * Index + 1).Formula = TmpFinancement.FormulaReal
+                    On Error Goto 0
+                End If
             End If
             If TypeFinancementStr <> "" Then
                 If TmpFinancement.Statut <> 0 Then
@@ -2120,7 +2182,7 @@ Public Sub Chantiers_Import(NewWorkbook As Workbook, Data As Data)
                     NBChantiers = GetNbChantiers(NewWorkbook)
                 End If
 
-                Chantiers_And_Personal_Import_Salaries Data, BaseCell, BaseCellChantier, NBSalaries, NBChantiers
+                Chantiers_And_Personal_Import_Salaries Data, BaseCell, BaseCellChantier, BaseCellChantierReal, NBSalaries, NBChantiers
                 
                 If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) And UBound(Data.Chantiers) > 1 Then
                     ' depenses
@@ -2311,18 +2373,26 @@ Public Sub Chantiers_Import_Title_And_Depenses( _
         DepensesTmp = TmpChantier.Depenses
         For Index = 1 To UBound(DepensesTmp)
             DepenseTmp = DepensesTmp(Index)
-            ' TODO manage formula
             If DepenseTmp.Valeur = 0 Then
                 BaseCell.Cells(Index, 1 + IndexChantier).Value = ""
             Else
                 BaseCell.Cells(Index, 1 + IndexChantier).Value = DepenseTmp.Valeur
             End If
+            If DepenseTmp.Formula <> "" Then
+                On Error Resume Next
+                BaseCell.Cells(Index, 1 + IndexChantier).Formula = DepenseTmp.Formula
+                On Error Goto 0
+            End If
             If SetOfRange.StatusReal Then
                 StrAddress = CleanAddress(BaseCell.Cells(Index, 1 + IndexChantier).address(False, False, xlA1, True))
                 SetOfRange.HeadCellReal.Cells(1 + Index, 3 * IndexChantier).FormulaLocal = _
                     Replace("=SI(%ADR%="""";0;%ADR%)", "%ADR%", StrAddress)
-                ' Todo import it and manage formula
-                SetOfRange.HeadCellReal.Cells(1 + Index, 3 * IndexChantier + 1).Value = 0
+                SetOfRange.HeadCellReal.Cells(1 + Index, 3 * IndexChantier + 1).Value = DepenseTmp.ValeurReal
+                If DepenseTmp.FormulaReal <> "" Then
+                    On Error Resume Next
+                    SetOfRange.HeadCellReal.Cells(1 + Index, 3 * IndexChantier + 1).Formula = DepenseTmp.FormulaReal
+                    On Error Goto 0
+                End If
             End If
         Next Index
     Next IndexChantier
@@ -3102,6 +3172,27 @@ Public Function Common_FindNextNotEmpty(BaseCell As Range, directionDown As Bool
 
 End Function
 
+Public Function Common_getBaseCellChantierRealFromBaseCellChantier(BaseCellChantier As Range) As Range
+
+    Dim BaseCellChantierReal As Range
+    Dim ChantierSheetReal As Worksheet
+    Dim wb As Workbook
+
+    Common_getBaseCellChantierRealFromBaseCellChantier = Nothing
+
+    Set wb = BaseCellChantier.Worksheet.Parent
+    On Error Resume Next
+    Set ChantierSheetReal = wb.Worksheets(Nom_Feuille_Budget_chantiers_realise)
+    On Error GoTo 0
+    If Not (ChantierSheetReal Is Nothing) Then
+        Set BaseCellChantierReal = Common_FindNextNotEmpty(ChantierSheetReal.Cells(3, 1), False)
+        If BaseCellChantier.Column <= 1000 _
+            And Left(BaseCellChantierReal.Value, Len("Chantier")) = "Chantier" Then
+            Set Common_getBaseCellChantierRealFromBaseCellChantier = BaseCellChantierReal
+        End If
+    End If
+End Function
+
 Public Function Common_getChargesDefault(NB As Integer) As SetOfCharges
 
     Dim SetOfCharges As SetOfCharges
@@ -3564,3 +3655,27 @@ EndSub:
 
 End Sub
 
+Public Sub Salaries_Import_Value_Or_Formula( _
+        CurrentCell As Range, _
+        CurrentValue As Double, _
+        CurrentFormula As String, _
+        Optional SetEmptyStrIfNul As Boolean = False _
+    )
+    If CurrentFormula <> "" Then
+        On Error Goto ImportValueInsteadOfFormula
+        CurrentCell.Formula = CurrentFormula
+        On Error Goto 0
+        Exit Sub
+    End If
+ImportValueInsteadOfFormula:
+    On Error Goto 0
+    If SetEmptyStrIfNul _
+        And ( _
+            CInt(CurrentValue) = 0 _
+            Or CStr(CurrentValue) = "" _
+        ) Then
+        CurrentCell.Value = ""
+    Else
+        CurrentCell.Value = CurrentValue
+    End If
+End Sub
