@@ -580,7 +580,7 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
 		If IndexBis > 1 _
 			And IndexBis <> (ColumnOfSecondPartInCharge - 1) _
 			And IndexBis <> ColumnOfSecondPartInCharge  Then
-			If IndexBix = 6 Then
+			If IndexBis = 6 Then
 				oFormat = CellSetNumberFormat("0"" ""%",ThisComponent)
 				oCellRange.NumberFormat = oFormat
 			Else
