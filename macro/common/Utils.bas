@@ -479,7 +479,6 @@ Public Function CleanAddress(address As String) As String
     End If
 End Function
 
-
 Public Sub SetSilent()
     ' config to be faster
     On Error Resume Next ' pour éviter les erreurs LibreOffice
@@ -508,3 +507,13 @@ Public Function geDefaultJoursChantiers(NBChantiers As Integer)
     geDefaultJoursChantiers = newArray
 End Function
 
+Public Function geDefaultJoursChantiersStr(NBChantiers As Integer)
+    Dim newArray() As String
+    Dim idx As Integer
+    
+    ReDim newArray(1 To NBChantiers)
+    For idx = 1 To NBChantiers
+        newArray(idx) = 0#
+    Next idx
+    geDefaultJoursChantiersStr = newArray
+End Function

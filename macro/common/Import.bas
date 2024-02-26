@@ -462,6 +462,8 @@ Public Function Extract_Salaries( _
         If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
             DonneesSalarie.JoursChantiers = geDefaultJoursChantiers(NBChantiers)
             DonneesSalarie.JoursChantiersReal = geDefaultJoursChantiers(NBChantiers)
+            DonneesSalarie.JoursChantiersFormula = geDefaultJoursChantiersStr(NBChantiers)
+            DonneesSalarie.JoursChantiersFormulaReal = geDefaultJoursChantiersStr(NBChantiers)
             Set BaseCellChantierReal = Common_getBaseCellChantierRealFromBaseCellChantier(BaseCellChantier)
             For IndexChantiers = 1 To NBChantiers
                 If IsV0 Then

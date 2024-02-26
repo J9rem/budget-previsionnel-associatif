@@ -728,6 +728,7 @@ Public Function Chantiers_Depenses_Extract( _
     Dim BaseCellChantierReal As Range
     Dim BaseCellLocal As Range
     Dim Chantiers() As Chantier
+    Dim ChantierSheetReal As Worksheet
     Dim ChantierTmp As Chantier
     Dim ChantierTmp1 As Chantier
     Dim CurrentRange As Range
@@ -744,7 +745,12 @@ Public Function Chantiers_Depenses_Extract( _
     Set BaseCellChantierReal = Common_getBaseCellChantierRealFromBaseCellChantier(BaseCellChantier)
     
     ' Depenses
-    SetOfRange = Chantiers_Depenses_SetOfRange_Get(BaseCellChantier.Worksheet, BaseCellChantierReal.Worksheet)
+    If BaseCellChantierReal Is Nothing Then
+        Set ChantierSheetReal = Nothing
+    Else
+        Set ChantierSheetReal = BaseCellChantierReal.Worksheet
+    End If
+    SetOfRange = Chantiers_Depenses_SetOfRange_Get(BaseCellChantier.Worksheet, ChantierSheetReal)
     If SetOfRange.Status Then
         Set BaseCell = SetOfRange.HeadCell.Cells(2, 2)
     Else
@@ -773,7 +779,7 @@ Public Function Chantiers_Depenses_Extract( _
             Set CurrentRange = BaseCell.Cells(IndexDepense, IndexChantiers + 1)
             Chantiers_Depenses_Extract_Value SetOfChantiers, IndexChantiers, IndexDepense, CurrentRange
             Chantiers_Depenses_Extract_BaseCell SetOfChantiers, IndexChantiers, IndexDepense, CurrentRange
-            If SetOf.StatusReal Then
+            If SetOfRange.StatusReal Then
                 Set CurrentRange = SetOfRange.HeadCellReal.Cells(1 + IndexDepense, 2 + IndexChantiers)
                 Chantiers_Depenses_Extract_Value SetOfChantiers, IndexChantiers, IndexDepense, CurrentRange, True
                 Chantiers_Depenses_Extract_BaseCell SetOfChantiers, IndexChantiers, IndexDepense, CurrentRange, True
@@ -3178,7 +3184,7 @@ Public Function Common_getBaseCellChantierRealFromBaseCellChantier(BaseCellChant
     Dim ChantierSheetReal As Worksheet
     Dim wb As Workbook
 
-    Common_getBaseCellChantierRealFromBaseCellChantier = Nothing
+    Set Common_getBaseCellChantierRealFromBaseCellChantier = Nothing
 
     Set wb = BaseCellChantier.Worksheet.Parent
     On Error Resume Next
