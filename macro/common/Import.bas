@@ -292,6 +292,7 @@ Public Function Extract_Data_From_Table(oldWorkbook As Workbook, Revision As WbR
     Dim ChantierSheet As Worksheet
     Dim CurrentSheet As Worksheet
     Dim Data As Data
+    Dim DonneesSalarie As DonneesSalarie
     Dim DonneesSalaries() As DonneesSalarie
     Dim NBChantiers As Integer
     Dim NBSalaries As Integer
