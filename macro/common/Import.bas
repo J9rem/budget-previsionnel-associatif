@@ -16,7 +16,7 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
         & "Excel avec macro (*.xlsm),*.xlsm," _
         & "Libre Office (*.ods),*.ods", _
         0, _
-        "Choisir le fichier ï¿½ importer" _
+        "Choisir le fichier à importer" _
     )
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" _
@@ -476,7 +476,7 @@ Public Function Extract_Salaries( _
                     Else
                         DonneesSalarie.JoursChantiersFormula(IndexChantiers) = ""
                     End If
-                    If Not(BaseCellChantierReal is Nothing) Then
+                    If Not (BaseCellChantierReal Is Nothing) Then
                         Set CurrentRange = BaseCellChantierReal.Cells(4 + Index, IndexChantiers)
                         DonneesSalarie.JoursChantiersReal(IndexChantiers) = CurrentRange.Value
                         If CurrentRange.HasFormula = True Then
@@ -494,7 +494,7 @@ Public Function Extract_Salaries( _
         DonneesSalaries(Index) = DonneesSalarie
     Next Index
     Data.Salaries = DonneesSalaries
-    Extract_Salaries= Data
+    Extract_Salaries = Data
 End Function
 Public Function getPrevious(wb As Workbook, ByRef PreviousNBSalarie As Integer, ByRef PreviousNBChantiers As Integer, PreviousRevision As WbRevision) As WbRevision
 

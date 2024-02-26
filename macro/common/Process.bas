@@ -688,7 +688,7 @@ Public Sub Chantiers_And_Personal_Import_Salaries( _
                         True
                     If Not (BaseCellChantierReal Is Nothing) Then
                         Salaries_Import_Value_Or_Formula _
-                            BaseCellChantierReal.Cells(4 + Index, 1 + 3 *(IndexChantier - 1)), _
+                            BaseCellChantierReal.Cells(4 + Index, 1 + 3 * (IndexChantier - 1)), _
                             DonneesSalarie.JoursChantiersReal(IndexChantier), _
                             DonneesSalarie.JoursChantiersFormulaReal(IndexChantier), _
                             True
@@ -1056,8 +1056,8 @@ Public Sub Chantiers_Depenses_Remove_One()
     NBChantiers = GetNbChantiers(wb)
 
     NewLine = Common_InputBox_Get_Line_Between( _
-        "Supprimer la dï¿½pense de la ligne ?", _
-        "Ligne de la dï¿½pense ï¿½ supprimer", _
+        "Supprimer la dépense de la ligne ?", _
+        "Ligne de la dépense à supprimer", _
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.ResultCell.Row - 1 _
     )
@@ -1068,7 +1068,7 @@ Public Sub Chantiers_Depenses_Remove_One()
     End If
 
     If NewLine = 0 Then
-        MsgBox "La ligne entrï¿½e n'est pas la ligne d'une dï¿½pense"
+        MsgBox "La ligne entrée n'est pas la ligne d'une dépense"
         Exit Sub
     End If
     
@@ -1420,7 +1420,7 @@ Public Function Chantiers_Financements_Extract( _
                 FinancementTmp.Nom = FinancementTmp1.Nom
                 FinancementTmp.TypeFinancement = FinancementTmp1.TypeFinancement
             End If
-            Set CurrentCell =  BaseCell.Cells(LocalCounter, IndexChantiers + 2)
+            Set CurrentCell = BaseCell.Cells(LocalCounter, IndexChantiers + 2)
             FinancementTmp.Valeur = CurrentCell.Value
             If CurrentCell.HasFormula = True Then
                 FinancementTmp.Formula = CurrentCell.Formula
@@ -1703,7 +1703,7 @@ Public Function Chantiers_Financements_Add_Internal( _
             If TmpFinancement.Formula <> "" Then
                 On Error Resume Next
                 WorkingRange.Cells(1, 2 + Index).Formula = TmpFinancement.Formula
-                On Error Goto 0
+                On Error GoTo 0
             End If
             If SetOfRange.StatusReal Then
                 If TmpFinancement.ValeurReal <> 0 Then
@@ -1712,7 +1712,7 @@ Public Function Chantiers_Financements_Add_Internal( _
                 If TmpFinancement.FormulaReal <> "" Then
                     On Error Resume Next
                     WorkingRangeReal.Cells(1, 3 * Index + 1).Formula = TmpFinancement.FormulaReal
-                    On Error Goto 0
+                    On Error GoTo 0
                 End If
             End If
             If TypeFinancementStr <> "" Then
@@ -1965,7 +1965,7 @@ Public Sub Chantiers_Financements_Remove_One()
 
     NewLine = Common_InputBox_Get_Line_Between( _
         "Supprimer le financement de la ligne ?", _
-        "Ligne du financement ï¿½ supprimer", _
+        "Ligne du financement à supprimer", _
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.EndCell.Row _
     )
@@ -1976,7 +1976,7 @@ Public Sub Chantiers_Financements_Remove_One()
     End If
 
     If NewLine = 0 Then
-        MsgBox "La ligne entrï¿½e n'est pas la ligne d'un financement"
+        MsgBox "La ligne entrée n'est pas la ligne d'un financement"
         Exit Sub
     End If
     
@@ -2381,7 +2381,7 @@ Public Sub Chantiers_Import_Title_And_Depenses( _
             If DepenseTmp.Formula <> "" Then
                 On Error Resume Next
                 BaseCell.Cells(Index, 1 + IndexChantier).Formula = DepenseTmp.Formula
-                On Error Goto 0
+                On Error GoTo 0
             End If
             If SetOfRange.StatusReal Then
                 StrAddress = CleanAddress(BaseCell.Cells(Index, 1 + IndexChantier).address(False, False, xlA1, True))
@@ -2391,7 +2391,7 @@ Public Sub Chantiers_Import_Title_And_Depenses( _
                 If DepenseTmp.FormulaReal <> "" Then
                     On Error Resume Next
                     SetOfRange.HeadCellReal.Cells(1 + Index, 3 * IndexChantier + 1).Formula = DepenseTmp.FormulaReal
-                    On Error Goto 0
+                    On Error GoTo 0
                 End If
             End If
         Next Index
@@ -2591,13 +2591,13 @@ Public Sub Charges_Add_One_From_Button()
     FormattedValue = Trim(Value)
 
     If FormattedValue = "" Then
-        MsgBox "Erreur : Le nom fourni pour la charge ne peut pas ï¿½tre vide"
+        MsgBox "Erreur : Le nom fourni pour la charge ne peut pas être vide"
         Exit Sub
     End If
 
     ExtractedValue = CInt(Left(FormattedValue, 2))
     If ExtractedValue < 60 Or ExtractedValue > 68 Then
-        MsgBox "Erreur : les deux premiers caractï¿½res du nom doivent ï¿½tre compris entre 60 et 68 inclus."
+        MsgBox "Erreur : les deux premiers caractères du nom doivent être compris entre 60 et 68 inclus."
         Exit Sub
     End If
 
@@ -2614,10 +2614,10 @@ Public Sub Charges_Add_One_From_Button()
             Charges_Add_One_Line SetOfRange.EndCell.Cells(Offset, 1), False, FormattedValue, 0, 0, 0, 0, 1
             Charges_UpdateFormula SetOfRange
         Else
-            MsgBox "Erreur : impossible de retrouver les diffï¿½rents types de paiement (60 ï¿½ 68)"
+            MsgBox "Erreur : impossible de retrouver les différents types de paiement (60 à 68)"
         End If
     Else
-        MsgBox "Erreur : impossible d'associer cette ligne ï¿½ un type de paiement (entre 60 et 68)"
+        MsgBox "Erreur : impossible d'associer cette ligne à un type de paiement (entre 60 et 68)"
     End If
 
 End Sub
@@ -3059,7 +3059,7 @@ Public Sub Charges_Remove_One()
 
     NewLine = Common_InputBox_Get_Line_Between( _
         "Supprimer la charge de la ligne ?", _
-        "Ligne de charge ï¿½ supprimer", _
+        "Ligne de charge à supprimer", _
         MinRow + 1, _
         MaxRow _
     )
@@ -3084,7 +3084,7 @@ Public Sub Charges_Remove_One()
     End If
     
     If Not IsOK Then
-        MsgBox "La ligne entrï¿½e n'est pas la ligne d'une charge"
+        MsgBox "La ligne entrée n'est pas la ligne d'une charge"
         Exit Sub
     End If
 
@@ -3347,7 +3347,7 @@ End Function
 
 Public Function Common_IsFormula(wRange As Range) As Boolean
 
-    Dim Cell AS Range
+    Dim Cell As Range
 
     If wRange Is Nothing Then
         Common_IsFormula = False<
@@ -3662,13 +3662,13 @@ Public Sub Salaries_Import_Value_Or_Formula( _
         Optional SetEmptyStrIfNul As Boolean = False _
     )
     If CurrentFormula <> "" Then
-        On Error Goto ImportValueInsteadOfFormula
+        On Error GoTo ImportValueInsteadOfFormula
         CurrentCell.Formula = CurrentFormula
-        On Error Goto 0
+        On Error GoTo 0
         Exit Sub
     End If
 ImportValueInsteadOfFormula:
-    On Error Goto 0
+    On Error GoTo 0
     If SetEmptyStrIfNul _
         And ( _
             CInt(CurrentValue) = 0 _
@@ -3679,3 +3679,4 @@ ImportValueInsteadOfFormula:
         CurrentCell.Value = CurrentValue
     End If
 End Sub
+
