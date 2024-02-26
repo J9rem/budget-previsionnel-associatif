@@ -1692,6 +1692,7 @@ Public Function Chantiers_Financements_Add_Internal( _
         If SetOfRange.StatusReal Then
             WorkingRangeReal.Cells(1, 1).Value = TypeFinancementStr
             WorkingRangeReal.Cells(2, 2).Value = "Statut"
+            WorkingRangeReal.Cells(2, 3 + 3 * NBChantiers).Value = ""
         End If
     End If
 
