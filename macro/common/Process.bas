@@ -1062,8 +1062,8 @@ Public Sub Chantiers_Depenses_Remove_One()
     NBChantiers = GetNbChantiers(wb)
 
     NewLine = Common_InputBox_Get_Line_Between( _
-        "Supprimer la d�pense de la ligne ?", _
-        "Ligne de la d�pense � supprimer", _
+        Replace(T_Delete_Object_Of_Line, "%objectName%", T_Depense), _
+        Replace(T_Line_To_Delete_For_Object, "%objectName%", T_Depense), _
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.ResultCell.Row - 1 _
     )
@@ -1074,7 +1074,11 @@ Public Sub Chantiers_Depenses_Remove_One()
     End If
 
     If NewLine = 0 Then
-        MsgBox "La ligne entr�e n'est pas la ligne d'une d�pense"
+        MsgBox Replace( _
+            Replace(T_Given_Line_Is_Not_Line_Of_Object, "%objectName%", T_Depense), _
+            "d'la", _
+            "d'une" _
+        )
         Exit Sub
     End If
     
@@ -1970,8 +1974,12 @@ Public Sub Chantiers_Financements_Remove_One()
     NBChantiers = GetNbChantiers(wb)
 
     NewLine = Common_InputBox_Get_Line_Between( _
-        "Supprimer le financement de la ligne ?", _
-        "Ligne du financement � supprimer", _
+        Replace(T_Delete_Object_Of_Line, "%objectName%", T_Financement), _
+        Replace( _
+            Replace(T_Line_To_Delete_For_Object, "%objectName%", T_Financement), _
+            "de le", _
+            "du" _
+        ), _
         SetOfRange.HeadCell.Row + 1, _
         SetOfRange.EndCell.Row _
     )
@@ -1982,7 +1990,11 @@ Public Sub Chantiers_Financements_Remove_One()
     End If
 
     If NewLine = 0 Then
-        MsgBox "La ligne entr�e n'est pas la ligne d'un financement"
+        MsgBox Replace( _
+            Replace(T_Given_Line_Is_Not_Line_Of_Object, "%objectName%", T_Financement), _
+            "d'le", _
+            "d'un" _
+        )
         Exit Sub
     End If
     
@@ -2597,13 +2609,13 @@ Public Sub Charges_Add_One_From_Button()
     FormattedValue = Trim(Value)
 
     If FormattedValue = "" Then
-        MsgBox "Erreur : Le nom fourni pour la charge ne peut pas �tre vide"
+        MsgBox T_Error_Not_Empty_Charge_Name
         Exit Sub
     End If
 
     ExtractedValue = CInt(Left(FormattedValue, 2))
     If ExtractedValue < 60 Or ExtractedValue > 68 Then
-        MsgBox "Erreur : les deux premiers caract�res du nom doivent �tre compris entre 60 et 68 inclus."
+        MsgBox T_Error_Bad_Format_For_Charge_Name
         Exit Sub
     End If
 
@@ -2620,10 +2632,10 @@ Public Sub Charges_Add_One_From_Button()
             Charges_Add_One_Line SetOfRange.EndCell.Cells(Offset, 1), False, FormattedValue, 0, 0, 0, 0, 1
             Charges_UpdateFormula SetOfRange
         Else
-            MsgBox "Erreur : impossible de retrouver les diff�rents types de paiement (60 � 68)"
+            MsgBox T_Error_Not_Possible_To_Found_Type
         End If
     Else
-        MsgBox "Erreur : impossible d'associer cette ligne � un type de paiement (entre 60 et 68)"
+        MsgBox T_Error_Not_Possible_To_Associate_Line_To_Type
     End If
 
 End Sub
@@ -3064,8 +3076,8 @@ Public Sub Charges_Remove_One()
     Next Index
 
     NewLine = Common_InputBox_Get_Line_Between( _
-        "Supprimer la charge de la ligne ?", _
-        "Ligne de charge � supprimer", _
+        Replace(T_Delete_Object_Of_Line, "%objectName%", T_Charge), _
+        Replace(T_Line_To_Delete_For_Object, "%objectName%", T_Charge), _
         MinRow + 1, _
         MaxRow _
     )
@@ -3090,7 +3102,11 @@ Public Sub Charges_Remove_One()
     End If
     
     If Not IsOK Then
-        MsgBox "La ligne entr�e n'est pas la ligne d'une charge"
+        MsgBox Replace( _
+            Replace(T_Given_Line_Is_Not_Line_Of_Object, "%objectName%", T_Charge), _
+            "d'la", _
+            "d'une" _
+        )
         Exit Sub
     End If
 
