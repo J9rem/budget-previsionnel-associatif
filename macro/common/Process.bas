@@ -2114,23 +2114,40 @@ Public Sub Chantiers_Format_Set( _
 
     Dim ColumnIndex As Integer
     Dim CurrentArea As Range
+    Dim IsEuros As Boolean
+    Dim IsPercent As Boolean
+    Dim IsReal As Boolean
+    Dim LastColumnNumber As Integer
     Dim NBColumns As Integer
     Dim NBRows As Integer
     Dim RowIndex As Integer
+    Dim SetLeftCol As Boolean
     Dim SetOfRange As SetOfRange
+    Dim SetRightCol As Boolean
     Dim ValueOfSecondCellOfLine As String
-
-    ' TODO update format for chantier real
 
     SetOfRange = Chantiers_Financements_BaseCell_Get(ChantierSheet, ChantierSheetReal)
     If Not SetOfRange.Status Then
         Exit Sub
     End If
     
-    Set CurrentArea = Range( _
-        SetOfRange.HeadCell.Cells(2, 1), _
-        SetOfRange.EndCell.Cells(1, 3 + NBChantiers) _
-    )
+    IsReal = Not (ChantierSheetReal Is Nothing)
+    If IsReal Then
+        If Not SetOfRange.StatusReal Then
+            Exit Sub
+        End If
+        LastColumnNumber = 3 + 3 * NBChantiers
+        Set CurrentArea = Range( _
+            SetOfRange.HeadCellReal.Cells(2, 1), _
+            SetOfRange.EndCellReal.Cells(1, LastColumnNumber) _
+        )
+    Else
+        LastColumnNumber = 3 + NBChantiers
+        Set CurrentArea = Range( _
+            SetOfRange.HeadCell.Cells(2, 1), _
+            SetOfRange.EndCell.Cells(1, LastColumnNumber) _
+        )
+    End If
 
     NBColumns = CurrentArea.Columns.Count
     NBRows = CurrentArea.Rows.Count
@@ -2138,28 +2155,64 @@ Public Sub Chantiers_Format_Set( _
     For RowIndex = 1 To NBRows
         ValueOfSecondCellOfLine = CurrentArea.Cells(RowIndex, 2).Value
         For ColumnIndex = 1 To NBColumns
+            If Not IsReal Then
+                IsEuros = (ColumnIndex > 2)
+                IsPercent = False
+                SetLeftCol = True
+                SetRightCol = True
+            Else
+                IsEuros = (ColumnIndex > 2 And ((ColumnIndex - 3) Mod 3) <> 2)
+                IsPercent = (ColumnIndex > 2 And ((ColumnIndex - 3) Mod 3) = 2)
+                SetLeftCol = ( _
+                    ValueOfSecondCellOfLine = "Statut" _
+                    Or ColumnIndex <= 2 _
+                    Or ColumnIndex = NBColumns _
+                    Or ((ColumnIndex - 3) Mod 3) = 0 _
+                )
+                SetRightCol = ( _
+                    ValueOfSecondCellOfLine = "Statut" _
+                    Or ColumnIndex <= 2 _
+                    Or ColumnIndex = NBColumns _
+                    Or ((ColumnIndex - 3) Mod 3) = 2 _
+                )
+            End If
             DefinirFormatPourChantier CurrentArea.Cells(RowIndex, ColumnIndex), _
                 (AddTopBorder And RowIndex = 1), _
                 (AddBottomBorder And RowIndex = NBRows), _
                 (ColumnIndex = 2 Or ColumnIndex = NBColumns), _
                 (ValueOfSecondCellOfLine = "Statut" And ColumnIndex <= 2), _
                 (ColumnIndex = NBColumns), _
-                (ColumnIndex > 2)
+                IsEuros, _
+                IsPercent, _
+                SetLeftCol, _
+                SetRightCol
+            If IsReal _
+                And ValueOfSecondCellOfLine = "Statut" _
+                And ColumnIndex > 2 _
+                And ColumnIndex < NBColumns _
+                And ((ColumnIndex - 3) Mod 3) = 2 Then
+                CurrentArea.Cells(RowIndex, ColumnIndex - 1).Value = ""
+                CurrentArea.Cells(RowIndex, ColumnIndex).Value = ""
+                Range( _
+                    CurrentArea.Cells(RowIndex, ColumnIndex - 2), _
+                    CurrentArea.Cells(RowIndex, ColumnIndex) _
+                ).MergeCells = True
+            End If
         Next ColumnIndex
         If ValueOfSecondCellOfLine = "Statut" Then
-            Chantiers_Financements_Format_Add_ValidationDossier Range( _
-                CurrentArea.Cells(RowIndex, 3), _
-                CurrentArea.Cells(RowIndex, 2 + NBChantiers) _
-            )
             Range( _
                 CurrentArea.Cells(RowIndex, 1), _
                 CurrentArea.Cells(RowIndex, 2) _
             ).Validation.Delete
-            CurrentArea.Cells(RowIndex, 3 + NBChantiers).Validation.Delete
+            CurrentArea.Cells(RowIndex, LastColumnNumber).Validation.Delete
+            Chantiers_Financements_Format_Add_ValidationDossier Range( _
+                CurrentArea.Cells(RowIndex, 3), _
+                CurrentArea.Cells(RowIndex, LastColumnNumber - 1) _
+            )
         Else
             Range( _
                 CurrentArea.Cells(RowIndex, 1), _
-                CurrentArea.Cells(RowIndex, 3 + NBChantiers) _
+                CurrentArea.Cells(RowIndex, LastColumnNumber) _
             ).Validation.Delete
         End If
     Next RowIndex
@@ -2520,6 +2573,7 @@ Public Sub Chantiers_Totals_UpdateSumsAndFormat( _
     End If
     Chantiers_Financements_Totals_RenewFormula SetOfRange.ChantierSheet, SetOfRange.ChantierSheetReal, NBChantiers
     If SetFormat Then
+        Chantiers_Format_Set SetOfRange.ChantierSheet, Nothing, NBChantiers
         Chantiers_Format_Set SetOfRange.ChantierSheet, SetOfRange.ChantierSheetReal, NBChantiers
     End If
 End Sub

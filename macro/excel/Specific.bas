@@ -293,7 +293,10 @@ Public Sub DefinirFormatPourChantier( _
         Bold As Boolean, _
         Italic As Boolean, _
         BlueColor As Boolean, _
-        CurrencyFormat As Boolean _
+        CurrencyFormat As Boolean, _
+        IsPercent As Boolean, _
+        SetLeftCol As Boolean, _
+        SetRightCol As Boolean _
     )
 
     With CurrentCell
@@ -303,7 +306,11 @@ Public Sub DefinirFormatPourChantier( _
             .LineStyle = xlContinuous
             .ColorIndex = 0
             .TintAndShade = 0
-            .Weight = xlMedium
+            If SetLeftCol Then
+                .Weight = xlMedium
+            Else
+                .Weight = xlThin
+            End If
         End With
         With .Borders(xlEdgeTop)
             .LineStyle = xlContinuous
@@ -329,7 +336,11 @@ Public Sub DefinirFormatPourChantier( _
             .LineStyle = xlContinuous
             .ColorIndex = 0
             .TintAndShade = 0
-            .Weight = xlMedium
+            If SetRightCol Then
+                .Weight = xlMedium
+            Else
+                .Weight = xlThin
+            End If
         End With
         .Borders(xlInsideVertical).LineStyle = xlNone
         .Borders(xlInsideHorizontal).LineStyle = xlNone
@@ -359,7 +370,11 @@ Public Sub DefinirFormatPourChantier( _
         If CurrencyFormat Then
             .NumberFormat = "#,##0.00"" €"""
         Else
-            .NumberFormat = "General"
+            If IsPercent Then
+                .NumberFormat = "0%"
+            Else
+                .NumberFormat = "General"
+            End If
         End If
         .Interior.Pattern = xlNone
         .HorizontalAlignment = xlGeneral
@@ -521,10 +536,17 @@ Public Sub DefinirFormatConditionnelPourLesDossier( _
     ReDim ListConditions(1 To 4)
     ReDim ListColors(1 To 4)
 
-    Set CurrentCells = Range( _
-        SetOfRange.HeadCell.Cells(2, 1), _
-        SetOfRange.EndCell.Cells(1, 3 + NBChantiers) _
-    )
+    If SetOfRange.StatusReal Then
+        Set CurrentCells = Range( _
+            SetOfRange.HeadCellReal.Cells(2, 1), _
+            SetOfRange.EndCellReal.Cells(1, 3 + 3 * NBChantiers) _
+        )
+    Else
+        Set CurrentCells = Range( _
+            SetOfRange.HeadCell.Cells(2, 1), _
+            SetOfRange.EndCell.Cells(1, 3 + NBChantiers) _
+        )
+    End If
     
     ListConditions(1) = "DOSSIER_OK"
     ListColors(1) = 65280

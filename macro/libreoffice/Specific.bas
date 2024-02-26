@@ -446,7 +446,10 @@ Public Sub DefinirFormatPourChantier( _
 		Bold As Boolean, _
 		Italic As Boolean, _
 		BlueColor As Boolean, _
-		CurrencyFormat As Boolean _
+		CurrencyFormat As Boolean, _
+		IsPercent As Boolean, _
+        SetLeftCol As Boolean, _
+        SetRightCol As Boolean _
     )
 	
     Dim oCellRange
@@ -474,8 +477,16 @@ Public Sub DefinirFormatPourChantier( _
 		.LineWidth = 5
 		.OuterLineWidth = 5
 	End With
-	oCellRange.LeftBorder = oLine
-	oCellRange.RightBorder = oLine
+	If SetLeftCol Then
+		oCellRange.LeftBorder = oLine
+    Else
+		oCellRange.LeftBorder = oLineThin
+    End If
+	If SetRightCol Then
+		oCellRange.RightBorder = oLine
+    Else
+		oCellRange.RightBorder = oLineThin
+    End If
     
     If AddTopBorder Then
 		oCellRange.TopBorder = oLine
@@ -510,6 +521,12 @@ Public Sub DefinirFormatPourChantier( _
 	If CurrencyFormat Then
 		oFormat = CellSetNumberFormat("# ##0,00"" €""",ThisComponent)
 		oCellRange.NumberFormat = oFormat
+	Else
+		If IsPercent Then
+			oFormat = CellSetNumberFormat("NumberFormatPercent",ThisComponent)
+			' oFormat = CellSetNumberFormat("0"" ""%",ThisComponent)
+			oCellRange.NumberFormat = oFormat
+		End If
 	End If
 	oCellRange.CellBackColor = -1
 End Sub
@@ -654,10 +671,17 @@ Public Sub DefinirFormatConditionnelPourLesDossier( _
     Dim oRange
     Dim oSheet
 
-    Set CurrentCells = Range( _
-        SetOfRange.HeadCell.Cells(2, 1), _
-        SetOfRange.EndCell.Cells(1, 3 + NBChantiers) _
-    )
+    If SetOfRange.StatusReal Then
+        Set CurrentCells = Range( _
+            SetOfRange.HeadCellReal.Cells(2, 1), _
+            SetOfRange.EndCellReal.Cells(1, 3 + 3 * NBChantiers) _
+        )
+    Else
+        Set CurrentCells = Range( _
+            SetOfRange.HeadCell.Cells(2, 1), _
+            SetOfRange.EndCell.Cells(1, 3 + NBChantiers) _
+        )
+    End If
 	
 	oSheet = ThisComponent.Sheets.getByName(CurrentCells.Worksheet.Name)
 	oRange = oSheet.getCellRangeByName(CurrentCells.Address(False,False,xlA1,False))
