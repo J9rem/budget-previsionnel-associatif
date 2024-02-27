@@ -780,7 +780,7 @@ Public Function Chantiers_Depenses_Extract( _
             Chantiers_Depenses_Extract_Value SetOfChantiers, IndexChantiers, IndexDepense, CurrentRange
             Chantiers_Depenses_Extract_BaseCell SetOfChantiers, IndexChantiers, IndexDepense, CurrentRange
             If SetOfRange.StatusReal Then
-                Set CurrentRange = SetOfRange.HeadCellReal.Cells(1 + IndexDepense, 2 + IndexChantiers)
+                Set CurrentRange = SetOfRange.HeadCellReal.Cells(1 + IndexDepense, 4 + 3 * (IndexChantiers - 1))
                 Chantiers_Depenses_Extract_Value SetOfChantiers, IndexChantiers, IndexDepense, CurrentRange, True
                 Chantiers_Depenses_Extract_BaseCell SetOfChantiers, IndexChantiers, IndexDepense, CurrentRange, True
             End If
