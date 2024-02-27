@@ -16,7 +16,7 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
         & "Excel avec macro (*.xlsm),*.xlsm," _
         & "Libre Office (*.ods),*.ods", _
         0, _
-        "Choisir le fichier à importer" _
+        "Choisir le fichier ï¿½ importer" _
     )
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" _
@@ -149,37 +149,27 @@ Public Function extraireInfos(wb As Workbook) As Informations
         Set BaseCell = CurrentSheet.Range("A:A").Find(Label_Annees)
         If Not BaseCell Is Nothing Then
             Result.Annee = BaseCell.Cells(1, 2).Value
-            If BaseCell.Cells(1, 2).HasFormula = True Then
-                Result.AnneeFormula = BaseCell.Cells(1, 2).Formula
-            End If
+            Result.AnneeFormula = Common_GetFormula(BaseCell.Cells(1, 2))
         End If
         Set BaseCell = CurrentSheet.Range("A:A").Find(Label_Convention_Collective)
         If Not BaseCell Is Nothing Then
             Result.ConventionCollective = BaseCell.Cells(1, 2).Value
-            If BaseCell.Cells(1, 2).HasFormula = True Then
-                Result.ConventionCollective = BaseCell.Cells(1, 2).Formula
-            End If
+            Result.ConventionCollective = Common_GetFormula(BaseCell.Cells(1, 2))
         End If
         Set BaseCell = CurrentSheet.Range("A:A").Find(Label_NBConges)
         If Not BaseCell Is Nothing Then
             Result.NBConges = BaseCell.Cells(1, 2).Value
-            If BaseCell.Cells(1, 2).HasFormula = True Then
-                Result.NBCongesFormula = BaseCell.Cells(1, 2).Formula
-            End If
+            Result.NBCongesFormula = Common_GetFormula(BaseCell.Cells(1, 2))
         End If
         Set BaseCell = CurrentSheet.Range("A:A").Find(Label_NBRTT)
         If Not BaseCell Is Nothing Then
             Result.NBRTT = BaseCell.Cells(1, 2).Value
-            If BaseCell.Cells(1, 2).HasFormula = True Then
-                Result.NBRTTFormula = BaseCell.Cells(1, 2).Formula
-            End If
+            Result.NBRTTFormula = Common_GetFormula(BaseCell.Cells(1, 2))
         End If
         Set BaseCell = CurrentSheet.Range("A:A").Find(Label_NB_Jours_speciaux)
         If Not BaseCell Is Nothing Then
             Result.NBJoursSpeciaux = BaseCell.Cells(1, 2).Value
-            If BaseCell.Cells(1, 2).HasFormula = True Then
-                Result.NBJoursSpeciauxFormula = BaseCell.Cells(1, 2).Formula
-            End If
+            Result.NBJoursSpeciauxFormula = Common_GetFormula(BaseCell.Cells(1, 2))
         End If
         Set BaseCell = CurrentSheet.Range("A:A").Find(Label_Pentecote)
         If Not BaseCell Is Nothing Then
@@ -206,11 +196,7 @@ Public Sub importerInfos(wb As Workbook, Informations As Informations)
     End If
     Set BaseCell = CurrentSheet.Range("A:A").Find(Label_Annees)
     If Not BaseCell Is Nothing Then
-        If Informations.AnneeFormula = "" Then
-            BaseCell.Cells(1, 2).Value = Informations.Annee
-        Else
-            BaseCell.Cells(1, 2).Formula = Informations.AnneeFormula
-        End If
+        Common_SetFormula BaseCell.Cells(1, 2), Informations.Annee, Informations.AnneeFormula
     End If
     Set BaseCell = CurrentSheet.Range("A:A").Find(Label_Convention_Collective)
     If Not BaseCell Is Nothing Then
@@ -222,39 +208,15 @@ Public Sub importerInfos(wb As Workbook, Informations As Informations)
     End If
     Set BaseCell = CurrentSheet.Range("A:A").Find(Label_NBConges)
     If Not BaseCell Is Nothing Then
-        If Informations.NBCongesFormula = "" Then
-            If Informations.NBConges = 0 Then
-                BaseCell.Cells(1, 2).Value = ""
-            Else
-                BaseCell.Cells(1, 2).Value = Informations.NBConges
-            End If
-        Else
-            BaseCell.Cells(1, 2).Formula = Informations.NBCongesFormula
-        End If
+        Common_SetFormula BaseCell.Cells(1, 2), Informations.NBConges, Informations.NBCongesFormula, True
     End If
     Set BaseCell = CurrentSheet.Range("A:A").Find(Label_NBRTT)
     If Not BaseCell Is Nothing Then
-        If Informations.NBRTTFormula = "" Then
-            If Informations.NBRTT = 0 Then
-                BaseCell.Cells(1, 2).Value = ""
-            Else
-                BaseCell.Cells(1, 2).Value = Informations.NBRTT
-            End If
-        Else
-            BaseCell.Cells(1, 2).Formula = Informations.NBRTTFormula
-        End If
+        Common_SetFormula BaseCell.Cells(1, 2), Informations.NBRTT, Informations.NBRTTFormula, True
     End If
     Set BaseCell = CurrentSheet.Range("A:A").Find(Label_NB_Jours_speciaux)
     If Not BaseCell Is Nothing Then
-        If Informations.NBJoursSpeciauxFormula = "" Then
-            If Informations.NBJoursSpeciaux = 0 Then
-                BaseCell.Cells(1, 2).Value = ""
-            Else
-                BaseCell.Cells(1, 2).Value = Informations.NBJoursSpeciaux
-            End If
-        Else
-            BaseCell.Cells(1, 2).Formula = Informations.NBJoursSpeciauxFormula
-        End If
+        Common_SetFormula BaseCell.Cells(1, 2), Informations.NBJoursSpeciaux, Informations.NBJoursSpeciauxFormula, True
     End If
     Set BaseCell = CurrentSheet.Range("A:A").Find(Label_Pentecote)
     If Not BaseCell Is Nothing Then
@@ -443,21 +405,15 @@ Public Function Extract_Salaries( _
             ' ----
             Set CurrentRange = BaseCell.Cells(1 + Index, 3)
             DonneesSalarie.TauxDeTempsDeTravail = CurrentRange.Value
-            If CurrentRange.HasFormula = True Then
-                DonneesSalarie.TauxDeTempsDeTravailFormula = CurrentRange.Formula
-            End If
+            DonneesSalarie.TauxDeTempsDeTravailFormula = Common_GetFormula(CurrentRange)
             ' -----
             Set CurrentRange = BaseCell.Cells(1 + Index, 4)
             DonneesSalarie.MasseSalarialeAnnuelle = CurrentRange.Value
-            If CurrentRange.HasFormula = True Then
-                DonneesSalarie.MasseSalarialeAnnuelleFormula = CurrentRange.Formula
-            End If
+            DonneesSalarie.MasseSalarialeAnnuelleFormula = Common_GetFormula(CurrentRange)
             ' -----
             Set CurrentRange = BaseCell.Cells(1 + Index, 5)
             DonneesSalarie.TauxOperateur = CurrentRange.Value
-            If CurrentRange.HasFormula = True Then
-                DonneesSalarie.TauxOperateurFormula = CurrentRange.Formula
-            End If
+            DonneesSalarie.TauxOperateurFormula = Common_GetFormula(CurrentRange)
         End If
         If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
             DonneesSalarie.JoursChantiers = geDefaultJoursChantiers(NBChantiers)
@@ -474,19 +430,11 @@ Public Function Extract_Salaries( _
                 Else
                     Set CurrentRange = BaseCellChantier.Cells(4 + Index, IndexChantiers)
                     DonneesSalarie.JoursChantiers(IndexChantiers) = CurrentRange.Value
-                    If CurrentRange.HasFormula = True Then
-                        DonneesSalarie.JoursChantiersFormula(IndexChantiers) = CurrentRange.Formula
-                    Else
-                        DonneesSalarie.JoursChantiersFormula(IndexChantiers) = ""
-                    End If
+                    DonneesSalarie.JoursChantiersFormula(IndexChantiers) = Common_GetFormula(CurrentRange)
                     If Not (BaseCellChantierReal Is Nothing) Then
                         Set CurrentRange = BaseCellChantierReal.Cells(4 + Index, IndexChantiers)
                         DonneesSalarie.JoursChantiersReal(IndexChantiers) = CurrentRange.Value
-                        If CurrentRange.HasFormula = True Then
-                            DonneesSalarie.JoursChantiersFormulaReal(IndexChantiers) = CurrentRange.Formula
-                        Else
-                            DonneesSalarie.JoursChantiersFormulaReal(IndexChantiers) = ""
-                        End If
+                        DonneesSalarie.JoursChantiersFormulaReal(IndexChantiers) = Common_GetFormula(CurrentRange)
                     Else
                         DonneesSalarie.JoursChantiersReal(IndexChantiers) = 0
                         DonneesSalarie.JoursChantiersFormulaReal(IndexChantiers) = ""

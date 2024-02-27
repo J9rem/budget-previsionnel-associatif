@@ -1,6 +1,6 @@
 Attribute VB_Name = "Types"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dï¿½claration de toutes les variables
 Option Explicit
 
 ' Types
@@ -50,10 +50,15 @@ Public Type Chantier
     Depenses() As DepenseChantier
     Financements() As Financement
     AutoFinancementStructure As Double
+    AutoFinancementStructureFormula As String
     AutoFinancementAutres As Double
+    AutoFinancementAutresFormula As String
     AutoFinancementStructureAnneesPrecedentes As Double
+    AutoFinancementStructureAnneesPrecedentesFormula As String
     AutoFinancementAutresAnneesPrecedentes As Double
+    AutoFinancementAutresAnneesPrecedentesFormula As String
     CAanneesPrecedentes As Double
+    CAanneesPrecedentesFormula As String
 End Type
 
 Public Type SetOfChantiers
@@ -75,7 +80,7 @@ Public Type DonneesSalarie
     MasseSalarialeAnnuelleFormula As String
     TauxOperateur As Double
     TauxOperateurFormula As String
-    JoursChantiers() As Double ' Tableau de temps de chantiers même index que le tableau Chantiers
+    JoursChantiers() As Double ' Tableau de temps de chantiers mï¿½me index que le tableau Chantiers
     JoursChantiersFormula() As String
     JoursChantiersReal() As Double
     JoursChantiersFormulaReal() As String
@@ -211,9 +216,13 @@ Public Function getDefaultChantier(NbDefaultDepenses As Integer) As Chantier
     Chantier.Depenses = ArrayDepenses
     Chantier.Financements = EmptyFinancements
     Chantier.AutoFinancementStructure = 0
+    Chantier.AutoFinancementStructureFormula = ""
     Chantier.AutoFinancementStructureAnneesPrecedentes = 0
+    Chantier.AutoFinancementStructureAnneesPrecedentesFormula = ""
     Chantier.AutoFinancementAutres = 0
+    Chantier.AutoFinancementAutresFormula = ""
     Chantier.AutoFinancementAutresAnneesPrecedentes = 0
+    Chantier.AutoFinancementAutresAnneesPrecedentesFormula = ""
     getDefaultChantier = Chantier
 End Function
 

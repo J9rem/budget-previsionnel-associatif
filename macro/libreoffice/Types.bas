@@ -52,10 +52,15 @@ Type Chantier
     Depenses() As DepenseChantier
     Financements() As Financement
     AutoFinancementStructure As Double
+    AutoFinancementStructureFormula As String
     AutoFinancementAutres As Double
+    AutoFinancementAutresFormula As String
     AutoFinancementStructureAnneesPrecedentes As Double
+    AutoFinancementStructureAnneesPrecedentesFormula As String
     AutoFinancementAutresAnneesPrecedentes As Double
+    AutoFinancementAutresAnneesPrecedentesFormula As String
     CAanneesPrecedentes As Double
+    CAanneesPrecedentesFormula As String
 End Type
 
 Type SetOfChantiers
@@ -211,9 +216,13 @@ Public Function getDefaultChantier(NbDefaultDepenses As Integer) As Chantier
     Chantier.Depenses = getDefaultDepenses(NbDefaultDepenses)
     Chantier.Financements = EmptyFinancements
     Chantier.AutoFinancementStructure = 0
+    Chantier.AutoFinancementStructureFormula = ""
     Chantier.AutoFinancementStructureAnneesPrecedentes = 0
+    Chantier.AutoFinancementStructureAnneesPrecedentesFormula = ""
     Chantier.AutoFinancementAutres = 0
+    Chantier.AutoFinancementAutresFormula = ""
     Chantier.AutoFinancementAutresAnneesPrecedentes = 0
+    Chantier.AutoFinancementAutresAnneesPrecedentesFormula = ""
     getDefaultChantier = Chantier
 End Function
 
