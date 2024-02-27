@@ -688,7 +688,7 @@ Public Sub Chantiers_And_Personal_Import_Salaries( _
                         True
                     If Not (BaseCellChantierReal Is Nothing) Then
                         Salaries_Import_Value_Or_Formula _
-                            BaseCellChantierReal.Cells(4 + Index, 1 + 3 * (IndexChantier - 1)), _
+                            BaseCellChantierReal.Cells(4 + Index, 2 + 3 * (IndexChantier - 1)), _
                             DonneesSalarie.JoursChantiersReal(IndexChantier), _
                             DonneesSalarie.JoursChantiersFormulaReal(IndexChantier), _
                             True
@@ -2501,6 +2501,7 @@ Public Sub Chantiers_Salaries_ChangeNB( _
         Optional IsRealSheet As Boolean = False _
     )
     Dim BaseCell As Range
+    Dim CurrentChantier As Integer
     Dim CurrentSheet As Worksheet
     Dim CurrentSheetName As String
     Dim NBChantiers As Integer
@@ -2508,9 +2509,9 @@ Public Sub Chantiers_Salaries_ChangeNB( _
     Dim RealFinalNB As Integer
     Dim TmpRange As Range
     
+    NBChantiers = GetNbChantiers(wb)
     If IsRealSheet Then
         CurrentSheetName = Nom_Feuille_Budget_chantiers_realise
-        NBChantiers = GetNbChantiers(wb)
         NBExtraColsInternal = 3 * NBChantiers + 1 + NBExtraCols
     Else
         CurrentSheetName = Nom_Feuille_Budget_chantiers
@@ -2554,8 +2555,13 @@ Public Sub Chantiers_Salaries_ChangeNB( _
         End If
     End If
     If FinalNB <= 1 And PreviousNB > 1 Then
-        Range(BaseCell.Cells(3, 1), Common_FindNextNotEmpty(BaseCell, False).Cells(3, 1)).ClearContents
-        Range(BaseCell.Cells(3 + RealFinalNB + 2, 1), Common_FindNextNotEmpty(BaseCell, False).Cells(3 + RealFinalNB + 2, 1)).ClearContents
+        If IsRealSheet Then
+            For CurrentChantier = 1 To NBChantiers
+                BaseCell.Cells(3, 1 + 3 * CurrentChantier).ClearContents
+            Next CurrentChantier
+        Else
+            Range(BaseCell.Cells(3, 3), BaseCell.Cells(3, 2 + NBChantiers)).ClearContents
+        End If
     End If
     
 End Sub
