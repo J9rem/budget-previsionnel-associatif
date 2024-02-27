@@ -523,8 +523,7 @@ Public Sub DefinirFormatPourChantier( _
 		oCellRange.NumberFormat = oFormat
 	Else
 		If IsPercent Then
-			oFormat = CellSetNumberFormat("NumberFormatPercent",ThisComponent)
-			' oFormat = CellSetNumberFormat("0"" ""%",ThisComponent)
+			oFormat = CellSetNumberFormat("0"" ""%",ThisComponent)
 			oCellRange.NumberFormat = oFormat
 		End If
 	End If
