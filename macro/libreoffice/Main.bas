@@ -162,7 +162,15 @@ End Sub
 
 ' Macro pour insérer une dépense
 Public Sub InsererUneDepense()
+
+    Dim CurrentWs As Worksheet
     Dim NBChantiers As Integer
+    Dim wb As Workbook
+    
+    Set wb = ThisWorkbook
+    Set CurrentWs = wb.ActiveSheet
     NBChantiers = Chantiers_Depenses_Insert_One()
     Chantiers_Depenses_Insert_Real_One NBChantiers
+    
+    CurrentWs.Activate
 End Sub
