@@ -133,7 +133,7 @@ Public Function BudgetGlobal_Depenses_Add(wb As Workbook, Data As Data, BaseCell
     Set BudgetGlobal_Depenses_Add = CurrentCell
 End Function
 
-Public Sub BudgetGlobal_Depenses_Clean(BaseCell)
+Public Sub BudgetGlobal_Depenses_Clean(BaseCell As Range, IsReal As Boolean)
     Dim Anchor As String
 
     Anchor = "Total "
@@ -141,6 +141,12 @@ Public Sub BudgetGlobal_Depenses_Clean(BaseCell)
     ' remove others lines and leave one formatted
     While Left(BaseCell.Cells(2, 1).Value, Len(Anchor)) <> Anchor
         Range(BaseCell.Cells(2, 1), BaseCell.Cells(2, 3)).Delete Shift:=xlShiftUp
+        If IsReal Then
+            Range( _
+                BaseCell.Cells(2, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+                BaseCell.Cells(2, Offset_NB_Cols_For_Percent_In_CptResultReal + 3) _
+            ).Delete Shift:=xlShiftUp
+        End If
     Wend
 End Sub
 
@@ -313,6 +319,20 @@ Public Function BudgetGlobal_InsertLineAndFormat( _
     Set BudgetGlobal_InsertLineAndFormat = BaseCell
 End Function
 
+' Function to get formula to calculate CptResult
+' @param Range BaseCell in CptResult sheet
+' @param Integer NBChantiers
+' @return Integer() ChantiersToAdd Base 0 with ChantiersToAdd(0) = 0 if error
+Public Function CptResult_GetChantiersToAdd(BaseCell As Range, NBChantiers As Integer)
+
+    Dim OutputArray() As Integer
+
+    ReDim OutputArray(0)
+    OutputArray(0) = 0
+
+    CptResult_GetChantiersToAdd = OutputArray
+End Function
+
 Public Function CptResult_FindEndOfHeaderTable(BaseCell As Range) As Range
 
     Dim WorkingCell As Range
@@ -372,6 +392,7 @@ Public Function CptResult_Update_ForASheet( _
     Dim BaseCell As Range
     Dim ChantierSheet As Worksheet
     Dim ChantierSheetReal As Worksheet
+    Dim ChantiersToAdd() As Integer
     Dim CurrentActiveSheet As Worksheet
     Dim CurrentSheet As Worksheet
     Dim Data As Data
@@ -379,6 +400,7 @@ Public Function CptResult_Update_ForASheet( _
     Dim EndOfHeaderCellRelative As Range
     Dim IsGlobal As Boolean
     Dim IsReal As Boolean
+    Dim NBChantiers As Intger
     Dim RelativeSheet As Worksheet
     Dim rev As WbRevision
     Dim Suffix As String
@@ -411,6 +433,7 @@ Public Function CptResult_Update_ForASheet( _
     IsGlobal = (Suffix = Nom_Feuille_CptResult_suffix)
 
     rev = DetecteVersion(wb)
+    NBChantiers = GetNbChantiers(wb)
     Data = Extract_Data_From_Table(wb, rev)
 
     ' === find sheets ====
@@ -449,6 +472,36 @@ Public Function CptResult_Update_ForASheet( _
     Else
         Set EndOfHeaderCellRelative = Nothing
     End If
+
+    If IsGlobal Then
+        ReDim ChantiersToAdd(0 To 0)
+        ChantiersToAdd(0) = 0
+    Else
+        ChantiersToAdd = CptResult_GetChantiersToAdd(BaseCell, NBChantiers)
+        If UBound(ChantiersToAdd) = 0 Then
+            If Not IsReal Then
+                MsgBox Replace( _
+                    T_Error_Formula_In_CptResult, _
+                    "%adr%", _
+                    BaseCell.Cells(-2, Offset_NB_Cols_For_Percent_In_CptResultReal).Address(False, False, xlA1, True) _
+                )
+            End If
+            ReDim ChantiersToAdd(0 To 1)
+            ChantiersToAdd(0) = -1
+            ChantiersToAdd(1) = 1
+        End If
+    End If
+
+    BudgetGlobal_Depenses_Clean EndOfHeaderCell, IsReal
+    BudgetGlobal_Depenses_Add _
+        wb, _
+        Data, _
+        EndOfHeaderCell, _
+        EndOfHeaderCellRelative, _
+        IsReal, _
+        IsGlobal, _
+        TestReal, _
+        ChantiersToAdd
     
     ' Produits
     Set BaseCell = BaseCell.Cells(1, 5)
