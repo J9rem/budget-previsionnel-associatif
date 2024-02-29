@@ -330,30 +330,50 @@ End Function
 ' Macro pour mettre a jour le budget update
 Public Sub CptResult_Update(wb As Workbook)
 
-    Dim Data As Data
-    Dim CurrentSheet As Worksheet
+    Dim CurrentActiveSheet As Worksheet
+
+    Set CurrentActiveSheet = wb.ActiveSheet
+
+    CptResult_Update_ForASheet wb, CurrentActiveSheet.Name
+
+End Sub
+
+' Function that update content of CptResult
+' @param Workbook wb
+' @param String PageName
+' @param Boolean TestReal = False
+' @return Boolean False If Error
+Public Function CptResult_Update_ForASheet( _
+        wb As Workbook, _
+        PageName As String, _
+        Optional TestReal As Boolean = False _
+    ) As Boolean
+
     Dim BaseCell As Range
     Dim ChantierSheet As Worksheet
+    Dim CurrentActiveSheet As Worksheet
     Dim rev As WbRevision
         
     SetSilent
-    
+
+    CptResult_Update_ForASheet = False
+    Set CurrentActiveSheet = wb.ActiveSheet
     rev = DetecteVersion(wb)
     Data = Extract_Data_From_Table(wb, rev)
     Set CurrentSheet = wb.Worksheets(Nom_Feuille_CptResult_prefix & Nom_Feuille_CptResult_suffix)
     If CurrentSheet Is Nothing Then
         MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_CptResult_prefix & Nom_Feuille_CptResult_suffix)
-        GoTo EndSub
+        GoTo EndCptResultUpdateForASheet
     End If
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
     If ChantierSheet Is Nothing Then
         MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Budget_chantiers)
-        GoTo EndSub
+        GoTo EndCptResultUpdateForASheet
     End If
     
     Set BaseCell = CurrentSheet.Cells(1, 1).EntireColumn.Find("Compte")
     If BaseCell Is Nothing Then
-        GoTo EndSub
+        GoTo EndCptResultUpdateForASheet
     End If
     Set BaseCell = BaseCell.Cells(2, 1)
     While BaseCell.Value = "" Or Len(BaseCell.Value) = 0 Or CInt(BaseCell.Value) < 60 Or CInt(BaseCell.Value) > 69
@@ -375,16 +395,18 @@ Public Sub CptResult_Update(wb As Workbook)
     Wend
 
     If Not BudgetGlobal_Financements_Add(wb, Data, BaseCell) Then
-        GoTo EndSub
+        GoTo EndCptResultUpdateForASheet
     End If
     
     ' Egaliser la longueur des colonnes
     BudgetGlobal_EgaliserLesColonnes CurrentSheet
+    CptResult_Update_ForASheet = True
     
-EndSub:
+EndCptResultUpdateForASheet:
+    CurrentActiveSheet.Activate
     Application.DisplayAlerts = True
     SetActive
     BaseCell.EntireRow.Cells(1, 1).EntireColumn.Cells(1, 1).Select
 
-End Sub
+End Function
 
