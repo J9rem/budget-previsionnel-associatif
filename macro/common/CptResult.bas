@@ -57,8 +57,10 @@ Public Function BudgetGlobal_Depenses_Add_From_Charges( _
         TestReal As Boolean _
     )
 
+    Dim CanAdd As Boolean
     Dim Charges() As Charge
     Dim currentCharge As Charge
+    Dim CurrentBaseCell As Range
     Dim CurrentCell As Range
     Dim Index As Integer
 
@@ -69,12 +71,49 @@ Public Function BudgetGlobal_Depenses_Add_From_Charges( _
         currentCharge = Charges(Index)
         
         If currentCharge.IndexTypeCharge = IndexFound Then
+            CanAdd = IsGlobal
+            If Not CanAdd Then
+                If IsReal Or TestReal Then
+                    CanAdd = (currentCharge.ChargeCell.Cells(1, 4).Value <> 0) _
+                        And (currentCharge.ChargeCell.Cells(1, 5).Value <> 0)
+                Else
+                    CanAdd = (currentCharge.ChargeCell.Cells(1, 4).Value <> 0)
+                End If
+            End If
+
+            If CanAdd Then 
             
-            Set CurrentCell = BudgetGlobal_InsertLineAndFormat(CurrentCell, HeadCell, False)
-            CurrentCell.Value = ""
-            CurrentCell.Cells(1, 2).Formula = "=" & CleanAddress(currentCharge.ChargeCell.address(False, False, xlA1, True))
-            ' Be carefull to the number of columns if a 'charges' coles is added
-            CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress(currentCharge.ChargeCell.Cells(1, 4).address(False, False, xlA1, True))
+                Set CurrentBaseCell = CurrentCell
+                Set CurrentCell = BudgetGlobal_InsertLineAndFormat(CurrentBaseCell, HeadCell, False)
+                CurrentCell.Value = ""
+                CurrentCell.Cells(1, 2).Formula = "=" & CleanAddress(currentCharge.ChargeCell.address(False, False, xlA1, True))
+                ' TODO manage not IsGlobal
+                If Not IsReal Then
+                    ' Be carefull to the number of columns if a 'charges' cols is added
+                    CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress(currentCharge.ChargeCell.Cells(1, 4).address(False, False, xlA1, True))
+                Else
+                    ' Be carefull to the number of columns if a 'charges' cols is added
+                    CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+                        currentCharge.ChargeCell.Cells(1, 5).address(False, False, xlA1, True) _
+                    )
+                    ' percent part
+                    Set CurrentBaseCell = BudgetGlobal_InsertLineAndFormat( _
+                        CurrentBaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+                        HeadCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+                        False, _
+                        True _
+                    )
+                    
+                    CurrentBaseCell.Cells(1, 2).Formula = "=" & CleanAddress(CurrentCell.Cells(1, 2).address(False, False, xlA1, True))
+                    CurrentBaseCell.Cells(1, 3).Formula = _
+                        "=" & CleanAddress( _
+                            CurrentCell.Cells(1, 3).address(False, False, xlA1, True) _
+                        ) & "/" & CleanAddress( _
+                            BaseCellRelative.Cells(CurrentCell.Row - BaseCell.Row + 1, 3).address(False, False, xlA1, True) _
+                        )
+                End If
+
+            End If
         End If
     Next Index
     Set BudgetGlobal_Depenses_Add_From_Charges = CurrentCell
