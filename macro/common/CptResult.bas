@@ -313,6 +313,19 @@ Public Function BudgetGlobal_InsertLineAndFormat( _
     Set BudgetGlobal_InsertLineAndFormat = BaseCell
 End Function
 
+Public Function CptResult_IsReal(PageName As String) As Boolean
+
+    CptResult_IsReal = (Left(PageName, Len(Nom_Feuille_CptResult_Real_prefix)) = Nom_Feuille_CptResult_Real_prefix)
+End Function
+
+Public Function CptResult_IsValidatedPageName(PageName As String) As Boolean
+
+    CptResult_IsValidatedPageName = ( _
+        Left(PageName, Len(Nom_Feuille_CptResult_prefix)) = Nom_Feuille_CptResult_prefix _
+        Or CptResult_IsReal(PageName) _
+    )
+End Function
+
 
 ' Macro pour mettre a jour le budget update
 Public Sub CptResult_Update(wb As Workbook)
