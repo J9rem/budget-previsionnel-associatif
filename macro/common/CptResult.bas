@@ -37,11 +37,24 @@ Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
     Set BudgetGlobal_Depenses_Add_From_Chantiers = CurrentCell
 End Function
 
+' add a depense from a charge
+' @param Data Data
+' @param Range BaseCell
+' @param Range HeadCell
+' @param Range BaseCellRelative only for IsReal
+' @param Boolean IsReal
+' @param Boolean IsGlobal
+' @param Boolean TestReal
+' @param String Formula
 Public Function BudgetGlobal_Depenses_Add_From_Charges( _
         Data As Data, _
         BaseCell As Range, _
         HeadCell As Range, _
-        IndexFound As Integer _
+        BaseCellRelative As Range, _
+        IndexFound As Integer, _
+        IsReal As Boolean, _
+        IsGlobal As Boolean, _
+        TestReal As Boolean _
     )
 
     Dim Charges() As Charge
@@ -67,11 +80,16 @@ Public Function BudgetGlobal_Depenses_Add_From_Charges( _
     Set BudgetGlobal_Depenses_Add_From_Charges = CurrentCell
 End Function
 
-Public Function BudgetGlobal_Depenses_Add_Header(BaseCell As Range, CodeValue As Integer, CodeIndex As Integer) As Range
+Public Function BudgetGlobal_Depenses_Add_Header( _
+        BaseCell As Range, _
+        CodeValue As Integer, _
+        CodeIndex As Integer, _
+        Optional IsPercent As Boolean = False _
+    ) As Range
     Dim CurrentCell As Range
     Dim NomTypeCharge As TypeCharge
 
-    Set CurrentCell = BudgetGlobal_InsertLineAndFormat(BaseCell, BaseCell, True)
+    Set CurrentCell = BudgetGlobal_InsertLineAndFormat(BaseCell, BaseCell, True, IsPercent)
     CurrentCell.Value = CodeValue
 
     NomTypeCharge = TypesDeCharges().Values(CodeIndex)
@@ -81,11 +99,35 @@ Public Function BudgetGlobal_Depenses_Add_Header(BaseCell As Range, CodeValue As
     Set BudgetGlobal_Depenses_Add_Header = CurrentCell
 End Function
 
-Public Function BudgetGlobal_Depenses_Add(wb As Workbook, Data As Data, BaseCell As Range) As Range
+' Function that add a depense and return CurrentCell
+' @param Workbook wb
+' @param Data Data
+' @param Range BaseCell
+' @param Range BaseCellRelative only for IsReal
+' @param Boolean IsReal
+' @param Boolean IsGlobal
+' @param Boolean TestReal
+' @param Integer() ChantiersToAdd
+' @return Range CurrentCell
+Public Function BudgetGlobal_Depenses_Add( _
+        wb As Workbook, _
+        Data As Data, _
+        BaseCell As Range, _
+        BaseCellRelative As Range, _
+        IsReal As Boolean, _
+        IsGlobal As Boolean, _
+        TestReal As Boolean, _
+        ChantiersToAdd _
+    ) As Range
+
     Dim CodeValue As Integer
     Dim CodeIndex As Integer
     Dim CurrentCell As Range
+    Dim CurrentCell2 As Range
+    Dim CurrentCellPercent As Range
+    Dim CurrentCellPercent2 As Range
     Dim HeadCell As Range
+    Dim HeadCellPercent As Range
     Dim StartCell As Range
     Dim TotalCell As Range
 
@@ -101,31 +143,47 @@ Public Function BudgetGlobal_Depenses_Add(wb As Workbook, Data As Data, BaseCell
             TotalCell.Cells(1, 3).Formula = TotalCell.Cells(1, 3).Formula _
                 & "+" _
                 & CleanAddress(HeadCell.Cells(1, 3).address(False, False, xlA1))
-            Set CurrentCell = BudgetGlobal_Depenses_Add_From_Charges(Data, HeadCell, HeadCell, CodeIndex)
+            If IsReal Then
+                ' percent part
+                Set HeadCellPercent = BudgetGlobal_Depenses_Add_Header( _
+                    CurrentCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+                    CodeValue, _
+                    CodeIndex, _
+                    True _
+                )
+            End If
+            Set CurrentCell = BudgetGlobal_Depenses_Add_From_Charges( _
+                Data, HeadCell, HeadCell, _
+                BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1), _
+                CodeValue, IsReal, IsGlobal, TestReal
+            )
             Set CurrentCell = BudgetGlobal_Depenses_Add_From_Chantiers(Data, CurrentCell, HeadCell, CodeValue)
 
             If CodeValue = 64 Then
                 ' ajouter les depenses de personnel
-                Set CurrentCell = BudgetGlobal_InsertLineAndFormat(CurrentCell, HeadCell, False)
-                CurrentCell.Value = ""
-                CurrentCell.Cells(1, 2).Value = T_Salary
-                CurrentCell.Cells(1, 2).Font.Bold = True
-                CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress( _
-                    BudgetGlobal_Depenses_SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True) _
-                    ) & "/1.5"
-                Set CurrentCell = BudgetGlobal_InsertLineAndFormat(CurrentCell, HeadCell, False)
-                CurrentCell.Value = ""
-                CurrentCell.Cells(1, 2).Value = "Charges sociales"
-                CurrentCell.Cells(1, 2).Font.Bold = True
-                CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress( _
-                        BudgetGlobal_Depenses_SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True)) _
-                        & "-" & CleanAddress(CurrentCell.Cells(0, 3).address(False, False, xlA1, False) _
-                    )
+                Set CurrentCell = CptResult_Charges_Personal_Add(wb, CurrentCell, HeadCell, T_Salary, Nothing, Nothing)
+                Set CurrentCell2 = CptResult_Charges_Personal_Add(wb, CurrentCell, HeadCell, "Charges sociales", CurrentCell, Nothing)
+                If IsReal Then
+                    ' percent part
+                    CptResult_Charges_Personal_Add wb, CurrentCell, HeadCell, T_Salary, Nothing,  _
+                        BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1)
+                    CptResult_Charges_Personal_Add wb, CurrentCell, HeadCell, "Charges sociales", CurrentCell,  _
+                        BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1)
+                End If
+                Set CurrentCell = CurrentCell2
             End If
 
             ' set sum
             If CurrentCell.Row > HeadCell.Row Then
                 HeadCell.Cells(1, 3).Formula = "=SUM(" & CleanAddress(Range(HeadCell.Cells(2, 3), CurrentCell.Cells(1, 3)).address(False, False, xlA1)) & ")"
+                If IsReal Then
+                    ' percent part
+                    HeadCellPercent.Cells(1, 3).Formula = "=" _
+                        & CleanAddress(HeadCell.Cells(1, 3).address(False, False, xlA1)) _
+                        & "/" & CleanAddress( _
+                            BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 3).address(False, False, xlA1) _
+                        )
+                End If
             End If
         End If
     Next CodeValue
@@ -317,6 +375,50 @@ Public Function BudgetGlobal_InsertLineAndFormat( _
     SetFormatForBudget BaseCell, HeadCell, IsHeader, IsPercent
     
     Set BudgetGlobal_InsertLineAndFormat = BaseCell
+End Function
+
+' add a personal depense for charge in CptResult
+' @param Worksheet wb
+' @param Range CurrentCell
+' @param Range HeadCell
+' @param String Name
+' @param Range FirstLineCell if second line, put Nothing otherwise
+' @param Range HeadCellRelative if percent, put Nothing otherwise
+' @return Range CurrentCell
+Public Function CptResult_Charges_Personal_Add( _
+    wb As Worksheet, _
+    CurrentCell As Range, _
+    HeadCell As Range, _
+    Name As String, _
+    FirstLineCell As Range, _
+    HeadCellRelative As Range _
+) As Range
+
+    Dim WorkingCell As Range
+
+    Set WorkingCell = BudgetGlobal_InsertLineAndFormat(CurrentCell, HeadCell, False)
+    WorkingCell.Value = ""
+    WorkingCell.Cells(1, 2).Value = Name
+    WorkingCell.Cells(1, 2).Font.Bold = True
+    If HeadCellRelativeIs Nothing Then
+        If FirstLineCell Is Nothing Then
+            WorkingCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+                BudgetGlobal_Depenses_SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True) _
+                ) & "/1.5"
+        Else
+            WorkingCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+                    FirstLineCell.Cells(1, 3).address(False, False, xlA1, False) _
+                ) & "*1/3"
+        End If
+    Else
+        WorkingCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 3).Formula = _
+        "=" & CleanAddress( _
+            WorkingCell.Cells(1, 3).address(False, False, xlA1, False)_
+        ) & "/(" & CleanAddress( _
+            HeadCellRelative.Cells(WorkingCell.Row - HeadCell.Row + 1, 3).address(False, False, xlA1, True)_
+        ) & "+1E-9)"
+    End If
+    Set CptResult_Charges_Personal_Add = CurrentCell
 End Function
 
 ' Function to append a new value in array of integer
