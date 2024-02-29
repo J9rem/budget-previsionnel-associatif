@@ -282,7 +282,12 @@ Public Function BudgetGlobal_Financements_Add(wb As Workbook, Data As Data, Star
     BudgetGlobal_Financements_Add = True
 End Function
 
-Public Function BudgetGlobal_InsertLineAndFormat(BaseCell As Range, HeadCell As Range, IsHeader As Boolean) As Range
+Public Function BudgetGlobal_InsertLineAndFormat( _
+        BaseCell As Range, _
+        HeadCell As Range, _
+        IsHeader As Boolean, _
+        Optional IsPercent As Boolean = False_
+    ) As Range
 
     Dim Index As Integer
 
@@ -303,7 +308,7 @@ Public Function BudgetGlobal_InsertLineAndFormat(BaseCell As Range, HeadCell As 
         
     End If
     ' Format cell
-    SetFormatForBudget BaseCell, HeadCell, IsHeader
+    SetFormatForBudget BaseCell, HeadCell, IsHeader, IsPercent
     
     Set BudgetGlobal_InsertLineAndFormat = BaseCell
 End Function

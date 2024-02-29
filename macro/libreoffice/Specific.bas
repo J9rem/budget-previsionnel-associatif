@@ -268,7 +268,7 @@ Public Sub DefineLineStylesForBudget( _
 	End If
 End Sub
 
-Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As Boolean)
+Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As Boolean, IsPercent As Boolean)
 
     Dim IndexBis As Integer
     Dim oSheet
@@ -304,7 +304,11 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As 
 		End If
 			oCellRange.VertJustify  = com.sun.star.table.CellVertJustify.TOP
 		If IndexBis = 3 Then
-			oFormat = CellSetNumberFormat("# ##0,00"" €""",ThisComponent)
+			If IsPercent Then
+				oFormat = CellSetNumberFormat("0"" ""%",ThisComponent)
+			Else
+				oFormat = CellSetNumberFormat("# ##0,00"" €""",ThisComponent)
+			End If
 			oCellRange.NumberFormat = oFormat
 		Else
 			oCellRange.NumberFormat = 0
