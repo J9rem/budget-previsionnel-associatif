@@ -352,17 +352,46 @@ Public Function CptResult_Update_ForASheet( _
     Dim BaseCell As Range
     Dim ChantierSheet As Worksheet
     Dim CurrentActiveSheet As Worksheet
+    Dim IsGlobal As Boolean
+    Dim IsReal As Boolean
+    Dim RelativeSheet As Worksheet
     Dim rev As WbRevision
+    Dim Suffix As String
         
     SetSilent
 
     CptResult_Update_ForASheet = False
     Set CurrentActiveSheet = wb.ActiveSheet
+
+    If Not CptResult_IsValidatedPageName(PageName) Then
+        GoTo EndCptResultUpdateForASheet
+    End If
+
+    IsReal = CptResult_IsReal(PageName)
+    If IsReal Then
+        Suffix = Middle(PageName, Len(Nom_Feuille_CptResult_Real_prefix))
+        Set RelativeSheet = wb.Worksheets(Nom_Feuille_CptResult_prefix & Suffix)
+        If RelativeSheet Is Nothing Then
+            MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_CptResult_prefix & Suffix)
+            GoTo EndCptResultUpdateForASheet
+        End If
+        ' update relative sheet
+        If Not CptResult_Update_ForASheet(wb, Nom_Feuille_CptResult_prefix & Suffix, True) Then
+            GoTo EndCptResultUpdateForASheet
+        End If
+    Else
+        Suffix = Middle(PageName, Len(Nom_Feuille_CptResult_prefix))
+        Set RelativeSheet = Nothing
+    End If
+    IsGlobal = (Suffix = Nom_Feuille_CptResult_suffix)
+
     rev = DetecteVersion(wb)
     Data = Extract_Data_From_Table(wb, rev)
-    Set CurrentSheet = wb.Worksheets(Nom_Feuille_CptResult_prefix & Nom_Feuille_CptResult_suffix)
+
+    ' === find sheets ====
+    Set CurrentSheet = wb.Worksheets(PageName)
     If CurrentSheet Is Nothing Then
-        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_CptResult_prefix & Nom_Feuille_CptResult_suffix)
+        MsgBox Replace(T_NotFoundPage, "%PageName%", PageName)
         GoTo EndCptResultUpdateForASheet
     End If
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
