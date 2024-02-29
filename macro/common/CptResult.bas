@@ -319,18 +319,61 @@ Public Function BudgetGlobal_InsertLineAndFormat( _
     Set BudgetGlobal_InsertLineAndFormat = BaseCell
 End Function
 
+' Function to append a new value in array of integer
+' @param Integer() Values
+' @param Integer Value
+' @return Integer() Values
+Public Function CptResult_AppendInArray(Values, Value)
+
+    Dim FormatedValue As Integer
+    Dim Index AS Integer
+    Dim WorkingArray() As Intger
+
+    ReDim WorkingArray(0 To 0)
+    WorkingArray(0) = 0
+
+    CptResult_AppendInArray = WorkingArray
+
+    FormatedValue = CInt(Value)
+    If Not IsArray(Values) Then
+        Exit Function
+    End If
+    If Not inArray(FormatedValue, Values) Then
+        ReDim WorkingArray(0 To (UBound(Values) + 1))
+        For Index = 0 To UBound(Values)
+            WorkingArray(Index) = Values(Index)
+        Next Index
+        WorkingArray(UBound(Values) + 1) = FormatedValue
+    End If
+    CptResult_AppendInArray = WorkingArray
+End Function
+
 ' Function to get formula to calculate CptResult
 ' @param Range BaseCell in CptResult sheet
 ' @param Integer NBChantiers
 ' @return Integer() ChantiersToAdd Base 0 with ChantiersToAdd(0) = 0 if error
 Public Function CptResult_GetChantiersToAdd(BaseCell As Range, NBChantiers As Integer)
 
+    Dim CellWhereExpectedFormula As Range
+    Dim ExtractedValue As String
     Dim OutputArray() As Integer
 
     ReDim OutputArray(0)
     OutputArray(0) = 0
 
     CptResult_GetChantiersToAdd = OutputArray
+
+    If BaseCell Is Nothing Then
+        Exit Function
+    End If
+
+    Set CellWhereExpectedFormula = BaseCell.Cells(-2, Offset_NB_Cols_For_Percent_In_CptResultReal)
+    If CellWhereExpectedFormula.Value = "" Then
+        Exit Function
+    End If
+    ExtractedValue = CStr(CellWhereExpectedFormula.Value)
+    CptResult_GetChantiersToAdd = CptResult_ValidateFormula(ExtractedValue, NBChantiers)
+
 End Function
 
 Public Function CptResult_FindEndOfHeaderTable(BaseCell As Range) As Range
@@ -364,6 +407,78 @@ Public Function CptResult_IsValidatedPageName(PageName As String) As Boolean
         Left(PageName, Len(Nom_Feuille_CptResult_prefix)) = Nom_Feuille_CptResult_prefix _
         Or CptResult_IsReal(PageName) _
     )
+End Function
+
+' Test if formula is validate and return clean one if asked
+' @param String ExtractedFormula 
+' @param Integer NBChantiers
+' @return Integer() ChantiersToAdd Base 0 with ChantiersToAdd(0) = 0 if error
+Public Function CptResult_ValidateFormula( _
+        ExtractedFormula As String, _
+        NBChantiers As Integer _
+    )
+
+    Dim Index As Integer
+    Dim IndexL2 As Integer
+    Dim OutputArray() As Integer
+    Dim TmpValue As String
+    Dim SecondLevelValues() As String
+    Dim Values() As String
+
+    ReDim OutputArray(0)
+    OutputArray(0) = 0
+
+    CptResult_IsValidatedFormula = OutputArray
+
+    If ExtractedFormula = "" Then
+        Exit Function
+    End If
+
+    Values = Split(ExtractedFormula, ",")
+
+    If Not IsArray(Values) Then
+        Exit Function
+    End If
+    If UBound(Values) < 0 Then
+        Exit Function
+    End If
+
+    ' -1 = all is right
+    OutputArray(0) = -1
+
+    For Index = 0 To UBound(Values)
+        TmpValue = Trim(Values(Index))
+        If InStr(TmpValue, "-") Then
+            SecondLevelValues = Split(TmpValue, "-")
+            If IsArray(SecondLevelValues) _
+                And UBound(SecondLevelValues) = 1 _
+                And CInt(SecondLevelValues(0)) <= CInt(SecondLevelValues(1)) _
+                And CInt(SecondLevelValues(0)) >= 1 _
+                And CInt(SecondLevelValues(1)) >= 1 _
+                And CInt(SecondLevelValues(0)) <= NBChantiers Then
+                If CInt(SecondLevelValues(1)) <= NBChantiers Then
+                    For IndexL2 = CInt(SecondLevelValues(0)) To CInt(SecondLevelValues(1))
+                        OutputArray = CptResult_AppendInArray(OutputArray, IndexL2)
+                    End If
+                Else
+                    OutputArray(0) = 0
+                    For IndexL2 = CInt(SecondLevelValues(0)) To NBChantiers
+                        OutputArray = CptResult_AppendInArray(OutputArray, IndexL2)
+                    End If
+                End If
+            Else
+                OutputArray(0) = 0
+            End If
+        Else
+            If CInt(TmpValue) >= 1 And CInt(TmpValue) <= NBChantiers Then
+                OutputArray = CptResult_AppendInArray(OutputArray, CInt(TmpValue))
+            Else
+                OutputArray(0) = 0
+            End If
+        End If
+    Next Index
+
+    CptResult_IsValidatedFormula = OutputArray
 End Function
 
 
