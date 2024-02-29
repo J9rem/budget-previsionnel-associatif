@@ -119,7 +119,7 @@ Public Function importData(FileName As String) As Boolean
     prepareFichier ThisWorkbook, PreviousNBSalarie, PreviousNBChantiers
     CopyPreviousValues oldWorkbook, ThisWorkbook, PreviousRevision
     On Error Resume Next
-    MettreAJourBudgetGlobal ThisWorkbook
+    CptResult_Update ThisWorkbook
     On Error GoTo 0
     
     ' copie des onglets avant la copie des donnees pour eviter les autres erreurs

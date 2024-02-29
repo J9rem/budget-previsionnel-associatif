@@ -90,7 +90,7 @@ End Sub
 
 Public Sub MettreAJourBudgetGlobalForCurrent()
     If throwNotOdsNotInExcel() Then
-        MettreAJourBudgetGlobal ThisWorkbook
+        CptResult_Update ThisWorkbook
     End If
 End Sub
 
