@@ -313,6 +313,26 @@ Public Function BudgetGlobal_InsertLineAndFormat( _
     Set BudgetGlobal_InsertLineAndFormat = BaseCell
 End Function
 
+Public Function CptResult_FindEndOfHeaderTable(BaseCell As Range) As Range
+
+    Dim WorkingCell As Range
+
+    If BaseCell Is Nothing Then
+        Set CptResult_FindEndOfHeaderTable = Nothing
+    End If
+    Set WorkingCell = BaseCell.Cells(2, 1)
+    While WorkingCell.Row < 1000 And ( _
+            WorkingCell.Value = "" _
+            Or Len(WorkingCell.Value) = 0 _
+            Or CInt(WorkingCell.Value) < 60 _
+            Or CInt(WorkingCell.Value) > 69 _
+        )
+        Set WorkingCell = WorkingCell.Cells(2, 1)
+    Wend
+    
+    Set CptResult_FindEndOfHeaderTable = WorkingCell.Cells(0, 1)
+End Function
+
 Public Function CptResult_IsReal(PageName As String) As Boolean
 
     CptResult_IsReal = (Left(PageName, Len(Nom_Feuille_CptResult_Real_prefix)) = Nom_Feuille_CptResult_Real_prefix)
@@ -351,7 +371,12 @@ Public Function CptResult_Update_ForASheet( _
 
     Dim BaseCell As Range
     Dim ChantierSheet As Worksheet
+    Dim ChantierSheetReal As Worksheet
     Dim CurrentActiveSheet As Worksheet
+    Dim CurrentSheet As Worksheet
+    Dim Data As Data
+    Dim EndOfHeaderCell As Range
+    Dim EndOfHeaderCellRelative As Range
     Dim IsGlobal As Boolean
     Dim IsReal As Boolean
     Dim RelativeSheet As Worksheet
@@ -399,25 +424,33 @@ Public Function CptResult_Update_ForASheet( _
         MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Budget_chantiers)
         GoTo EndCptResultUpdateForASheet
     End If
+    If IsReal Then
+        Set ChantierSheetReal = wb.Worksheets(Nom_Feuille_Budget_chantiers_realise)
+        If ChantierSheetReal Is Nothing Then
+            MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Budget_chantiers_realise)
+            GoTo EndCptResultUpdateForASheet
+        End If
+    Else
+        Set ChantierSheetReal = Nothing
+    End If
     
     Set BaseCell = CurrentSheet.Cells(1, 1).EntireColumn.Find("Compte")
-    If BaseCell Is Nothing Then
+    Set EndOfHeaderCell = CptResult_FindEndOfHeaderTable(BaseCell)
+    If EndOfHeaderCell Is Nothing Then
         GoTo EndCptResultUpdateForASheet
     End If
-    Set BaseCell = BaseCell.Cells(2, 1)
-    While BaseCell.Value = "" Or Len(BaseCell.Value) = 0 Or CInt(BaseCell.Value) < 60 Or CInt(BaseCell.Value) > 69
-        Set BaseCell = BaseCell.Cells(2, 1)
-    Wend
-    
-    Set BaseCell = BaseCell.Cells(0, 1)
-    BudgetGlobal_Depenses_Clean BaseCell
-    BudgetGlobal_Depenses_Add wb, Data, BaseCell
+    If IsReal Then
+        Set EndOfHeaderCellRelative = CptResult_FindEndOfHeaderTable( _
+            RelativeSheet.Cells(1, 1).EntireColumn.Find("Compte")
+        )
+        If EndOfHeaderCellRelative Is Nothing Then
+            GoTo EndCptResultUpdateForASheet
+        End If
+    Else
+        Set EndOfHeaderCellRelative = Nothing
+    End If
     
     ' Produits
-    Set BaseCell = CurrentSheet.Cells(1, 1).EntireColumn.Find("Compte")
-    If BaseCell Is Nothing Then
-        GoTo EndSub
-    End If
     Set BaseCell = BaseCell.Cells(1, 5)
     While BaseCell.Value = "" Or BaseCell.Value <> 70
         Set BaseCell = BaseCell.Cells(2, 1)
