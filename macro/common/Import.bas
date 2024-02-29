@@ -41,7 +41,9 @@ Public Sub ImportSheets(oldWorkbook As Workbook, NewWorkbook As Workbook)
     DefSheetNames = DefaultSheetsNames()
     
     For Each ws In oldWorkbook.Worksheets
-        If Not inArray(ws.Name, DefSheetNames) Then
+        If Not inArray(ws.Name, DefSheetNames) _
+            And Left(ws.Name, Len(Nom_Feuille_CptResult_prefix)) <> Nom_Feuille_CptResult_prefix _
+            And Left(ws.Name, Len(Nom_Feuille_CptResult_Real_prefix)) <> Nom_Feuille_CptResult_Real_prefix Then
             If Not FindWorkSheet(NewWorkbook, NewWs, ws.Name) Then
                 ' Create the new sheet
                 Set NewWs = AddWorksheetAtEnd(NewWorkbook, ws.Name)

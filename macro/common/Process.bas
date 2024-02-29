@@ -3716,9 +3716,9 @@ Public Sub MettreAJourBudgetGlobal(wb As Workbook)
     
     rev = DetecteVersion(wb)
     Data = Extract_Data_From_Table(wb, rev)
-    Set CurrentSheet = wb.Worksheets(Nom_Feuille_Budget_global)
+    Set CurrentSheet = wb.Worksheets(Nom_Feuille_CptResult_prefix & Nom_Feuille_CptResult_suffix)
     If CurrentSheet Is Nothing Then
-        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Budget_global)
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_CptResult_prefix & Nom_Feuille_CptResult_suffix)
         GoTo EndSub
     End If
     Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
