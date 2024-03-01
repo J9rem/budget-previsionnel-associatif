@@ -16,7 +16,7 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
         & "Excel avec macro (*.xlsm),*.xlsm," _
         & "Libre Office (*.ods),*.ods", _
         0, _
-        "Choisir le fichier à importer" _
+        "Choisir le fichier ï¿½ importer" _
     )
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" _
@@ -42,8 +42,7 @@ Public Sub ImportSheets(oldWorkbook As Workbook, NewWorkbook As Workbook)
     
     For Each ws In oldWorkbook.Worksheets
         If Not inArray(ws.Name, DefSheetNames) _
-            And Left(ws.Name, Len(Nom_Feuille_CptResult_prefix)) <> Nom_Feuille_CptResult_prefix _
-            And Left(ws.Name, Len(Nom_Feuille_CptResult_Real_prefix)) <> Nom_Feuille_CptResult_Real_prefix Then
+            And Not (CptResult_IsValidatedPageName(ws.Name)) Then
             If Not FindWorkSheet(NewWorkbook, NewWs, ws.Name) Then
                 ' Create the new sheet
                 Set NewWs = AddWorksheetAtEnd(NewWorkbook, ws.Name)
