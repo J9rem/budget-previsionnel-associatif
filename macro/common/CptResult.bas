@@ -235,13 +235,7 @@ Public Sub BudgetGlobal_Depenses_Clean(BaseCell As Range, IsReal As Boolean)
 
     ' remove others lines and leave one formatted
     While Left(BaseCell.Cells(2, 1).Value, Len(Anchor)) <> Anchor
-        Range(BaseCell.Cells(2, 1), BaseCell.Cells(2, 3)).Delete Shift:=xlShiftUp
-        If IsReal Then
-            Range( _
-                BaseCell.Cells(2, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
-                BaseCell.Cells(2, Offset_NB_Cols_For_Percent_In_CptResultReal + 3) _
-            ).Delete Shift:=xlShiftUp
-        End If
+        CptResult_Clean_Lines(BaseCell.Cells(2, 1), BaseCell.Cells(2, 3), IsReal)
     Wend
 End Sub
 
@@ -345,13 +339,7 @@ Public Function BudgetGlobal_Financements_Add( _
     
     ' remove others lines and leave one formatted
     While BaseCell.Cells(2, 1).Value = ""
-        Range(BaseCell.Cells(2, 1), BaseCell.Cells(2, 3)).Delete Shift:=xlShiftUp
-        If IsReal Then
-            Range( _
-                BaseCell.Cells(2, 1 + Offset_NB_Cols_For_Percent_In_CptResultReal), _
-                BaseCell.Cells(2, 3 + Offset_NB_Cols_For_Percent_In_CptResultReal) _
-            ).Delete Shift:=xlShiftUp
-        End If
+        CptResult_Clean_Lines(BaseCell.Cells(2, 1), BaseCell.Cells(2, 3), IsReal)
     Wend
     
     If BaseCell.Row > HeadCell.Row Then
@@ -416,7 +404,7 @@ Public Function BudgetGlobal_Financements_Add( _
     
     ' remove others lines and leave one formatted
     While BaseCell.Cells(2, 1).Value = ""
-        Range(BaseCell.Cells(2, 1), BaseCell.Cells(2, 3)).Delete Shift:=xlShiftUp
+        CptResult_Clean_Lines(BaseCell.Cells(2, 1), BaseCell.Cells(2, 3), IsReal)
     Wend
     
     For Index = 1 To 3
@@ -462,6 +450,7 @@ End Function
 ' @param Boolean IsHeader
 ' @param Range BaseCellRelative
 ' @param Range StartCell
+' @return Range NewBaseCellPercent
 Public Function BudgetGlobal_InsertLineAndFormat_Percent( _
         BaseCell As Range, _
         HeadCell As Range, _
@@ -499,6 +488,7 @@ End Function
 ' @param Range BaseCellRelative
 ' @param Financement Financement
 ' @param Integer NBChantiers
+' @return Range NewBaseCell
 Public Function CptResult_Add_A_LineOfFinancement( _
         BaseCellParam As Range, _
         HeadCell As Range, _
@@ -575,6 +565,24 @@ Public Function CptResult_Charges_Personal_Add( _
     End If
     Set CptResult_Charges_Personal_Add = CurrentCell
 End Function
+
+' clean lines and if needed percent lines
+' @param Range FirstCell
+' @param Range LastCell
+' @param Boolean IsReal
+Public Sub CptResult_Clean_Lines( _
+        FirstCell As Range, _
+        LastCell As Range, _
+        IsReal As Boolean, _
+    )
+    Range(FirstCell, LastCell).Delete Shift:=xlShiftUp
+    If IsReal Then
+        Range( _
+            FirstCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+            LastCell.Cells(2, Offset_NB_Cols_For_Percent_In_CptResultReal + 1) _
+        ).Delete Shift:=xlShiftUp
+    End If
+End Sub
 
 ' Function to append a new value in array of integer
 ' @param Integer() Values
