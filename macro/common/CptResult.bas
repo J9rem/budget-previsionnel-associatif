@@ -80,7 +80,7 @@ Public Function BudgetGlobal_Depenses_Add_From_Charges( _
                 End If
             End If
 
-            If CanAdd Then 
+            If CanAdd Then
             
                 Set CurrentBaseCell = CurrentCell
                 Set CurrentCell = BudgetGlobal_InsertLineAndFormat(CurrentBaseCell, HeadCell, False)
@@ -203,9 +203,9 @@ Public Function BudgetGlobal_Depenses_Add( _
                 Set CurrentCell2 = CptResult_Charges_Personal_Add(wb, CurrentCell, HeadCell, "Charges sociales", CurrentCell, Nothing)
                 If IsReal Then
                     ' percent part
-                    CptResult_Charges_Personal_Add wb, CurrentCell, HeadCell, T_Salary, Nothing,  _
+                    CptResult_Charges_Personal_Add wb, CurrentCell, HeadCell, T_Salary, Nothing, _
                         BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1)
-                    CptResult_Charges_Personal_Add wb, CurrentCell, HeadCell, "Charges sociales", CurrentCell,  _
+                    CptResult_Charges_Personal_Add wb, CurrentCell, HeadCell, "Charges sociales", CurrentCell, _
                         BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1)
                 End If
                 Set CurrentCell = CurrentCell2
@@ -300,7 +300,7 @@ Public Sub BudgetGlobal_EgaliserLesColonnes(ws As Worksheet)
     
 End Sub
 
-' define finincement 
+' define financement
 ' @param Workbook wb
 ' @param Data Data
 ' @param RangeStartCell
@@ -603,7 +603,7 @@ End Sub
 Public Function CptResult_AppendInArray(Values, Value)
 
     Dim FormatedValue As Integer
-    Dim Index AS Integer
+    Dim Index As Integer
     Dim WorkingArray() As Intger
 
     ReDim WorkingArray(0 To 0)
@@ -703,7 +703,7 @@ Public Function CptResult_IsValidatedPageName(PageName As String) As Boolean
 End Function
 
 ' Test if formula is validate and return clean one if asked
-' @param String ExtractedFormula 
+' @param String ExtractedFormula
 ' @param Integer NBChantiers
 ' @return Integer() ChantiersToAdd Base 0 with ChantiersToAdd(0) = 0 if error
 Public Function CptResult_ValidateFormula( _
@@ -891,7 +891,7 @@ Public Function CptResult_Update_ForASheet( _
                 MsgBox Replace( _
                     T_Error_Formula_In_CptResult, _
                     "%adr%", _
-                    BaseCell.Cells(-2, Offset_NB_Cols_For_Percent_In_CptResultReal).Address(False, False, xlA1, True) _
+                    BaseCell.Cells(-2, Offset_NB_Cols_For_Percent_In_CptResultReal).address(False, False, xlA1, True) _
                 )
             End If
             ReDim ChantiersToAdd(0 To 1)
