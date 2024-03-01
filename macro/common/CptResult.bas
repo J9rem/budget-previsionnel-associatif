@@ -268,7 +268,7 @@ Public Sub BudgetGlobal_EgaliserLesColonnes(ws As Worksheet)
     Dim Ecart As Integer
     Dim Index As Integer
     Dim BaseCell As Range
-    Dim HeadCell
+    Dim BaseCellTmp As Range
     
     Set EndFirstCol = ws.Cells.Find(T_Total_Charges & " (1) + (2)")
     Set EndSecondCol = ws.Cells.Find("Total Financements (1) + (2)+ (3)")
@@ -282,7 +282,16 @@ Public Sub BudgetGlobal_EgaliserLesColonnes(ws As Worksheet)
     End If
     
     For Index = 1 To Ecart
-        Set BaseCell = BudgetGlobal_InsertLineAndFormat(BaseCell, BaseCell.Cells(-1, 1), False)
+        Set BaseCellTmp = BudgetGlobal_InsertLineAndFormat(BaseCell, BaseCell.Cells(-1, 1), False)
+        ' manage percent
+        If IsReal Then
+            BudgetGlobal_InsertLineAndFormat _
+                BaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+                BaseCell.Cells(-1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+                False, _
+                True
+        End If
+        Set BaseCell = BaseCellTmp
     Next Index
     
     For Index = 1 To 3
@@ -409,6 +418,9 @@ Public Function BudgetGlobal_Financements_Add( _
     
     For Index = 1 To 3
         AddBottomBorder BaseCell.Cells(1, Index)
+        If IsReal Then
+            AddBottomBorder BaseCell.Cells(1, Index + Offset_NB_Cols_For_Percent_In_CptResultReal)
+        End If
     Next Index
     BudgetGlobal_Financements_Add = True
 End Function
