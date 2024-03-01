@@ -319,7 +319,6 @@ Public Function BudgetGlobal_Financements_Add( _
     ) As Boolean
 
     Dim BaseCell As Range
-    Dim BaseCellPercent As Range
     Dim Chantier As Chantier
     Dim Chantiers() As Chantier
     Dim Financement As Financement
@@ -339,36 +338,8 @@ Public Function BudgetGlobal_Financements_Add( _
     For Index = 1 To UBound(Chantier.Financements)
         Financement = Chantier.Financements(Index)
         If Financement.TypeFinancement = 0 Then
-            Set BaseCell = BudgetGlobal_InsertLineAndFormat(BaseCell, HeadCell, False)
-            If IsReal Then
-                BaseCell.Cells(1, 2).Formula = "=" & CleanAddress( _
-                    Financement.BaseCellReal.Cells(1, 0).address(False, False, xlA1, True) _
-                )
-                BaseCell.Cells(1, 3).Formula = "=" & CleanAddress( _
-                    Financement.BaseCellReal.Cells(1, 1 + 3 * NBChantiers).address(False, False, xlA1, True) _
-                )
-                ' percent part
-                Set BaseCellPercent = BudgetGlobal_InsertLineAndFormat(
-                        BaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
-                        HeadCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
-                        False, _
-                        True _
-                    )
-                BaseCellPercent.Cells(1, 2).Formula = "=" & CleanAddress( _
-                    BaseCell.Cells(1, 2).address(False, False, xlA1, False) _
-                )
-                BaseCellPercent.Cells(1, 3).Formula = CptResult_GetFormulaForPercent( _
-                    BaseCell.Cells(1, 3), _
-                    BaseCellRelative.Cells(BaseCell.Row - StartCell.Row + 1, 3) _
-                )
-            Else
-                BaseCell.Cells(1, 2).Formula = "=" & CleanAddress( _
-                    Financement.BaseCell.Cells(1, 0).address(False, False, xlA1, True) _
-                )
-                BaseCell.Cells(1, 3).Formula = "=" & CleanAddress( _
-                    Financement.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True) _
-                )
-            End If
+            Set BaseCell = CptResult_Add_A_LineOfFinancement( _
+                BaseCell, HeadCell, StartCell, IsReal, BaseCellRelative, Financement, NBChantiers)
         End If
     Next Index
     
@@ -415,13 +386,18 @@ Public Function BudgetGlobal_Financements_Add( _
         Set BaseCell = BudgetGlobal_InsertLineAndFormat(BaseCell, HeadCell, False)
         BaseCell.Cells(1, 2).Value = TypesFinancements(IndexTypeFinancement)
         BaseCell.Cells(1, 3).Value = 0
-
-        ' TODO manage percent
+        FormatFinancementCells BaseCell
+        
+        If IsReal Then
+            FormatFinancementCells BudgetGlobal_InsertLineAndFormat_Percent( _
+                BaseCell, HeadCell, False, StartCell, BaseCellRelative)
+        End If
 
         ' TODO manage IsGlobal
         
-        FormatFinancementCells BaseCell
-        HeadCell.Cells(1, 3).Formula = HeadCell.Cells(1, 3).Formula & "+" & CleanAddress(BaseCell.Cells(1, 3).address(False, False, xlA1))
+        HeadCell.Cells(1, 3).Formula = HeadCell.Cells(1, 3).Formula _
+            & "+" _
+            & CleanAddress(BaseCell.Cells(1, 3).address(False, False, xlA1))
         Set HeadCellFinancement = BaseCell
         Chantiers = Data.Chantiers
         NBChantiers = UBound(Chantiers)
@@ -429,9 +405,8 @@ Public Function BudgetGlobal_Financements_Add( _
         For Index = 1 To UBound(Chantier.Financements)
             Financement = Chantier.Financements(Index)
             If Financement.TypeFinancement = IndexTypeFinancement Then
-                Set BaseCell = BudgetGlobal_InsertLineAndFormat(BaseCell, HeadCellFinancement, False)
-                BaseCell.Cells(1, 2).Formula = "=" & CleanAddress(Financement.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
-                BaseCell.Cells(1, 3).Formula = "=" & CleanAddress(Financement.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
+                Set BaseCell = CptResult_Add_A_LineOfFinancement( _
+                    BaseCell, HeadCellFinancement, StartCell, IsReal, BaseCellRelative, Financement, NBChantiers)
             End If
         Next Index
         If BaseCell.Row > HeadCellFinancement.Row Then
@@ -479,6 +454,83 @@ Public Function BudgetGlobal_InsertLineAndFormat( _
     SetFormatForBudget BaseCell, HeadCell, IsHeader, IsPercent
     
     Set BudgetGlobal_InsertLineAndFormat = BaseCell
+End Function
+
+' add line and format for percent
+' @param Range BaseCell
+' @param Range HeadCell
+' @param Boolean IsHeader
+' @param Range BaseCellRelative
+' @param Range StartCell
+Public Function BudgetGlobal_InsertLineAndFormat_Percent( _
+        BaseCell As Range, _
+        HeadCell As Range, _
+        IsHeader As Boolean, _
+        StartCell As Range, _
+        BaseCellRelative As Range_
+    ) As Range
+
+    Dim BaseCellPercent As Range
+
+    Set BaseCellPercent = BudgetGlobal_InsertLineAndFormat(
+            BaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+            HeadCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+            IsHeader, _
+            True _
+        )
+    If BaseCell.Value = "" Then
+        BaseCellPercent.Value = ""
+    End If
+    BaseCellPercent.Cells(1, 2).Formula = "=" & CleanAddress( _
+        BaseCell.Cells(1, 2).address(False, False, xlA1, False) _
+    )
+    BaseCellPercent.Cells(1, 3).Formula = CptResult_GetFormulaForPercent( _
+        BaseCell.Cells(1, 3), _
+        BaseCellRelative.Cells(BaseCell.Row - StartCell.Row + 1, 3) _
+    )
+    Set BudgetGlobal_InsertLineAndFormat_Percent = BaseCellPercent
+End Function
+
+' add a line of financement
+' @param Range BaseCellParam
+' @param Range HeadCell
+' @param Range StartCell
+' @param Boolean IsReal
+' @param Range BaseCellRelative
+' @param Financement Financement
+' @param Integer NBChantiers
+Public Function CptResult_Add_A_LineOfFinancement( _
+        BaseCellParam As Range, _
+        HeadCell As Range, _
+        StartCell As Range, _
+        IsReal As Boolean, _
+        BaseCellRelative As Range, _
+        Financement As Financement, _
+        NBChantiers As Integer _
+    ) As Range
+
+    Dim BaseCell As Range
+
+    Set BaseCell = BaseCellParam
+    Set BaseCell = BudgetGlobal_InsertLineAndFormat(BaseCell, HeadCell, False)
+    If IsReal Then
+        BaseCell.Cells(1, 2).Formula = "=" & CleanAddress( _
+            Financement.BaseCellReal.Cells(1, 0).address(False, False, xlA1, True) _
+        )
+        BaseCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+            Financement.BaseCellReal.Cells(1, 1 + 3 * NBChantiers).address(False, False, xlA1, True) _
+        )
+        BudgetGlobal_InsertLineAndFormat_Percent _
+            BaseCell, HeadCell, False, StartCell, BaseCellRelative
+    Else
+        BaseCell.Cells(1, 2).Formula = "=" & CleanAddress( _
+            Financement.BaseCell.Cells(1, 0).address(False, False, xlA1, True) _
+        )
+        BaseCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+            Financement.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True) _
+        )
+    End If
+    Set CptResult_Add_A_LineOfFinancement = BaseCell
 End Function
 
 ' add a personal depense for charge in CptResult
