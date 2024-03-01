@@ -549,7 +549,7 @@ Public Sub Chantiers_Depenses_Extract_BaseCell( _
     DepensesTmp = ChantierTmp.Depenses
     TmpDepense = DepensesTmp(IdxDepense)
     If IsReal Then
-        Set TmpDepense.BaseCellReal = newRange
+        Set TmpDepense.BaseCellReal = newRange.Cells(1, 0)
     Else
         Set TmpDepense.BaseCell = newRange
     End If

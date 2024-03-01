@@ -3,15 +3,31 @@ Attribute VB_Name = "CptResult"
 ' Pour forcer la declaration de toutes les variables
 Option Explicit
 
+' insert depenses from Chantiers
+' @param Data Data
+' @param Range BaseCell
+' @param Range HeadCell
+' @param Integer CodeValue
+' @param Boolean IsReal
+' @param Range BaseCellRelative
+' @param Boolean IsGlobal
+' @param Boolean TestReal
+' @return Range NewCurrentCell
 Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
         Data As Data, _
         BaseCell As Range, _
         HeadCell As Range, _
-        CodeValue As Integer _
+        CodeValue As Integer, _
+        IsReal As Boolean, _
+        BaseCellRelative As Range, _
+        IsGlobal As Boolean, _
+        TestReal As Boolean _
     )
 
+    Dim CanAdd As Boolean
     Dim Chantier As Chantier
     Dim Chantiers() As Chantier
+    Dim CurrentBaseCell As Range
     Dim CurrentCell As Range
     Dim Depenses() As DepenseChantier
     Dim Depense As DepenseChantier
@@ -28,10 +44,45 @@ Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
     For Index = 1 To UBound(Depenses)
         Depense = Depenses(Index)
         If Left(Depense.Nom, 2) = CStr(CodeValue) Then
-            Set CurrentCell = BudgetGlobal_InsertLineAndFormat(CurrentCell, HeadCell, False)
-            CurrentCell.Value = ""
-            CurrentCell.Cells(1, 2).Formula = "=" & CleanAddress(Depense.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
-            CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress(Depense.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
+            CanAdd = IsGlobal
+            If Not CanAdd Then
+                If IsReal Or TestReal Then
+                    CanAdd = (Depense.BaseCell.Cells(1, 1 + NBChantiers).Value <> 0) _
+                        And (Depense.BaseCellReal.Cells(1, 1 + 3 * NBChantiers).Value <> 0)
+                Else
+                    CanAdd = (Depense.BaseCell.Cells(1, 1 + NBChantiers).Value <> 0)
+                End If
+            End If
+            
+            If CanAdd Then
+                Set CurrentBaseCell = CurrentCell
+                Set CurrentCell = BudgetGlobal_InsertLineAndFormat(CurrentCell, HeadCell, False)
+                CurrentCell.Value = ""
+                ' TODO manage not IsGlobal
+                If Not IsReal Then
+                    CurrentCell.Cells(1, 2).Formula = "=" & CleanAddress(Depense.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
+                    CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress(Depense.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
+                Else
+                    CurrentCell.Cells(1, 2).Formula = "=" & CleanAddress(Depense.BaseCellReal.Cells(1, 0).address(False, False, xlA1, True))
+                    CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+                        Depense.BaseCellReal.Cells(1, 1 + 3 * NBChantiers).address(False, False, xlA1, True) _
+                    )
+                    
+                    ' percent part
+                    Set CurrentBaseCell = BudgetGlobal_InsertLineAndFormat( _
+                        CurrentBaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+                        HeadCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+                        False, _
+                        True _
+                    )
+                    
+                    CurrentBaseCell.Cells(1, 2).Formula = "=" & CleanAddress(CurrentCell.Cells(1, 2).address(False, False, xlA1, True))
+                    CurrentBaseCell.Cells(1, 3).Formula = CptResult_GetFormulaForPercent( _
+                            CurrentCell.Cells(1, 3), _
+                            BaseCellRelative.Cells(CurrentCell.Row - BaseCell.Row + 1, 3) _
+                        )
+                End If
+            End If
         End If
     Next Index
     Set BudgetGlobal_Depenses_Add_From_Chantiers = CurrentCell
@@ -45,6 +96,7 @@ End Function
 ' @param Boolean IsReal
 ' @param Boolean IsGlobal
 ' @param Boolean TestReal
+' @return Range NewCurrenCell
 Public Function BudgetGlobal_Depenses_Add_From_Charges( _
         Data As Data, _
         BaseCell As Range, _
@@ -165,6 +217,7 @@ Public Function BudgetGlobal_Depenses_Add( _
     Dim SecondLineCell As Range
     Dim StartCell As Range
     Dim TmpBaseCellRelative As Range
+    Dim TmpBaseCellRelative2 As Range
     Dim TotalCell As Range
 
     Set TotalCell = BaseCell.Cells(2, 1)
@@ -188,15 +241,19 @@ Public Function BudgetGlobal_Depenses_Add( _
                     True _
                 )
                 Set TmpBaseCellRelative = BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1)
+                Set TmpBaseCellRelative2 = BaseCellRelative
             Else
                 Set TmpBaseCellRelative = Nothing
+                Set TmpBaseCellRelative2 = Nothing
             End If
             Set CurrentCell = BudgetGlobal_Depenses_Add_From_Charges( _
                 Data, HeadCell, HeadCell, _
                 TmpBaseCellRelative, _
                 CodeIndex, IsReal, IsGlobal, TestReal _
             )
-            Set CurrentCell = BudgetGlobal_Depenses_Add_From_Chantiers(Data, CurrentCell, HeadCell, CodeIndex)
+            Set CurrentCell = BudgetGlobal_Depenses_Add_From_Chantiers( _
+                Data, CurrentCell, HeadCell, CodeValue, IsReal, TmpBaseCellRelative2, IsGlobal, TestReal _
+            )
 
             If CodeValue = 64 Then
                 ' ajouter les depenses de personnel
