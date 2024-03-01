@@ -193,7 +193,7 @@ Public Function BudgetGlobal_Depenses_Add( _
             Set CurrentCell = BudgetGlobal_Depenses_Add_From_Charges( _
                 Data, HeadCell, HeadCell, _
                 BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1), _
-                CodeValue, IsReal, IsGlobal, TestReal
+                CodeValue, IsReal, IsGlobal, TestReal _
             )
             Set CurrentCell = BudgetGlobal_Depenses_Add_From_Chantiers(Data, CurrentCell, HeadCell, CodeValue)
 
@@ -235,7 +235,7 @@ Public Sub BudgetGlobal_Depenses_Clean(BaseCell As Range, IsReal As Boolean)
 
     ' remove others lines and leave one formatted
     While Left(BaseCell.Cells(2, 1).Value, Len(Anchor)) <> Anchor
-        CptResult_Clean_Lines(BaseCell.Cells(2, 1), BaseCell.Cells(2, 3), IsReal)
+        CptResult_Clean_Lines BaseCell.Cells(2, 1), BaseCell.Cells(2, 3), IsReal
     Wend
 End Sub
 
@@ -348,7 +348,7 @@ Public Function BudgetGlobal_Financements_Add( _
     
     ' remove others lines and leave one formatted
     While BaseCell.Cells(2, 1).Value = ""
-        CptResult_Clean_Lines(BaseCell.Cells(2, 1), BaseCell.Cells(2, 3), IsReal)
+        CptResult_Clean_Lines BaseCell.Cells(2, 1), BaseCell.Cells(2, 3), IsReal
     Wend
     
     If BaseCell.Row > HeadCell.Row Then
@@ -413,7 +413,7 @@ Public Function BudgetGlobal_Financements_Add( _
     
     ' remove others lines and leave one formatted
     While BaseCell.Cells(2, 1).Value = ""
-        CptResult_Clean_Lines(BaseCell.Cells(2, 1), BaseCell.Cells(2, 3), IsReal)
+        CptResult_Clean_Lines BaseCell.Cells(2, 1), BaseCell.Cells(2, 3), IsReal
     Wend
     
     For Index = 1 To 3
@@ -429,7 +429,7 @@ Public Function BudgetGlobal_InsertLineAndFormat( _
         BaseCell As Range, _
         HeadCell As Range, _
         IsHeader As Boolean, _
-        Optional IsPercent As Boolean = False_
+        Optional IsPercent As Boolean = False _
     ) As Range
 
     Dim Index As Integer
@@ -468,12 +468,12 @@ Public Function BudgetGlobal_InsertLineAndFormat_Percent( _
         HeadCell As Range, _
         IsHeader As Boolean, _
         StartCell As Range, _
-        BaseCellRelative As Range_
+        BaseCellRelative As Range _
     ) As Range
 
     Dim BaseCellPercent As Range
 
-    Set BaseCellPercent = BudgetGlobal_InsertLineAndFormat(
+    Set BaseCellPercent = BudgetGlobal_InsertLineAndFormat( _
             BaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
             HeadCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
             IsHeader, _
@@ -558,7 +558,7 @@ Public Function CptResult_Charges_Personal_Add( _
     WorkingCell.Value = ""
     WorkingCell.Cells(1, 2).Value = Name
     WorkingCell.Cells(1, 2).Font.Bold = True
-    If HeadCellRelativeIs Nothing Then
+    If HeadCellRelative Is Nothing Then
         If FirstLineCell Is Nothing Then
             WorkingCell.Cells(1, 3).Formula = "=" & CleanAddress( _
                 BudgetGlobal_Depenses_SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True) _
@@ -585,7 +585,7 @@ End Function
 Public Sub CptResult_Clean_Lines( _
         FirstCell As Range, _
         LastCell As Range, _
-        IsReal As Boolean, _
+        IsReal As Boolean _
     )
     Range(FirstCell, LastCell).Delete Shift:=xlShiftUp
     If IsReal Then
@@ -604,7 +604,7 @@ Public Function CptResult_AppendInArray(Values, Value)
 
     Dim FormatedValue As Integer
     Dim Index As Integer
-    Dim WorkingArray() As Intger
+    Dim WorkingArray() As Integer
 
     ReDim WorkingArray(0 To 0)
     WorkingArray(0) = 0
@@ -808,7 +808,7 @@ Public Function CptResult_Update_ForASheet( _
     Dim EndOfHeaderCellRelative As Range
     Dim IsGlobal As Boolean
     Dim IsReal As Boolean
-    Dim NBChantiers As Intger
+    Dim NBChantiers As Integer
     Dim RelativeSheet As Worksheet
     Dim rev As WbRevision
     Dim Suffix As String
@@ -824,7 +824,7 @@ Public Function CptResult_Update_ForASheet( _
 
     IsReal = CptResult_IsReal(PageName)
     If IsReal Then
-        Suffix = Middle(PageName, Len(Nom_Feuille_CptResult_Real_prefix))
+        Suffix = Mid(PageName, Len(Nom_Feuille_CptResult_Real_prefix))
         Set RelativeSheet = wb.Worksheets(Nom_Feuille_CptResult_prefix & Suffix)
         If RelativeSheet Is Nothing Then
             MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_CptResult_prefix & Suffix)
@@ -835,7 +835,7 @@ Public Function CptResult_Update_ForASheet( _
             GoTo EndCptResultUpdateForASheet
         End If
     Else
-        Suffix = Middle(PageName, Len(Nom_Feuille_CptResult_prefix))
+        Suffix = Mid(PageName, Len(Nom_Feuille_CptResult_prefix))
         Set RelativeSheet = Nothing
     End If
     IsGlobal = (Suffix = Nom_Feuille_CptResult_suffix)
@@ -872,7 +872,7 @@ Public Function CptResult_Update_ForASheet( _
     End If
     If IsReal Then
         Set EndOfHeaderCellRelative = CptResult_FindEndOfHeaderTable( _
-            RelativeSheet.Cells(1, 1).EntireColumn.Find("Compte")
+            RelativeSheet.Cells(1, 1).EntireColumn.Find("Compte") _
         )
         If EndOfHeaderCellRelative Is Nothing Then
             GoTo EndCptResultUpdateForASheet
