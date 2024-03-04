@@ -594,10 +594,10 @@ Public Function CptResult_Add_A_LineOfFinancement( _
     Set BaseCell = BudgetGlobal_InsertLineAndFormat(BaseCell, HeadCell, False)
     If IsReal Then
         BaseCell.Cells(1, 2).Formula = "=" & CleanAddress( _
-            Financement.BaseCellReal.Cells(1, 0).address(False, False, xlA1, True) _
+            Financement.BaseCellReal.EntireRow.Cells(1, 2).address(False, False, xlA1, True) _
         )
         BaseCell.Cells(1, 3).Formula = "=" & CleanAddress( _
-            Financement.BaseCellReal.Cells(1, 1 + 3 * NBChantiers).address(False, False, xlA1, True) _
+            Financement.BaseCellReal.EntireRow.Cells(1, 3 + 3 * NBChantiers).address(False, False, xlA1, True) _
         )
         BudgetGlobal_InsertLineAndFormat_Percent _
             BaseCellParam, HeadCell, False, StartCell, BaseCellRelative.Cells(2, 1)

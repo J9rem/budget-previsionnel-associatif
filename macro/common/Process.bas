@@ -1136,7 +1136,7 @@ Public Function Chantiers_Financements_Extract( _
                 If SetOfRange.StatusReal Then
                     Set CurrentCell = SetOfRange.HeadCellReal.Cells( _
                             1 + LocalCounter, _
-                            3 * IndexChantiers _
+                            1 + 3 * IndexChantiers _
                         )
                     FinancementTmp.ValeurReal = CurrentCell.Value
                     FinancementTmp.FormulaReal = Common_GetFormula(CurrentCell)
