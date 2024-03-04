@@ -118,7 +118,7 @@ Public Function importData(FileName As String) As Boolean
     prepareFichier ThisWorkbook, PreviousNBSalarie, PreviousNBChantiers
     CopyPreviousValues oldWorkbook, ThisWorkbook, PreviousRevision
     On Error Resume Next
-    CptResult_Update ThisWorkbook
+    CptResult_Update_ForASheet ThisWorkbook, Nom_Feuille_CptResult_Real_prefix & Nom_Feuille_CptResult_suffix
     On Error GoTo 0
     
     ' copie des onglets avant la copie des donnees pour eviter les autres erreurs
