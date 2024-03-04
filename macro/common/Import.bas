@@ -83,8 +83,9 @@ Public Sub replaceContentFromWorksheet( _
         .Select
         If AsValue Then
             .PasteSpecial (xlPasteValuesAndNumberFormats)
-            .PasteSpecial (xlPasteColumnWidths)
             .PasteSpecial (xlPasteFormats)
+            .PasteSpecial (xlPasteColumnWidths)
+            .PasteSpecial (xlPasteValues)
         Else
             .PasteSpecial (xlPasteAll)
         End If
