@@ -61,7 +61,7 @@ End Sub
 Public Sub replaceContentFromWorksheet( _
         newWorksheet As Worksheet, _
         oldWorksheet As Worksheet, _
-        Optional AsValue As Boolean = True _
+        Optional AsValue As Boolean = False _
     )
 
     ' clear previous content
