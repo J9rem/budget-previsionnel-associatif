@@ -79,7 +79,7 @@ Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
                     CurrentBaseCell.Cells(1, 2).Formula = "=" & CleanAddress(CurrentCell.Cells(1, 2).address(False, False, xlA1, True))
                     CurrentBaseCell.Cells(1, 3).Formula = CptResult_GetFormulaForPercent( _
                             CurrentCell.Cells(1, 3), _
-                            BaseCellRelative.Cells(CurrentCell.Row - BaseCell.Row + 1, 3) _
+                            BaseCellRelative.Cells(CurrentCell.Row - HeadCell.Row + 1, 3) _
                         )
                 End If
             End If
@@ -217,7 +217,6 @@ Public Function BudgetGlobal_Depenses_Add( _
     Dim SecondLineCell As Range
     Dim StartCell As Range
     Dim TmpBaseCellRelative As Range
-    Dim TmpBaseCellRelative2 As Range
     Dim TotalCell As Range
 
     Set TotalCell = BaseCell.Cells(2, 1)
@@ -241,10 +240,8 @@ Public Function BudgetGlobal_Depenses_Add( _
                     True _
                 )
                 Set TmpBaseCellRelative = BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1)
-                Set TmpBaseCellRelative2 = BaseCellRelative
             Else
                 Set TmpBaseCellRelative = Nothing
-                Set TmpBaseCellRelative2 = Nothing
             End If
             Set CurrentCell = BudgetGlobal_Depenses_Add_From_Charges( _
                 Data, HeadCell, HeadCell, _
@@ -252,7 +249,7 @@ Public Function BudgetGlobal_Depenses_Add( _
                 CodeIndex, IsReal, IsGlobal, TestReal _
             )
             Set CurrentCell = BudgetGlobal_Depenses_Add_From_Chantiers( _
-                Data, CurrentCell, HeadCell, CodeValue, IsReal, TmpBaseCellRelative2, IsGlobal, TestReal _
+                Data, CurrentCell, HeadCell, CodeValue, IsReal, TmpBaseCellRelative, IsGlobal, TestReal _
             )
 
             If CodeValue = 64 Then
