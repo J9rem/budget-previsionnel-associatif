@@ -218,10 +218,10 @@ Public Function inArray(StrValue As String, Arr As Variant) As Boolean
 
 End Function
 
-Public Function AddWorksheetAtEnd(wb As Workbook, WsName As String) As Worksheet
+Public Function AddWorksheetAtEnd(wb As Workbook, wsName As String) As Worksheet
     With wb.Worksheets
         .Add after:=.Item(.Count)
-        .Item(.Count).Name = WsName
+        .Item(.Count).Name = wsName
         Set AddWorksheetAtEnd = .Item(.Count)
     End With
 End Function
@@ -517,3 +517,52 @@ Public Function geDefaultJoursChantiersStr(NBChantiers As Integer)
     Next idx
     geDefaultJoursChantiersStr = newArray
 End Function
+
+Public Sub Utils_Take_Snapshot()
+
+    Dim CurrentWs As Worksheet
+    Dim FoundSheet As Worksheet
+    Dim NewName As String
+    Dim NewNameSanitized As String
+    Dim NewWs As Worksheet
+    Dim SuffixIndex As Integer
+    Dim wb As Workbook
+    Dim wsName As String
+    
+    Set wb = ThisWorkbook
+    Set CurrentWs = wb.ActiveSheet
+    wsName = CurrentWs.Name
+
+    NewName = Format(Date, "yyyymmdd-") & wsName
+    NewNameSanitized = NewName
+
+    SuffixIndex = 0
+
+    On Error Resume Next
+    Set FoundSheet = wb.Worksheets(NewName)
+    On Error GoTo 0
+
+    While Not (FoundSheet Is Nothing) And SuffixIndex < 1000
+        SuffixIndex = SuffixIndex + 1
+        NewNameSanitized = Left(NewName, 31 - Len("-" & SuffixIndex)) & "-" & SuffixIndex
+        On Error Resume Next
+        Set FoundSheet = Nothing
+        Set FoundSheet = wb.Worksheets(NewNameSanitized)
+        On Error GoTo 0
+    Wend
+
+    If SuffixIndex >= 1000 Then
+        Exit Sub
+    End If
+
+    SetSilent
+    Set NewWs = AddWorksheetAtEnd(wb, NewNameSanitized)
+
+    replaceContentFromWorksheet NewWs, CurrentWs, True
+
+    NewWs.Activate
+    NewWs.Cells(1, 1).Select
+
+    SetActive
+
+End Sub

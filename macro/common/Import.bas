@@ -58,7 +58,11 @@ Public Sub ImportSheets(oldWorkbook As Workbook, NewWorkbook As Workbook)
 
 End Sub
 
-Public Sub replaceContentFromWorksheet(newWorksheet As Worksheet, oldWorksheet As Worksheet)
+Public Sub replaceContentFromWorksheet( _
+        newWorksheet As Worksheet, _
+        oldWorksheet As Worksheet, _
+        Optional AsValue As Boolean = True _
+    )
 
     ' clear previous content
     On Error Resume Next
@@ -77,7 +81,13 @@ Public Sub replaceContentFromWorksheet(newWorksheet As Worksheet, oldWorksheet A
     newWorksheet.Activate
     With newWorksheet.Cells
         .Select
-        .PasteSpecial (xlPasteAll)
+        If AsValue Then
+            .PasteSpecial (xlPasteValuesAndNumberFormats)
+            .PasteSpecial (xlPasteColumnWidths)
+            .PasteSpecial (xlPasteFormats)
+        Else
+            .PasteSpecial (xlPasteAll)
+        End If
     
     End With
     On Error GoTo 0
