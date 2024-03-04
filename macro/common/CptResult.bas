@@ -636,7 +636,7 @@ Public Function CptResult_Charges_Personal_Add( _
         Else
             WorkingCell.Cells(1, 3).Formula = "=" & CleanAddress( _
                     FirstLineCell.Cells(1, 3).address(False, False, xlA1, False) _
-                ) & "*1/3"
+                ) & "*0.5"
         End If
     Else
         WorkingCell.Cells(1, 3).Formula = _
