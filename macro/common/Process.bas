@@ -825,6 +825,9 @@ Public Function Chantiers_Depenses_SetOfRange_Get( _
     Chantiers_Depenses_SetOfRange_Get = SetOfRangeFinal
 End Function
 
+' HeadCell = Line before first line, first col
+' ResultCell = cell of line for sum, colum with "total"
+' EndCell = First line of indirect charges, first col
 Public Function Chantiers_Depenses_SetOfRange_Get_Internal( _
         ChantierSheet As Worksheet _
     ) As SetOfRange

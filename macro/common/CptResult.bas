@@ -257,15 +257,21 @@ Public Function BudgetGlobal_Depenses_Add( _
 
             If CodeValue = 64 Then
                 ' ajouter les depenses de personnel
-                Set FirstLineCell = CptResult_Charges_Personal_Add(wb, CurrentCell, HeadCell, T_Salary, Nothing, Nothing)
-                Set SecondLineCell = CptResult_Charges_Personal_Add(wb, FirstLineCell, HeadCell, "Charges sociales", FirstLineCell, Nothing)
+                Set FirstLineCell = CptResult_Charges_Personal_Add( _
+                    wb, CurrentCell, HeadCell, _
+                    T_Salary, Nothing, IsReal, Nothing _
+                )
+                Set SecondLineCell = CptResult_Charges_Personal_Add( _
+                    wb, FirstLineCell, HeadCell, _
+                    "Charges sociales", FirstLineCell, IsReal, Nothing _
+                )
                 If IsReal Then
                     ' percent part
                     CptResult_Charges_Personal_Add _
                         wb, _
                         CurrentCell.Cells(1, 1 + Offset_NB_Cols_For_Percent_In_CptResultReal), _
                         HeadCell.Cells(1, 1 + Offset_NB_Cols_For_Percent_In_CptResultReal), _
-                        T_Salary, Nothing, _
+                        T_Salary, Nothing, IsReal, _
                         BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1)
                     CptResult_Charges_Personal_Add _
                         wb, _
@@ -273,6 +279,7 @@ Public Function BudgetGlobal_Depenses_Add( _
                         HeadCell.Cells(1, 1 + Offset_NB_Cols_For_Percent_In_CptResultReal), _
                         "Charges sociales", _
                         FirstLineCell.Cells(1, 1 + Offset_NB_Cols_For_Percent_In_CptResultReal), _
+                        IsReal, _
                         BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1)
                 End If
                 Set CurrentCell = SecondLineCell
@@ -611,6 +618,7 @@ End Function
 ' @param Range HeadCell
 ' @param String Name
 ' @param Range FirstLineCell if second line, put Nothing otherwise
+' @param Boolean IsReal
 ' @param Range HeadCellRelative if percent, put Nothing otherwise
 ' @return Range CurrentCell
 Public Function CptResult_Charges_Personal_Add( _
@@ -619,20 +627,42 @@ Public Function CptResult_Charges_Personal_Add( _
     HeadCell As Range, _
     Name As String, _
     FirstLineCell As Range, _
+    IsReal As Boolean, _
     HeadCellRelative As Range _
 ) As Range
 
+    Dim ChantierSheetReal As Worksheet
+    Dim NBChantiers As Integer
+    Dim SetOfRange As SetOfRange
     Dim WorkingCell As Range
 
     Set WorkingCell = BudgetGlobal_InsertLineAndFormat(CurrentCell, HeadCell, False, Not (HeadCellRelative Is Nothing))
     WorkingCell.Value = ""
     WorkingCell.Cells(1, 2).Value = Name
     WorkingCell.Cells(1, 2).Font.Bold = True
+    Set CptResult_Charges_Personal_Add = WorkingCell
     If HeadCellRelative Is Nothing Then
         If FirstLineCell Is Nothing Then
-            WorkingCell.Cells(1, 3).Formula = "=" & CleanAddress( _
-                BudgetGlobal_Depenses_SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True) _
-                ) & "/1.5"
+            If Not IsReal Then
+                WorkingCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+                    BudgetGlobal_Depenses_SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True) _
+                    ) & "/1.5"
+            Else
+                NBChantiers = GetNbChantiers(wb)
+                Set ChantierSheetReal = wb.Worksheets(Nom_Feuille_Budget_chantiers_realise)
+                If ChantierSheetReal Is Nothing Then
+                    Exit Function
+                End If
+                SetOfRange = Chantiers_Depenses_SetOfRange_Get(ChantierSheetReal, Nothing)
+                If Not SetOfRange.Status Then
+                    Exit Function
+                End If
+                WorkingCell.Cells(1, 3).Formula = "=SUM(" _
+                    & CleanAddress(SetOfRange.EndCell.Cells(1, 2 + 3 * NBChantiers).address(False, False, xlA1, True)) _
+                    & ":" _
+                    & CleanAddress(SetOfRange.HeadCell.Cells(-2, 3 + 3 * NBChantiers).address(False, False, xlA1, True)) _
+                    & ")/1.5"
+            End If
         Else
             WorkingCell.Cells(1, 3).Formula = "=" & CleanAddress( _
                     FirstLineCell.Cells(1, 3).address(False, False, xlA1, False) _
@@ -645,7 +675,6 @@ Public Function CptResult_Charges_Personal_Add( _
                 HeadCellRelative.Cells(WorkingCell.Row - HeadCell.Row + 1, 3) _
             )
     End If
-    Set CptResult_Charges_Personal_Add = WorkingCell
 End Function
 
 ' clean lines and if needed percent lines
