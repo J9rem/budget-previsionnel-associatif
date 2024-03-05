@@ -789,3 +789,4 @@ Public Function CreerStyle(Name As String, Red As Integer, Green As Integer, Blu
 	End If
 	CreerStyle = oStyles.getByName(Name)
 End Function
+

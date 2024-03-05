@@ -1,4 +1,4 @@
-Rem Attribute VBA_ModuleType=VBAModule
+﻿Rem Attribute VBA_ModuleType=VBAModule
 Option VBASupport 1
 
 ' SPDX-License-Identifier: EUPL-1.2
@@ -3216,3 +3216,4 @@ Public Function GetNbChantiers(wb As Workbook, Optional BaseRow As Integer = 3)
     GetNbChantiers = Counter - 1
     
 End Function
+

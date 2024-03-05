@@ -68,3 +68,4 @@ Public Const T_Rate_For_Charges As String = "Taux de charges indirectes :"
 Public Const T_Salary As String = "Rémunération des personnels"
 Public Const T_Total_Charges As String = "Total Dépenses"
 Public Const T_WorkingPeople As String = "Salarié"
+

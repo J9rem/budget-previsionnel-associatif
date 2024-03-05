@@ -1,4 +1,4 @@
-Rem Attribute VBA_ModuleType=VBAModule
+﻿Rem Attribute VBA_ModuleType=VBAModule
 Option VBASupport 1
 
 ' SPDX-License-Identifier: EUPL-1.2
@@ -1625,4 +1625,5 @@ Public Function CptResult_Update_ForASheet_Create_Charges_Rate( _
     WorkingCell.Formula = Formula
     On Error GoTo 0
 End Function
+
 

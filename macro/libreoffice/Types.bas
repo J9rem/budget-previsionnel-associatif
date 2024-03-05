@@ -311,3 +311,4 @@ Public Function getDefaultFinancements(Nb As Integer)
     getDefaultFinancements = ArrayTmp
     
 End Function
+

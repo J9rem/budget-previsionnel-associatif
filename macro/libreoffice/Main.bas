@@ -178,3 +178,4 @@ Public Sub InsererUneDepense()
     
     CurrentWs.Activate
 End Sub
+
