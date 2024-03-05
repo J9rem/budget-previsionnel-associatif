@@ -971,9 +971,9 @@ Public Sub CptResult_View_ForOneOrSeveralChantiers_Create_With_Name( _
         ShowErrorMessage As Boolean _
     )
 
+    Dim EndSheet As Worksheet
+    Dim EndSheetIndex As Integer
     Dim FoundSheet As Worksheet
-
-    MsgBox "Create '" & Formula & "' with suffix '" & Suffix & "', mode real :" & WithReal
 
     ' Test if sheet exists
     Set FoundSheet = Nothing
@@ -982,22 +982,39 @@ Public Sub CptResult_View_ForOneOrSeveralChantiers_Create_With_Name( _
     On Error GoTo 0
     If Not (FoundSheet Is Nothing) Then
         If ShowErrorMessage Then
-            MsgBox Replace(T_Error_Existing_Tab_for_Suffix, "%suffix%", "Suffix")
+            MsgBox Replace(T_Error_Existing_Tab_for_Suffix, "%suffix%", Suffix)
         End If
         Exit Sub
     End If
-    Set FoundSheet = Nothing
-    On Error Resume Next
-    Set FoundSheet = wb.Worksheets(Nom_Feuille_CptResult_Real_prefix & Suffix)
-    On Error GoTo 0
-    If Not (FoundSheet Is Nothing) Then
-        If ShowErrorMessage Then
-            MsgBox Replace(T_Error_Existing_Tab_for_Suffix, "%suffix%", "Suffix")
+    If WithReal Then
+        Set FoundSheet = Nothing
+        On Error Resume Next
+        Set FoundSheet = wb.Worksheets(Nom_Feuille_CptResult_Real_prefix & Suffix)
+        On Error GoTo 0
+        If Not (FoundSheet Is Nothing) Then
+            If ShowErrorMessage Then
+                MsgBox Replace(T_Error_Existing_Tab_for_Suffix, "%suffix%", Suffix)
+            End If
+            Exit Sub
         End If
-        Exit Sub
     End If
 
     ' copy sheets
+    Set EndSheet = wb.Worksheets(Nom_Feuille_Eupl)
+    Set FoundSheet = wb.Worksheets(Nom_Feuille_CptResult_prefix & Nom_Feuille_CptResult_suffix)
+    FoundSheet.Copy EndSheet
+    EndSheetIndex = wb.Worksheets(Nom_Feuille_Eupl).Index
+    Set FoundSheet = wb.Worksheets.Item(EndSheetIndex - 1)
+    FoundSheet.Name = Nom_Feuille_CptResult_prefix & Suffix
+    
+    If WithReal Then
+        Set FoundSheet = wb.Worksheets(Nom_Feuille_CptResult_Real_prefix & Nom_Feuille_CptResult_suffix)
+        FoundSheet.Copy EndSheet
+        EndSheetIndex = wb.Worksheets(Nom_Feuille_Eupl).Index
+        Set FoundSheet = wb.Worksheets.Item(EndSheetIndex - 1)
+        FoundSheet.Name = Nom_Feuille_CptResult_Real_prefix & Suffix
+    End If
+
     ' copy formula
 
     ' start refresh
