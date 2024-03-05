@@ -652,11 +652,37 @@ Public Function CptResult_Add_A_LineOfFinancement( _
     ) As Range
 
     Dim BaseCell As Range
+    Dim CanAdd As Boolean
     Dim Index As Integer
     Dim TmpFormula As String
+    Dim ValueToTest As Double
 
     Set BaseCell = BaseCellParam
-    ' TODO for Not Is Global check if not empty
+    If Not IsGlobal Then
+        CanAdd = False
+        For Index = 1 To UBound(ChantiersToAdd)
+            ValueToTest = 1
+            On Error Resume Next
+            ValueToTest = CDbl(Financement.BaseCell.EntireRow.Cells(1, 2 + ChantiersToAdd(Index)).Value)
+            On Error GoTo 0
+            If ValueToTest <> 0 Then
+                CanAdd = True
+            End If
+            If Not CanAdd Then
+                ValueToTest = 1
+                On Error Resume Next
+                ValueToTest = CDbl(Financement.BaseCellReal.EntireRow.Cells(1, 1 + 3 * ChantiersToAdd(Index)).Value)
+                On Error GoTo 0
+                If ValueToTest <> 0 Then
+                    CanAdd = True
+                End If
+            End If
+        Next Index
+        If Not CanAdd Then
+            Set CptResult_Add_A_LineOfFinancement = BaseCell
+            Exit Function
+        End If
+    End If
     Set BaseCell = BudgetGlobal_InsertLineAndFormat(BaseCell, HeadCell, False)
     If IsReal Then
         BaseCell.Cells(1, 2).Formula = "=" & CleanAddress( _
