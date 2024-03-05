@@ -12,6 +12,7 @@ Option Explicit
 ' @param Range BaseCellRelative
 ' @param Boolean IsGlobal
 ' @param Boolean TestReal
+' @param Integer() ChantiersToAdd
 ' @return Range NewCurrentCell
 Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
         Data As Data, _
@@ -21,7 +22,8 @@ Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
         IsReal As Boolean, _
         BaseCellRelative As Range, _
         IsGlobal As Boolean, _
-        TestReal As Boolean _
+        TestReal As Boolean, _
+        ChantiersToAdd _
     )
 
     Dim CanAdd As Boolean
@@ -32,7 +34,10 @@ Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
     Dim Depenses() As DepenseChantier
     Dim Depense As DepenseChantier
     Dim Index As Integer
+    Dim IndexChantier As Integer
     Dim NBChantiers As Integer
+    Dim TmpFormula As String
+    Dim ValueToTest As Double
 
     Set CurrentCell = BaseCell
 
@@ -46,11 +51,22 @@ Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
         If Left(Depense.Nom, 2) = CStr(CodeValue) Then
             CanAdd = IsGlobal
             If Not CanAdd Then
-                If IsReal Or TestReal Then
-                    CanAdd = (Depense.BaseCell.Cells(1, 1 + NBChantiers).Value <> 0) _
-                        And (Depense.BaseCellReal.Cells(1, 1 + 3 * NBChantiers).Value <> 0)
-                Else
-                    CanAdd = (Depense.BaseCell.Cells(1, 1 + NBChantiers).Value <> 0)
+                ' test for prediction
+                For IndexChantier = 1 To UBound(ChantiersToAdd)
+                    ValueToTest = CDbl(Depense.BaseCell.Cells(1, ChantiersToAdd(IndexChantier)).Value)
+                    If ValueToTest <> 0 Then
+                        CanAdd = True
+                    End If
+                Next IndexChantier
+                
+                If (Not CanAdd) And (IsReal Or TestReal) Then
+                    ' test for real if at least one not zero
+                    For IndexChantier = 1 To UBound(ChantiersToAdd)
+                        ValueToTest = CDbl(Depense.BaseCellReal.Cells(1, 2 + 3 * (ChantiersToAdd(IndexChantier) - 1)).Value)
+                        If ValueToTest <> 0 Then
+                            CanAdd = True
+                        End If
+                    Next IndexChantier
                 End If
             End If
             
@@ -58,15 +74,40 @@ Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
                 Set CurrentBaseCell = CurrentCell
                 Set CurrentCell = BudgetGlobal_InsertLineAndFormat(CurrentCell, HeadCell, False)
                 CurrentCell.Value = ""
-                ' TODO manage not IsGlobal
                 If Not IsReal Then
                     CurrentCell.Cells(1, 2).Formula = "=" & CleanAddress(Depense.BaseCell.Cells(1, 0).address(False, False, xlA1, True))
-                    CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress(Depense.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
+                    If IsGlobal Then
+                        CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress(Depense.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True))
+                    Else
+                        TmpFormula = "="
+                        For IndexChantier = 1 To UBound(ChantiersToAdd)
+                            If IndexChantier > 1 Then
+                                TmpFormula = TmpFormula & "+"
+                            End If
+                            TmpFormula = TmpFormula & CleanAddress( _
+                                Depense.BaseCell.Cells(1, ChantiersToAdd(IndexChantier)).address(False, False, xlA1, True) _
+                            )
+                        Next IndexChantier
+                        CurrentCell.Cells(1, 3).Formula = TmpFormula
+                    End If
                 Else
                     CurrentCell.Cells(1, 2).Formula = "=" & CleanAddress(Depense.BaseCellReal.Cells(1, 0).address(False, False, xlA1, True))
-                    CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress( _
-                        Depense.BaseCellReal.Cells(1, 1 + 3 * NBChantiers).address(False, False, xlA1, True) _
-                    )
+                    If IsGlobal Then
+                        CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+                            Depense.BaseCellReal.Cells(1, 1 + 3 * NBChantiers).address(False, False, xlA1, True) _
+                        )
+                    Else
+                        TmpFormula = "="
+                        For IndexChantier = 1 To UBound(ChantiersToAdd)
+                            If IndexChantier > 1 Then
+                                TmpFormula = TmpFormula & "+"
+                            End If
+                            TmpFormula = TmpFormula & CleanAddress( _
+                                Depense.BaseCellReal.Cells(1, 2 + 3 * (ChantiersToAdd(IndexChantier) - 1)).address(False, False, xlA1, True) _
+                            )
+                        Next IndexChantier
+                        CurrentCell.Cells(1, 3).Formula = TmpFormula
+                    End If
                     
                     ' percent part
                     Set CurrentBaseCell = BudgetGlobal_InsertLineAndFormat( _
@@ -96,6 +137,7 @@ End Function
 ' @param Boolean IsReal
 ' @param Boolean IsGlobal
 ' @param Boolean TestReal
+' @param Range BaseCellForRate
 ' @return Range NewCurrenCell
 Public Function BudgetGlobal_Depenses_Add_From_Charges( _
         Data As Data, _
@@ -105,7 +147,8 @@ Public Function BudgetGlobal_Depenses_Add_From_Charges( _
         IndexFound As Integer, _
         IsReal As Boolean, _
         IsGlobal As Boolean, _
-        TestReal As Boolean _
+        TestReal As Boolean, _
+        BaseCellForRate As Range _
     )
 
     Dim CanAdd As Boolean
@@ -114,6 +157,7 @@ Public Function BudgetGlobal_Depenses_Add_From_Charges( _
     Dim CurrentBaseCell As Range
     Dim CurrentCell As Range
     Dim Index As Integer
+    Dim FormulaSuffix As String
 
     Set CurrentCell = BaseCell
 
@@ -126,7 +170,7 @@ Public Function BudgetGlobal_Depenses_Add_From_Charges( _
             If Not CanAdd Then
                 If IsReal Or TestReal Then
                     CanAdd = (currentCharge.ChargeCell.Cells(1, 4).Value <> 0) _
-                        And (currentCharge.ChargeCell.Cells(1, 5).Value <> 0)
+                        Or (currentCharge.ChargeCell.Cells(1, 5).Value <> 0)
                 Else
                     CanAdd = (currentCharge.ChargeCell.Cells(1, 4).Value <> 0)
                 End If
@@ -138,15 +182,21 @@ Public Function BudgetGlobal_Depenses_Add_From_Charges( _
                 Set CurrentCell = BudgetGlobal_InsertLineAndFormat(CurrentBaseCell, HeadCell, False)
                 CurrentCell.Value = ""
                 CurrentCell.Cells(1, 2).Formula = "=" & CleanAddress(currentCharge.ChargeCell.address(False, False, xlA1, True))
-                ' TODO manage not IsGlobal
+                If IsGlobal Then
+                    FormulaSuffix = ""
+                Else
+                    FormulaSuffix = "*" & CleanAddress(BaseCellForRate.address(True, True, xlA1, False))
+                End If
                 If Not IsReal Then
                     ' Be carefull to the number of columns if a 'charges' cols is added
-                    CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress(currentCharge.ChargeCell.Cells(1, 4).address(False, False, xlA1, True))
+                    CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+                        currentCharge.ChargeCell.Cells(1, 4).address(False, False, xlA1, True) _
+                    ) & FormulaSuffix
                 Else
                     ' Be carefull to the number of columns if a 'charges' cols is added
                     CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress( _
                         currentCharge.ChargeCell.Cells(1, 5).address(False, False, xlA1, True) _
-                    )
+                    ) & FormulaSuffix
                     ' percent part
                     Set CurrentBaseCell = BudgetGlobal_InsertLineAndFormat( _
                         CurrentBaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
@@ -196,6 +246,7 @@ End Function
 ' @param Boolean IsGlobal
 ' @param Boolean TestReal
 ' @param Integer() ChantiersToAdd
+' @param Range BaseCellForRate
 ' @return Range CurrentCell
 Public Function BudgetGlobal_Depenses_Add( _
         wb As Workbook, _
@@ -205,7 +256,8 @@ Public Function BudgetGlobal_Depenses_Add( _
         IsReal As Boolean, _
         IsGlobal As Boolean, _
         TestReal As Boolean, _
-        ChantiersToAdd _
+        ChantiersToAdd, _
+        BaseCellForRate As Range _
     ) As Range
 
     Dim CodeValue As Integer
@@ -246,21 +298,22 @@ Public Function BudgetGlobal_Depenses_Add( _
             Set CurrentCell = BudgetGlobal_Depenses_Add_From_Charges( _
                 Data, HeadCell, HeadCell, _
                 TmpBaseCellRelative, _
-                CodeIndex, IsReal, IsGlobal, TestReal _
+                CodeIndex, IsReal, IsGlobal, TestReal, BaseCellForRate _
             )
             Set CurrentCell = BudgetGlobal_Depenses_Add_From_Chantiers( _
-                Data, CurrentCell, HeadCell, CodeValue, IsReal, TmpBaseCellRelative, IsGlobal, TestReal _
+                Data, CurrentCell, HeadCell, CodeValue, IsReal, TmpBaseCellRelative, _
+                IsGlobal, TestReal, ChantiersToAdd _
             )
 
             If CodeValue = 64 Then
                 ' ajouter les depenses de personnel
                 Set FirstLineCell = CptResult_Charges_Personal_Add( _
                     wb, CurrentCell, HeadCell, _
-                    T_Salary, Nothing, IsReal, Nothing _
+                    T_Salary, Nothing, IsReal, Nothing, IsGlobal, ChantiersToAdd _
                 )
                 Set SecondLineCell = CptResult_Charges_Personal_Add( _
                     wb, FirstLineCell, HeadCell, _
-                    "Charges sociales", FirstLineCell, IsReal, Nothing _
+                    "Charges sociales", FirstLineCell, IsReal, Nothing, IsGlobal, ChantiersToAdd _
                 )
                 If IsReal Then
                     ' percent part
@@ -269,7 +322,8 @@ Public Function BudgetGlobal_Depenses_Add( _
                         CurrentCell.Cells(1, 1 + Offset_NB_Cols_For_Percent_In_CptResultReal), _
                         HeadCell.Cells(1, 1 + Offset_NB_Cols_For_Percent_In_CptResultReal), _
                         T_Salary, Nothing, IsReal, _
-                        BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1)
+                        BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1), _
+                        IsGlobal, ChantiersToAdd
                     CptResult_Charges_Personal_Add _
                         wb, _
                         FirstLineCell.Cells(1, 1 + Offset_NB_Cols_For_Percent_In_CptResultReal), _
@@ -277,7 +331,8 @@ Public Function BudgetGlobal_Depenses_Add( _
                         "Charges sociales", _
                         FirstLineCell.Cells(1, 1 + Offset_NB_Cols_For_Percent_In_CptResultReal), _
                         IsReal, _
-                        BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1)
+                        BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1), _
+                        IsGlobal, ChantiersToAdd
                 End If
                 Set CurrentCell = SecondLineCell
             End If
@@ -374,12 +429,13 @@ End Sub
 ' define financement
 ' @param Workbook wb
 ' @param Data Data
-' @param RangeStartCell
+' @param Range StartCell
 ' @param Range BaseCellRelative only for IsReal
 ' @param Boolean IsReal
 ' @param Boolean IsGlobal
 ' @param Boolean TestReal
 ' @param Integer() ChantiersToAdd
+' @param Range BaseCellForRate
 ' @return Boolean All is right
 Public Function BudgetGlobal_Financements_Add( _
         wb As Workbook, _
@@ -389,7 +445,8 @@ Public Function BudgetGlobal_Financements_Add( _
         IsReal As Boolean, _
         IsGlobal As Boolean, _
         TestReal As Boolean, _
-        ChantiersToAdd _
+        ChantiersToAdd, _
+        BaseCellForRate As Range _
     ) As Boolean
 
     Dim BaseCell As Range
@@ -401,6 +458,7 @@ Public Function BudgetGlobal_Financements_Add( _
     Dim Index As Integer
     Dim IndexTypeFinancement As Integer
     Dim NBChantiers As Integer
+    Dim TmpFormula As String
     Dim TypesFinancements() As String
 
     Set BaseCell = StartCell
@@ -413,7 +471,8 @@ Public Function BudgetGlobal_Financements_Add( _
         Financement = Chantier.Financements(Index)
         If Financement.TypeFinancement = 0 Then
             Set BaseCell = CptResult_Add_A_LineOfFinancement( _
-                BaseCell, HeadCell, StartCell, IsReal, BaseCellRelative, Financement, NBChantiers)
+                BaseCell, HeadCell, StartCell, IsReal, BaseCellRelative, _
+                Financement, NBChantiers, IsGlobal, ChantiersToAdd)
         End If
     Next Index
     
@@ -446,7 +505,7 @@ Public Function BudgetGlobal_Financements_Add( _
         Exit Function
     End If
     Set HeadCell = BaseCell
-    HeadCell.Cells(1, 3).Formula = "=0"
+    TmpFormula = "="
     
     TypesFinancements = TypeFinancementsFromWb(wb)
     
@@ -461,10 +520,11 @@ Public Function BudgetGlobal_Financements_Add( _
                 BaseCell, HeadCell, False, StartCell, BaseCellRelative.Cells(2, 1))
         End If
 
-        ' TODO manage IsGlobal
+        If IndexTypeFinancement > 1 Then
+            TmpFormula = TmpFormula & "+"
+        End If
         
-        HeadCell.Cells(1, 3).Formula = HeadCell.Cells(1, 3).Formula _
-            & "+" _
+        TmpFormula = TmpFormula _
             & CleanAddress(BaseCell.Cells(1, 3).address(False, False, xlA1))
         Set HeadCellFinancement = BaseCell
         Chantiers = Data.Chantiers
@@ -474,13 +534,15 @@ Public Function BudgetGlobal_Financements_Add( _
             Financement = Chantier.Financements(Index)
             If Financement.TypeFinancement = IndexTypeFinancement Then
                 Set BaseCell = CptResult_Add_A_LineOfFinancement( _
-                    BaseCell, HeadCellFinancement, StartCell, IsReal, BaseCellRelative, Financement, NBChantiers)
+                    BaseCell, HeadCellFinancement, StartCell, IsReal, BaseCellRelative, _
+                    Financement, NBChantiers, IsGlobal, ChantiersToAdd)
             End If
         Next Index
         If BaseCell.Row > HeadCellFinancement.Row Then
             HeadCellFinancement.Cells(1, 3).Formula = "=SUM(" & CleanAddress(Range(HeadCellFinancement.Cells(2, 3), BaseCell.Cells(1, 3)).address(False, False, xlA1)) & ")"
         End If
     Next IndexTypeFinancement
+    HeadCell.Cells(1, 3).Formula = TmpFormula
     
     ' remove others lines and leave one formatted
     While BaseCell.Cells(2, 1).Value = ""
@@ -574,6 +636,8 @@ End Function
 ' @param Range BaseCellRelative
 ' @param Financement Financement
 ' @param Integer NBChantiers
+' @param Boolean IsGlobal
+' @param Integer() ChantiersToAdd
 ' @return Range NewBaseCell
 Public Function CptResult_Add_A_LineOfFinancement( _
         BaseCellParam As Range, _
@@ -582,29 +646,86 @@ Public Function CptResult_Add_A_LineOfFinancement( _
         IsReal As Boolean, _
         BaseCellRelative As Range, _
         Financement As Financement, _
-        NBChantiers As Integer _
+        NBChantiers As Integer, _
+        IsGlobal As Boolean, _
+        ChantiersToAdd _
     ) As Range
 
     Dim BaseCell As Range
+    Dim CanAdd As Boolean
+    Dim Index As Integer
+    Dim TmpFormula As String
+    Dim ValueToTest As Double
 
     Set BaseCell = BaseCellParam
+    If Not IsGlobal Then
+        CanAdd = False
+        For Index = 1 To UBound(ChantiersToAdd)
+            ValueToTest = 1
+            On Error Resume Next
+            ValueToTest = CDbl(Financement.BaseCell.EntireRow.Cells(1, 2 + ChantiersToAdd(Index)).Value)
+            On Error GoTo 0
+            If ValueToTest <> 0 Then
+                CanAdd = True
+            End If
+            If Not CanAdd Then
+                ValueToTest = 1
+                On Error Resume Next
+                ValueToTest = CDbl(Financement.BaseCellReal.EntireRow.Cells(1, 1 + 3 * ChantiersToAdd(Index)).Value)
+                On Error GoTo 0
+                If ValueToTest <> 0 Then
+                    CanAdd = True
+                End If
+            End If
+        Next Index
+        If Not CanAdd Then
+            Set CptResult_Add_A_LineOfFinancement = BaseCell
+            Exit Function
+        End If
+    End If
     Set BaseCell = BudgetGlobal_InsertLineAndFormat(BaseCell, HeadCell, False)
     If IsReal Then
         BaseCell.Cells(1, 2).Formula = "=" & CleanAddress( _
             Financement.BaseCellReal.EntireRow.Cells(1, 2).address(False, False, xlA1, True) _
         )
-        BaseCell.Cells(1, 3).Formula = "=" & CleanAddress( _
-            Financement.BaseCellReal.EntireRow.Cells(1, 3 + 3 * NBChantiers).address(False, False, xlA1, True) _
-        )
+        If IsGlobal Then
+            BaseCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+                Financement.BaseCellReal.EntireRow.Cells(1, 3 + 3 * NBChantiers).address(False, False, xlA1, True) _
+            )
+        Else
+            TmpFormula = "="
+            For Index = 1 To UBound(ChantiersToAdd)
+                If Index > 1 Then
+                    TmpFormula = TmpFormula & "+"
+                End If
+                TmpFormula = TmpFormula & CleanAddress( _
+                    Financement.BaseCellReal.EntireRow.Cells(1, 1 + 3 * ChantiersToAdd(Index)).address(False, False, xlA1, True) _
+                )
+            Next Index
+            BaseCell.Cells(1, 3).Formula = TmpFormula
+        End If
         BudgetGlobal_InsertLineAndFormat_Percent _
             BaseCellParam, HeadCell, False, StartCell, BaseCellRelative.Cells(2, 1)
     Else
         BaseCell.Cells(1, 2).Formula = "=" & CleanAddress( _
             Financement.BaseCell.Cells(1, 0).address(False, False, xlA1, True) _
         )
-        BaseCell.Cells(1, 3).Formula = "=" & CleanAddress( _
-            Financement.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True) _
-        )
+        If IsGlobal Then
+            BaseCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+                Financement.BaseCell.Cells(1, 1 + NBChantiers).address(False, False, xlA1, True) _
+            )
+        Else
+            TmpFormula = "="
+            For Index = 1 To UBound(ChantiersToAdd)
+                If Index > 1 Then
+                    TmpFormula = TmpFormula & "+"
+                End If
+                TmpFormula = TmpFormula & CleanAddress( _
+                    Financement.BaseCell.EntireRow.Cells(1, 2 + ChantiersToAdd(Index)).address(False, False, xlA1, True) _
+                )
+            Next Index
+            BaseCell.Cells(1, 3).Formula = TmpFormula
+        End If
     End If
     Set CptResult_Add_A_LineOfFinancement = BaseCell
 End Function
@@ -617,6 +738,8 @@ End Function
 ' @param Range FirstLineCell if second line, put Nothing otherwise
 ' @param Boolean IsReal
 ' @param Range HeadCellRelative if percent, put Nothing otherwise
+' @param Boolean IsGlobal
+' @param Integer() ChantiersToAdd
 ' @return Range CurrentCell
 Public Function CptResult_Charges_Personal_Add( _
     wb As Workbook, _
@@ -625,12 +748,17 @@ Public Function CptResult_Charges_Personal_Add( _
     Name As String, _
     FirstLineCell As Range, _
     IsReal As Boolean, _
-    HeadCellRelative As Range _
+    HeadCellRelative As Range, _
+    IsGlobal As Boolean, _
+    ChantiersToAdd _
 ) As Range
 
+    Dim ChantierSheet As Worksheet
     Dim ChantierSheetReal As Worksheet
+    Dim Index As Integer
     Dim NBChantiers As Integer
     Dim SetOfRange As SetOfRange
+    Dim TmpFormula As String
     Dim WorkingCell As Range
 
     Set WorkingCell = BudgetGlobal_InsertLineAndFormat(CurrentCell, HeadCell, False, Not (HeadCellRelative Is Nothing))
@@ -641,9 +769,32 @@ Public Function CptResult_Charges_Personal_Add( _
     If HeadCellRelative Is Nothing Then
         If FirstLineCell Is Nothing Then
             If Not IsReal Then
-                WorkingCell.Cells(1, 3).Formula = "=" & CleanAddress( _
-                    BudgetGlobal_Depenses_SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True) _
-                    ) & "/1.5"
+                If IsGlobal Then
+                    WorkingCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+                        BudgetGlobal_Depenses_SearchRangeForEmployeesSalary(wb).address(False, False, xlA1, True) _
+                        ) & "/1.5"
+                Else
+                    Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
+                    If ChantierSheet Is Nothing Then
+                        Exit Function
+                    End If
+                    SetOfRange = Chantiers_Depenses_SetOfRange_Get(ChantierSheet, Nothing)
+                    If Not SetOfRange.Status Then
+                        Exit Function
+                    End If
+                    TmpFormula = "=("
+                    For Index = 1 To UBound(ChantiersToAdd)
+                        If Index > 1 Then
+                            TmpFormula = TmpFormula & "+"
+                        End If
+                        TmpFormula = TmpFormula & "SUM(" _
+                            & CleanAddress(SetOfRange.EndCell.Cells(2, 1 + ChantiersToAdd(Index)).address(False, False, xlA1, True)) _
+                            & ":" _
+                            & CleanAddress(SetOfRange.HeadCell.Cells(-2, 2 + ChantiersToAdd(Index)).address(False, False, xlA1, True)) _
+                            & ")"
+                    Next Index
+                    WorkingCell.Cells(1, 3).Formula = TmpFormula & ")/1.5"
+                End If
             Else
                 NBChantiers = GetNbChantiers(wb)
                 Set ChantierSheetReal = wb.Worksheets(Nom_Feuille_Budget_chantiers_realise)
@@ -654,11 +805,26 @@ Public Function CptResult_Charges_Personal_Add( _
                 If Not SetOfRange.Status Then
                     Exit Function
                 End If
-                WorkingCell.Cells(1, 3).Formula = "=SUM(" _
-                    & CleanAddress(SetOfRange.EndCell.Cells(1, 2 + 3 * NBChantiers).address(False, False, xlA1, True)) _
-                    & ":" _
-                    & CleanAddress(SetOfRange.HeadCell.Cells(-2, 3 + 3 * NBChantiers).address(False, False, xlA1, True)) _
-                    & ")/1.5"
+                If IsGlobal Then
+                    WorkingCell.Cells(1, 3).Formula = "=SUM(" _
+                        & CleanAddress(SetOfRange.EndCell.Cells(2, 2 + 3 * NBChantiers).address(False, False, xlA1, True)) _
+                        & ":" _
+                        & CleanAddress(SetOfRange.HeadCell.Cells(-2, 3 + 3 * NBChantiers).address(False, False, xlA1, True)) _
+                        & ")/1.5"
+                Else
+                    TmpFormula = "=("
+                    For Index = 1 To UBound(ChantiersToAdd)
+                        If Index > 1 Then
+                            TmpFormula = TmpFormula & "+"
+                        End If
+                        TmpFormula = TmpFormula & "SUM(" _
+                            & CleanAddress(SetOfRange.EndCell.Cells(2, 3 * ChantiersToAdd(Index)).address(False, False, xlA1, True)) _
+                            & ":" _
+                            & CleanAddress(SetOfRange.HeadCell.Cells(-2, 1 + 3 * ChantiersToAdd(Index)).address(False, False, xlA1, True)) _
+                            & ")"
+                    Next Index
+                    WorkingCell.Cells(1, 3).Formula = TmpFormula & ")/1.5"
+                End If
             End If
         Else
             WorkingCell.Cells(1, 3).Formula = "=" & CleanAddress( _
@@ -741,7 +907,7 @@ Public Function CptResult_GetChantiersToAdd(BaseCell As Range, NBChantiers As In
         Exit Function
     End If
 
-    Set CellWhereExpectedFormula = BaseCell.Cells(-2, Offset_NB_Cols_For_Percent_In_CptResultReal)
+    Set CellWhereExpectedFormula = BaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal)
     If CellWhereExpectedFormula.Value = "" Then
         Exit Function
     End If
@@ -971,9 +1137,12 @@ Public Sub CptResult_View_ForOneOrSeveralChantiers_Create_With_Name( _
         ShowErrorMessage As Boolean _
     )
 
+    Dim BaseCell As Range
+    Dim BaseCellReal As Range
+    Dim EndSheet As Worksheet
+    Dim EndSheetIndex As Integer
     Dim FoundSheet As Worksheet
-
-    MsgBox "Create '" & Formula & "' with suffix '" & Suffix & "', mode real :" & WithReal
+    Dim FoundSheetReal As Worksheet
 
     ' Test if sheet exists
     Set FoundSheet = Nothing
@@ -982,25 +1151,54 @@ Public Sub CptResult_View_ForOneOrSeveralChantiers_Create_With_Name( _
     On Error GoTo 0
     If Not (FoundSheet Is Nothing) Then
         If ShowErrorMessage Then
-            MsgBox Replace(T_Error_Existing_Tab_for_Suffix, "%suffix%", "Suffix")
+            MsgBox Replace(T_Error_Existing_Tab_for_Suffix, "%suffix%", Suffix)
         End If
         Exit Sub
     End If
-    Set FoundSheet = Nothing
-    On Error Resume Next
-    Set FoundSheet = wb.Worksheets(Nom_Feuille_CptResult_Real_prefix & Suffix)
-    On Error GoTo 0
-    If Not (FoundSheet Is Nothing) Then
-        If ShowErrorMessage Then
-            MsgBox Replace(T_Error_Existing_Tab_for_Suffix, "%suffix%", "Suffix")
+    If WithReal Then
+        Set FoundSheet = Nothing
+        On Error Resume Next
+        Set FoundSheet = wb.Worksheets(Nom_Feuille_CptResult_Real_prefix & Suffix)
+        On Error GoTo 0
+        If Not (FoundSheet Is Nothing) Then
+            If ShowErrorMessage Then
+                MsgBox Replace(T_Error_Existing_Tab_for_Suffix, "%suffix%", Suffix)
+            End If
+            Exit Sub
         End If
-        Exit Sub
     End If
 
     ' copy sheets
+    Set EndSheet = wb.Worksheets(Nom_Feuille_Eupl)
+    Set FoundSheet = wb.Worksheets(Nom_Feuille_CptResult_prefix & Nom_Feuille_CptResult_suffix)
+    FoundSheet.Copy EndSheet
+    EndSheetIndex = wb.Worksheets(Nom_Feuille_Eupl).Index
+    Set FoundSheet = wb.Worksheets.Item(EndSheetIndex - 1)
+    FoundSheet.Name = Nom_Feuille_CptResult_prefix & Suffix
     ' copy formula
-
-    ' start refresh
+    Set BaseCell = FoundSheet.Cells(1, 1).EntireColumn.Find("Compte") _
+        .Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal)
+    BaseCell.Formula = "=""" & Formula & """"
+    BaseCell.Cells(0, 1).Value = T_Formula
+    
+    If WithReal Then
+        Set FoundSheetReal = wb.Worksheets(Nom_Feuille_CptResult_Real_prefix & Nom_Feuille_CptResult_suffix)
+        FoundSheetReal.Copy EndSheet
+        EndSheetIndex = wb.Worksheets(Nom_Feuille_Eupl).Index
+        Set FoundSheetReal = wb.Worksheets.Item(EndSheetIndex - 1)
+        FoundSheetReal.Name = Nom_Feuille_CptResult_Real_prefix & Suffix
+        
+        ' copy formula
+        Set BaseCellReal = FoundSheetReal.Cells(1, 1).EntireColumn.Find("Compte") _
+            .Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal)
+        BaseCellReal.Formula = "=" & CleanAddress(BaseCell.address(True, True, xlA1, True))
+        BaseCellReal.Cells(0, 1).Value = T_Formula
+        ' start refresh
+        CptResult_Update_ForASheet wb, FoundSheetReal.Name
+    Else
+        ' start refresh
+        CptResult_Update_ForASheet wb, FoundSheet.Name
+    End If
 End Sub
 
 ' Macro pour mettre a jour le budget update
@@ -1026,6 +1224,7 @@ Public Function CptResult_Update_ForASheet( _
     ) As Boolean
 
     Dim BaseCell As Range
+    Dim BaseCellForRate As Range
     Dim ChantierSheet As Worksheet
     Dim ChantierSheetReal As Worksheet
     Dim ChantiersToAdd() As Integer
@@ -1113,6 +1312,7 @@ Public Function CptResult_Update_ForASheet( _
     If IsGlobal Then
         ReDim ChantiersToAdd(0 To 0)
         ChantiersToAdd(0) = 0
+        Set BaseCellForRate = Nothing
     Else
         ChantiersToAdd = CptResult_GetChantiersToAdd(BaseCell, NBChantiers)
         If UBound(ChantiersToAdd) = 0 Then
@@ -1120,14 +1320,15 @@ Public Function CptResult_Update_ForASheet( _
                 MsgBox Replace( _
                     T_Error_Formula_In_CptResult, _
                     "%adr%", _
-                    BaseCell.Cells(-2, Offset_NB_Cols_For_Percent_In_CptResultReal).address(False, False, xlA1, True) _
+                    BaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal).address(False, False, xlA1, True) _
                 )
             End If
             ReDim ChantiersToAdd(0 To 1)
             ChantiersToAdd(0) = -1
             ChantiersToAdd(1) = 1
         End If
-        ' TODO define rate for charges based on worked days for chantiers / NB tot worked
+        Set BaseCellForRate = CptResult_Update_ForASheet_Create_Charges_Rate( _
+            wb, BaseCell, Data, ChantiersToAdd, IsReal, NBChantiers)
     End If
 
     BudgetGlobal_Depenses_Clean EndOfHeaderCell, IsReal
@@ -1139,7 +1340,8 @@ Public Function CptResult_Update_ForASheet( _
         IsReal, _
         IsGlobal, _
         TestReal, _
-        ChantiersToAdd
+        ChantiersToAdd, _
+        BaseCellForRate
     
     ' Produits
     Set EndOfHeaderCell = BaseCell.Cells(1, 5)
@@ -1153,7 +1355,7 @@ Public Function CptResult_Update_ForASheet( _
 
     If Not BudgetGlobal_Financements_Add( _
         wb, Data, EndOfHeaderCell, EndOfHeaderCellRelative, _
-        IsReal, IsGlobal, TestReal, ChantiersToAdd) Then
+        IsReal, IsGlobal, TestReal, ChantiersToAdd, BaseCellForRate) Then
         GoTo EndCptResultUpdateForASheet
     End If
     
@@ -1167,5 +1369,109 @@ EndCptResultUpdateForASheet:
     Application.DisplayAlerts = True
     SetActive
 
+End Function
+
+' Create Charges Rate
+' @param Workbook wb
+' @param Range BaseCell
+' @param Data Data
+' @param Integer() ChantiersToAdd
+' @param Boolean IsReal
+' @param Integer NBChantiers
+' @return Range Cell Where Stored
+Public Function CptResult_Update_ForASheet_Create_Charges_Rate( _
+    wb As Workbook, _
+    BaseCell As Range, _
+    Data As Data, _
+    ChantiersToAdd, _
+    IsReal As Boolean, _
+    NBChantiers As Integer _
+) As Range
+
+    Dim BaseCellChantierSheet As Range
+    Dim ChantierSheet As Worksheet
+    Dim ChantierSheetName As String
+    Dim CoutJSheet As Worksheet
+    Dim Formula As String
+    Dim FormulaTotal As String
+    Dim Index As Integer
+    Dim NBJoursCell As Range
+    Dim NBJoursTravaillesTotCell As Range
+    Dim NBSalaries As Integer
+    Dim WorkingCell As Range
+
+    Set WorkingCell = _
+        BaseCell.Cells(-1, Offset_NB_Cols_For_Percent_In_CptResultReal + 3)
+    Set CptResult_Update_ForASheet_Create_Charges_Rate = WorkingCell.Cells(1, 1)
+
+    WorkingCell.Cells(1, 0).Value = T_Rate_For_Charges
+    WorkingCell.Value = -1 ' -1 should be easy to detect error
+
+    Formula = "=("
+    FormulaTotal = ""
+
+    If IsReal Then
+        ChantierSheetName = Nom_Feuille_Budget_chantiers_realise
+    Else
+        ChantierSheetName = Nom_Feuille_Budget_chantiers
+    End If
+    On Error Resume Next
+    Set ChantierSheet = wb.Worksheets(ChantierSheetName)
+    On Error GoTo 0
+    If ChantierSheet Is Nothing Then
+        Exit Function
+    End If
+    On Error Resume Next
+    Set CoutJSheet = wb.Worksheets(Nom_Feuille_Cout_J_Salaire)
+    On Error GoTo 0
+    If CoutJSheet Is Nothing Then
+        Exit Function
+    End If
+
+    Set BaseCellChantierSheet = Chantiers_BaseCell_Get(ChantierSheet)
+    If BaseCellChantierSheet Is Nothing Then
+        Exit Function
+    End If
+
+    Set NBJoursCell = BaseCellChantierSheet.Cells(1, 0).EntireColumn.Find("NB.Jours")
+    If NBJoursCell Is Nothing Then
+        Exit Function
+    End If
+
+    For Index = 1 To UBound(ChantiersToAdd)
+        If Index > 1 Then
+            Formula = Formula & "+"
+        End If
+        If IsReal Then
+            Formula = Formula & CleanAddress( _
+                NBJoursCell.Cells(1, 3 * ChantiersToAdd(Index)).address(True, True, xlA1, True) _
+            )
+        Else
+            Formula = Formula & CleanAddress( _
+                NBJoursCell.Cells(1, 1 + ChantiersToAdd(Index)).address(True, True, xlA1, True) _
+            )
+        End If
+    Next Index
+
+    NBSalaries = GetNbSalaries(wb)
+    Set NBJoursTravaillesTotCell = CoutJSheet.Cells(11 + NBSalaries + 1, 6) ' F11 + NB salarie + 1
+    If IsReal Then
+        For Index = 1 To NBChantiers
+            If Index > 1 Then
+                FormulaTotal = FormulaTotal & "+"
+            End If
+            FormulaTotal = FormulaTotal & CleanAddress( _
+                NBJoursCell.Cells(1, 3 * Index).address(True, True, xlA1, True) _
+            )
+        Next Index
+        Formula = Formula & ")/(1E-9+" & FormulaTotal & ")"
+    Else
+        Formula = Formula & ")/(1E-9+" & CleanAddress( _
+            NBJoursTravaillesTotCell.address(True, True, xlA1, True) _
+        ) & ")"
+    End If
+    On Error Resume Next
+    WorkingCell.Formula = Formula
+    On Error GoTo 0
 End Function
 
