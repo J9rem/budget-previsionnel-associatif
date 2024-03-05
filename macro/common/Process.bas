@@ -559,7 +559,7 @@ Public Sub Chantiers_Depenses_Extract_BaseCell( _
     SetOfChantiers.Chantiers = Chantiers
 End Sub
 
-Public Sub Chantiers_Depenses_Extract_Name(SetOfChantiers As SetOfChantiers, IdxChantiers As Integer, IdxDepense As Integer, newName As String)
+Public Sub Chantiers_Depenses_Extract_Name(SetOfChantiers As SetOfChantiers, IdxChantiers As Integer, IdxDepense As Integer, NewName As String)
     Dim Chantiers() As Chantier
     Dim ChantierTmp As Chantier
     Dim DepensesTmp() As DepenseChantier
@@ -569,7 +569,7 @@ Public Sub Chantiers_Depenses_Extract_Name(SetOfChantiers As SetOfChantiers, Idx
     ChantierTmp = Chantiers(IdxChantiers)
     DepensesTmp = ChantierTmp.Depenses
     TmpDepense = DepensesTmp(IdxDepense)
-    TmpDepense.Nom = newName
+    TmpDepense.Nom = NewName
     DepensesTmp(IdxDepense) = TmpDepense
     ChantierTmp.Depenses = DepensesTmp
     Chantiers(IdxChantiers) = ChantierTmp

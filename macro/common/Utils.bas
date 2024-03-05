@@ -218,6 +218,19 @@ Public Function inArray(StrValue As String, Arr As Variant) As Boolean
 
 End Function
 
+Public Function inArrayInt(IntValue As Integer, Arr As Variant) As Boolean
+
+    Dim Index As Integer
+    
+    inArrayInt = False
+    For Index = LBound(Arr) To UBound(Arr)
+        If IntValue = Arr(Index) Then
+            inArrayInt = True
+        End If
+    Next Index
+
+End Function
+
 Public Function AddWorksheetAtEnd(wb As Workbook, wsName As String) As Worksheet
     With wb.Worksheets
         .Add after:=.Item(.Count)

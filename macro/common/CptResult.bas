@@ -712,7 +712,7 @@ Public Function CptResult_AppendInArray(Values, Value)
     If Not IsArray(Values) Then
         Exit Function
     End If
-    If Not inArray(FormatedValue, Values) Then
+    If Not inArrayInt(FormatedValue, Values) Then
         ReDim WorkingArray(0 To (UBound(Values) + 1))
         For Index = 0 To UBound(Values)
             WorkingArray(Index) = Values(Index)
@@ -811,6 +811,7 @@ Public Function CptResult_ValidateFormula( _
     Dim Index As Integer
     Dim IndexL2 As Integer
     Dim OutputArray() As Integer
+    Dim Test As Integer
     Dim TmpValue As String
     Dim SecondLevelValues() As String
     Dim Values() As String
@@ -818,7 +819,7 @@ Public Function CptResult_ValidateFormula( _
     ReDim OutputArray(0)
     OutputArray(0) = 0
 
-    CptResult_IsValidatedFormula = OutputArray
+    CptResult_ValidateFormula = OutputArray
 
     If ExtractedFormula = "" Then
         Exit Function
@@ -849,28 +850,158 @@ Public Function CptResult_ValidateFormula( _
                 If CInt(SecondLevelValues(1)) <= NBChantiers Then
                     For IndexL2 = CInt(SecondLevelValues(0)) To CInt(SecondLevelValues(1))
                         OutputArray = CptResult_AppendInArray(OutputArray, IndexL2)
-                    End If
+                    Next IndexL2
                 Else
                     OutputArray(0) = 0
                     For IndexL2 = CInt(SecondLevelValues(0)) To NBChantiers
                         OutputArray = CptResult_AppendInArray(OutputArray, IndexL2)
-                    End If
+                    Next IndexL2
                 End If
             Else
                 OutputArray(0) = 0
             End If
         Else
-            If CInt(TmpValue) >= 1 And CInt(TmpValue) <= NBChantiers Then
-                OutputArray = CptResult_AppendInArray(OutputArray, CInt(TmpValue))
+            On Error GoTo EndCptResultValidateFormula
+            Test = CInt(TmpValue)
+            On Error GoTo 0
+            If Test >= 1 And Test <= NBChantiers Then
+                OutputArray = CptResult_AppendInArray(OutputArray, Test)
             Else
                 OutputArray(0) = 0
             End If
         End If
     Next Index
 
-    CptResult_IsValidatedFormula = OutputArray
+    CptResult_ValidateFormula = OutputArray
+    Exit Function
+EndCptResultValidateFormula:
+    OutputArray(0) = 0
+    CptResult_ValidateFormula = OutputArray
 End Function
 
+' Sub create a view for one or several "Chantier"
+Public Sub CptResult_View_ForOneOrSeveralChantiers_Create()
+
+    Dim AnswerForFormula As String
+    Dim AnswerForReal
+    Dim AnswerForSuffix As String
+    Dim ChantiersToAdd() As Integer
+    Dim DefaultSuffix As String
+    Dim Index As Integer
+    Dim NBChantiers As Integer
+    Dim TxtForOnglet As String
+    Dim wb As Workbook
+    Dim WithReal As Boolean
+    
+    AnswerForReal = MsgBox( _
+            prompt:=T_Create_Real_CptResult, _
+            Title:=T_Create_Real_CptResult_Title, _
+            Buttons:=vbYesNo _
+        )
+    WithReal = (AnswerForReal = vbYes)
+
+    AnswerForFormula = InputBox( _
+        Replace(T_Create_CptResult_Formula, "%n%", Chr(10)), _
+        T_Create_CptResult_Formula_Title, _
+        "1" _
+    )
+    AnswerForFormula = Trim(AnswerForFormula)
+
+    If AnswerForFormula = "" Then
+        Exit Sub
+    End If
+
+    Set wb = ThisWorkbook
+    NBChantiers = GetNbChantiers(wb)
+    ChantiersToAdd = CptResult_ValidateFormula(AnswerForFormula, NBChantiers)
+
+    If ChantiersToAdd(0) = 0 Or UBound(ChantiersToAdd) < 1 Then
+        MsgBox T_Error_Incorrect_Formula
+        Exit Sub
+    End If
+
+    TxtForOnglet = Nom_Feuille_CptResult_prefix & "test"
+    If WithReal Then
+        TxtForOnglet = TxtForOnglet & Chr(10) & "et l'onglet " & Nom_Feuille_CptResult_Real_prefix & "test"
+    End If
+    
+    DefaultSuffix = CStr(ChantiersToAdd(1))
+    For Index = 2 To UBound(ChantiersToAdd)
+        DefaultSuffix = DefaultSuffix & "-" & CStr(ChantiersToAdd(Index))
+    Next Index
+
+    AnswerForSuffix = InputBox( _
+        Replace( _
+            Replace( _
+                Replace(T_Get_CptResult_Suffix, "%n%", Chr(10)), _
+                "%suffix%", _
+                "test" _
+            ), _
+            "%onglet%", _
+            TxtForOnglet _
+        ), _
+        T_Get_CptResult_Suffix_Title, _
+        DefaultSuffix _
+    )
+    AnswerForSuffix = Trim(AnswerForSuffix)
+
+    If AnswerForSuffix = "" Then
+        Exit Sub
+    End If
+
+    CptResult_View_ForOneOrSeveralChantiers_Create_With_Name _
+        wb, _
+        AnswerForFormula, _
+        AnswerForSuffix, _
+        WithReal, _
+        True
+End Sub
+
+' Sub create a view for one or several "Chantier" with params
+' @param Workbook wb
+' @param String Formula
+' @param String Suffix
+' @param Boolean WithReal
+' @param Boolean ShowErrorMessage
+Public Sub CptResult_View_ForOneOrSeveralChantiers_Create_With_Name( _
+        wb As Workbook, _
+        Formula As String, _
+        Suffix As String, _
+        WithReal As Boolean, _
+        ShowErrorMessage As Boolean _
+    )
+
+    Dim FoundSheet As Worksheet
+
+    MsgBox "Create '" & Formula & "' with suffix '" & Suffix & "', mode real :" & WithReal
+
+    ' Test if sheet exists
+    Set FoundSheet = Nothing
+    On Error Resume Next
+    Set FoundSheet = wb.Worksheets(Nom_Feuille_CptResult_prefix & Suffix)
+    On Error GoTo 0
+    If Not (FoundSheet Is Nothing) Then
+        If ShowErrorMessage Then
+            MsgBox Replace(T_Error_Existing_Tab_for_Suffix, "%suffix%", "Suffix")
+        End If
+        Exit Sub
+    End If
+    Set FoundSheet = Nothing
+    On Error Resume Next
+    Set FoundSheet = wb.Worksheets(Nom_Feuille_CptResult_Real_prefix & Suffix)
+    On Error GoTo 0
+    If Not (FoundSheet Is Nothing) Then
+        If ShowErrorMessage Then
+            MsgBox Replace(T_Error_Existing_Tab_for_Suffix, "%suffix%", "Suffix")
+        End If
+        Exit Sub
+    End If
+
+    ' copy sheets
+    ' copy formula
+
+    ' start refresh
+End Sub
 
 ' Macro pour mettre a jour le budget update
 Public Sub CptResult_Update(wb As Workbook)
