@@ -1,13 +1,13 @@
 Attribute VB_Name = "Main"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dÃ©claration de toutes les variables
 Option Explicit
 
 ' fonction qui fournit la date de sauvegarde du fichier
 ' pour pouvoir l'utiliser directement dans les cases
 
 Public Function LastSaveDate() As String
-  ' Volatile est présent pour indiquer que c'est une macro qui est recalculée en méme temps que le fichier
+  ' Volatile est prÃ©sent pour indiquer que c'est une macro qui est recalculÃ©e en mÃ©me temps que le fichier
   Application.Volatile
   On Error Resume Next
   LastSaveDate = ThisWorkbook.BuiltinDocumentProperties("Last Save Time")
@@ -28,9 +28,9 @@ Public Sub ExporterSansMacro()
         End If
         
         If Erreur Then
-            MsgBox "Fichier non exporté"
+            MsgBox "Fichier non exportÃ©"
         Else
-            MsgBox "Fichier sauvegardé"
+            MsgBox "Fichier sauvegardÃ©"
         End If
     End If
 End Sub
@@ -48,7 +48,7 @@ Public Sub ImporterDesDonnees()
         If choisirFichierAImporter(FilePath) Then
             MsgBoxResult = MsgBox( _
                 "Faut-il faire une sauvegarde de ce fichier avant l'importation ?" & Chr(10) & _
-                "Les données importées remplaceront toutes les données contenues dans le présent fichier.", _
+                "Les donnÃ©es importÃ©es remplaceront toutes les donnÃ©es contenues dans le prÃ©sent fichier.", _
                 vbYesNo, _
                 "Sauvegarder ce fichier ?" _
                 )
@@ -66,7 +66,7 @@ Public Sub ImporterDesDonnees()
         If Erreur Then
             MsgBox "Impossible d'importer le ficher"
         Else
-            MsgBox "Fichier importé"
+            MsgBox "Fichier importÃ©"
         End If
     End If
 End Sub
@@ -149,7 +149,7 @@ Public Sub AjouterUnSalarie()
 
 End Sub
 
-' Macro pour insérer une dépense
+' Macro pour insÃ©rer une dÃ©pense
 Public Sub InsererUneDepense()
 
     Dim CurrentWs As Worksheet
