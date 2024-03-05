@@ -34,6 +34,7 @@ Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
     Dim Depenses() As DepenseChantier
     Dim Depense As DepenseChantier
     Dim Index As Integer
+    Dim IndexChantier As Integer
     Dim NBChantiers As Integer
     Dim TmpFormula As String
     Dim ValueToTest As Double
@@ -457,6 +458,7 @@ Public Function BudgetGlobal_Financements_Add( _
     Dim Index As Integer
     Dim IndexTypeFinancement As Integer
     Dim NBChantiers As Integer
+    Dim TmpFormula As String
     Dim TypesFinancements() As String
 
     Set BaseCell = StartCell
@@ -503,7 +505,7 @@ Public Function BudgetGlobal_Financements_Add( _
         Exit Function
     End If
     Set HeadCell = BaseCell
-    HeadCell.Cells(1, 3).Formula = "="
+    TmpFormula = "="
     
     TypesFinancements = TypeFinancementsFromWb(wb)
     
@@ -519,10 +521,10 @@ Public Function BudgetGlobal_Financements_Add( _
         End If
 
         If IndexTypeFinancement > 1 Then
-            HeadCell.Cells(1, 3).Formula = HeadCell.Cells(1, 3).Formula & "+"
+            TmpFormula = TmpFormula & "+"
         End If
         
-        HeadCell.Cells(1, 3).Formula = HeadCell.Cells(1, 3).Formula _
+        TmpFormula = TmpFormula _
             & CleanAddress(BaseCell.Cells(1, 3).address(False, False, xlA1))
         Set HeadCellFinancement = BaseCell
         Chantiers = Data.Chantiers
@@ -540,6 +542,7 @@ Public Function BudgetGlobal_Financements_Add( _
             HeadCellFinancement.Cells(1, 3).Formula = "=SUM(" & CleanAddress(Range(HeadCellFinancement.Cells(2, 3), BaseCell.Cells(1, 3)).address(False, False, xlA1)) & ")"
         End If
     Next IndexTypeFinancement
+    HeadCell.Cells(1, 3).Formula = TmpFormula
     
     ' remove others lines and leave one formatted
     While BaseCell.Cells(2, 1).Value = ""
