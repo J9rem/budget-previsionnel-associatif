@@ -142,6 +142,12 @@ Public Type SetOfCellsCategories
     TotalCell As Range
 End Type
 
+Public Type ListOfCptResult
+    Suffix() As String
+    Formula() As String
+    WithReal() As Boolean
+End Type
+
 Public Function getDefaultWbRevision() As WbRevision
     
     Dim WbRevision As WbRevision

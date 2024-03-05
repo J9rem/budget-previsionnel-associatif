@@ -16,7 +16,7 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
         & "Excel avec macro (*.xlsm),*.xlsm," _
         & "Libre Office (*.ods),*.ods", _
         0, _
-        "Choisir le fichier à importer" _
+        "Choisir le fichier ï¿½ importer" _
     )
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" _
@@ -33,30 +33,165 @@ End Function
 
 Public Sub ImportSheets(oldWorkbook As Workbook, NewWorkbook As Workbook)
 
-    Dim Index As Integer
-    Dim ws As Worksheet
-    Dim NewWs As Worksheet
     Dim DefSheetNames As Variant
+    Dim Formula As String
+    Dim Index As Integer
+    Dim ListOfCptResult As ListOfCptResult
+    Dim NewWs As Worksheet
+    Dim PageName As String
+    Dim Suffix As String
+    Dim WithReal As Boolean
+    Dim ws As Worksheet
+
+    ListOfCptResult = ImportSheets_Init_ListOfCptResult()
     
     DefSheetNames = DefaultSheetsNames()
     
     For Each ws In oldWorkbook.Worksheets
-        If Not inArray(ws.Name, DefSheetNames) _
-            And Not (CptResult_IsValidatedPageName(ws.Name)) Then
-            If Not FindWorkSheet(NewWorkbook, NewWs, ws.Name) Then
-                ' Create the new sheet
-                Set NewWs = AddWorksheetAtEnd(NewWorkbook, ws.Name)
+        PageName = ws.Name
+        If Not inArray(PageName, DefSheetNames) Then
+            If Not (CptResult_IsValidatedPageName(PageName)) Then
+                If Not FindWorkSheet(NewWorkbook, NewWs, PageName) Then
+                    ' Create the new sheet
+                    Set NewWs = AddWorksheetAtEnd(NewWorkbook, PageName)
+                End If
+                replaceContentFromWorksheet NewWs, ws
+            Else
+                ' import CptResultPartial
+                If CptResult_IsReal(PageName) Then
+                    Suffix = Mid(PageName, Len(Nom_Feuille_CptResult_Real_prefix) + 1)
+                    WithReal = True
+                Else
+                    Suffix = Mid(PageName, Len(Nom_Feuille_CptResult_prefix) + 1)
+                    WithReal = False
+                End If
+                If Suffix <> Nom_Feuille_CptResult_suffix Then
+                    ' extract formula
+                    Formula = ws.Cells(1, 1).EntireColumn.Find("Compte") _
+                        .Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal).Value
+                    ListOfCptResult = ImportSheets_Update_ListOfCptResult( _
+                        ListOfCptResult, Suffix, Formula, WithReal _
+                    )
+                End If
             End If
-            replaceContentFromWorksheet NewWs, ws
         End If
     Next ws
     
     removeCrossRef ThisWorkbook, oldWorkbook
+
+    ImportSheets_Create_ListOfCptResult NewWorkbook, ListOfCptResult
     
     NewWorkbook.Activate
     NewWorkbook.Worksheets(1).Activate
 
 End Sub
+
+Public Function ImportSheets_Init_ListOfCptResult() As ListOfCptResult
+
+    Dim Formula() As String
+    Dim ListOfCptResult As ListOfCptResult
+    Dim Suffix() As String
+    Dim WithReal() As Boolean
+
+    ReDim Suffix(0 To 0)
+    Suffix(0) = ""
+    ReDim Formula(0 To 0)
+    Formula(0) = ""
+    ReDim WithReal(0 To 0)
+    WithReal(0) = False
+
+    ListOfCptResult.Formula = Formula
+    ListOfCptResult.Suffix = Suffix
+    ListOfCptResult.WithReal = WithReal
+
+    ImportSheets_Init_ListOfCptResult = ListOfCptResult
+End Function
+
+Public Sub ImportSheets_Create_ListOfCptResult( _
+    wb As Workbook, _
+    ListOfCptResult As ListOfCptResult _
+)
+    
+    Dim FormulaArr() As String
+    Dim Index As Integer
+    Dim SuffixArr() As String
+    Dim WithRealArr() As Boolean
+    
+    SuffixArr = ListOfCptResult.Suffix
+    WithRealArr = ListOfCptResult.WithReal
+    FormulaArr = ListOfCptResult.Formula
+
+    SetActive
+    SetSilent
+
+    For Index = 1 To UBound(SuffixArr)
+        CptResult_View_ForOneOrSeveralChantiers_Create_With_Name _
+            wb, _
+            FormulaArr(Index), _
+            SuffixArr(Index), _
+            WithRealArr(Index), _
+            False
+    Next Index
+
+End Sub
+
+Public Function ImportSheets_Update_ListOfCptResult( _
+    ListOfCptResult As ListOfCptResult, _
+    Suffix As String, _
+    Formula As String, _
+    WithReal As Boolean _
+) As ListOfCptResult
+
+    Dim FormulaArr() As String
+    Dim FormulaNewArr() As String
+    Dim ListOfCptResultInternal As ListOfCptResult
+    Dim Index As Integer
+    Dim NBElem As Integer
+    Dim ShouldAppend As Boolean
+    Dim SuffixArr() As String
+    Dim SuffixNewArr() As String
+    Dim WithRealArr() As Boolean
+    Dim WithRealNewArr() As Boolean
+
+    ShouldAppend = True
+    SuffixArr = ListOfCptResult.Suffix
+    WithRealArr = ListOfCptResult.WithReal
+    FormulaArr = ListOfCptResult.Formula
+    ListOfCptResultInternal = ListOfCptResult
+    NBElem = UBound(SuffixArr)
+    If NBElem > 0 Then
+        For Index = 1 To NBElem
+            If SuffixArr(Index) = Suffix Then
+                ShouldAppend = False
+                If WithReal Then
+                    WithRealArr(Index) = True
+                    ListOfCptResultInternal.WithReal = WithRealArr
+                End If
+            End If
+        Next Index
+    End If
+
+    If ShouldAppend Then
+        ReDim FormulaNewArr(1 To (NBElem + 1))
+        ReDim SuffixNewArr(1 To (NBElem + 1))
+        ReDim WithRealNewArr(1 To (NBElem + 1))
+        
+        For Index = 1 To NBElem
+            FormulaNewArr(Index) = FormulaArr(Index)
+            SuffixNewArr(Index) = SuffixArr(Index)
+            WithRealNewArr(Index) = WithRealArr(Index)
+        Next Index
+        FormulaNewArr(NBElem + 1) = Formula
+        SuffixNewArr(NBElem + 1) = Suffix
+        WithRealNewArr(NBElem + 1) = WithReal
+
+        ListOfCptResultInternal.Formula = FormulaNewArr
+        ListOfCptResultInternal.Suffix = SuffixNewArr
+        ListOfCptResultInternal.WithReal = WithRealNewArr
+    End If
+
+    ImportSheets_Update_ListOfCptResult = ListOfCptResultInternal
+End Function
 
 Public Sub replaceContentFromWorksheet( _
         newWorksheet As Worksheet, _
