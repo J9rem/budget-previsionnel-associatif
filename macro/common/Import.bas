@@ -16,7 +16,7 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
         & "Excel avec macro (*.xlsm),*.xlsm," _
         & "Libre Office (*.ods),*.ods", _
         0, _
-        "Choisir le fichier ï¿½ importer" _
+        "Choisir le fichier à importer" _
     )
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" _
