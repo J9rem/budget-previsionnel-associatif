@@ -62,6 +62,7 @@ Public Const T_Given_Line_Is_Not_Line_Of_Object As String = "La ligne entrée n'e
 Public Const T_Line_To_Delete_For_Object As String = "Ligne %objectName% à supprimer"
 Public Const T_NotFoundPage As String = "'%PageName%' n'a pas été trouvée"
 Public Const T_NotFoundFirstName As String = "'Prénom' non trouvé dans '%PageName%' !"
+Public Const T_Rate_For_Charges As String = "Taux de charges indirectes :"
 Public Const T_Salary As String = "Rémunération des personnels"
 Public Const T_Total_Charges As String = "Total Dépenses"
 Public Const T_WorkingPeople As String = "Salarié"

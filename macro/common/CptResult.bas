@@ -1058,6 +1058,7 @@ Public Function CptResult_Update_ForASheet( _
     ) As Boolean
 
     Dim BaseCell As Range
+    Dim BaseCellForRate As Range
     Dim ChantierSheet As Worksheet
     Dim ChantierSheetReal As Worksheet
     Dim ChantiersToAdd() As Integer
@@ -1145,6 +1146,7 @@ Public Function CptResult_Update_ForASheet( _
     If IsGlobal Then
         ReDim ChantiersToAdd(0 To 0)
         ChantiersToAdd(0) = 0
+        Set BaseCellForRate = Nothing
     Else
         ChantiersToAdd = CptResult_GetChantiersToAdd(BaseCell, NBChantiers)
         If UBound(ChantiersToAdd) = 0 Then
@@ -1159,7 +1161,8 @@ Public Function CptResult_Update_ForASheet( _
             ChantiersToAdd(0) = -1
             ChantiersToAdd(1) = 1
         End If
-        ' TODO define rate for charges based on worked days for chantiers / NB tot worked
+        Set BaseCellForRate = CptResult_Update_ForASheet_Create_Charges_Rate( _
+            wb, BaseCell, Data, ChantiersToAdd, IsReal, NBChantiers)
     End If
 
     BudgetGlobal_Depenses_Clean EndOfHeaderCell, IsReal
@@ -1199,5 +1202,109 @@ EndCptResultUpdateForASheet:
     Application.DisplayAlerts = True
     SetActive
 
+End Function
+
+' Create Charges Rate
+' @param Workbook wb
+' @param Range BaseCell
+' @param Data Data
+' @param Integer() ChantiersToAdd
+' @param Boolean IsReal
+' @param Integer NBChantiers
+' @return Range Cell Where Stored
+Public Function CptResult_Update_ForASheet_Create_Charges_Rate( _
+    wb As Workbook, _
+    BaseCell As Range, _
+    Data As Data, _
+    ChantiersToAdd, _
+    IsReal As Boolean, _
+    NBChantiers As Integer _
+) As Range
+
+    Dim BaseCellChantierSheet As Range
+    Dim ChantierSheet As Worksheet
+    Dim ChantierSheetName As String
+    Dim CoutJSheet As Worksheet
+    Dim Formula As String
+    Dim FormulaTotal As String
+    Dim Index As Integer
+    Dim NBJoursCell As Range
+    Dim NBJoursTravaillesTotCell As Range
+    Dim NBSalaries As Integer
+    Dim WorkingCell As Range
+
+    Set WorkingCell = _
+        BaseCell.Cells(-1, Offset_NB_Cols_For_Percent_In_CptResultReal + 3)
+    Set CptResult_Update_ForASheet_Create_Charges_Rate = WorkingCell.Cells(1, 1)
+
+    WorkingCell.Cells(1, 0).Value = T_Rate_For_Charges
+    WorkingCell.Value = -1 ' -1 should be easy to detect error
+
+    Formula = "=("
+    FormulaTotal = ""
+
+    If IsReal Then
+        ChantierSheetName = Nom_Feuille_Budget_chantiers_realise
+    Else
+        ChantierSheetName = Nom_Feuille_Budget_chantiers
+    End If
+    On Error Resume Next
+    Set ChantierSheet = wb.Worksheets(ChantierSheetName)
+    On Error GoTo 0
+    If ChantierSheet Is Nothing Then
+        Exit Function
+    End If
+    On Error Resume Next
+    Set CoutJSheet = wb.Worksheets(Nom_Feuille_Cout_J_Salaire)
+    On Error GoTo 0
+    If CoutJSheet Is Nothing Then
+        Exit Function
+    End If
+
+    Set BaseCellChantierSheet = Chantiers_BaseCell_Get(ChantierSheet)
+    If BaseCellChantierSheet Is Nothing Then
+        Exit Function
+    End If
+
+    Set NBJoursCell = BaseCellChantierSheet.Cells(1, 0).EntireColumn.Find("NB.Jours")
+    If NBJoursCell Is Nothing Then
+        Exit Function
+    End If
+
+    For Index = 1 To UBound(ChantiersToAdd)
+        If Index > 1 Then
+            Formula = Formula & "+"
+        End If
+        If IsReal Then
+            Formula = Formula & CleanAddress( _
+                NBJoursCell.Cells(1, 3 * ChantiersToAdd(Index)).address(True, True, xlA1, True) _
+            )
+        Else
+            Formula = Formula & CleanAddress( _
+                NBJoursCell.Cells(1, 1 + ChantiersToAdd(Index)).address(True, True, xlA1, True) _
+            )
+        End If
+    Next Index
+
+    NBSalaries = GetNbSalaries(wb)
+    Set NBJoursTravaillesTotCell = CoutJSheet.Cells(11 + NBSalaries + 1, 6) ' F11 + NB salarie + 1
+    If IsReal Then
+        For Index = 1 To NBChantiers
+            If Index > 1 Then
+                FormulaTotal = FormulaTotal & "+"
+            End If
+            FormulaTotal = FormulaTotal & CleanAddress( _
+                NBJoursCell.Cells(1, 3 * Index).address(True, True, xlA1, True) _
+            )
+        Next Index
+        Formula = Formula & ")/(1E-9+" & FormulaTotal & ")"
+    Else
+        Formula = Formula & ")/(1E-9+" & CleanAddress( _
+            NBJoursTravaillesTotCell.address(True, True, xlA1, True) _
+        ) & ")"
+    End If
+    On Error Resume Next
+    WorkingCell.Formula = Formula
+    On Error GoTo 0
 End Function
 
