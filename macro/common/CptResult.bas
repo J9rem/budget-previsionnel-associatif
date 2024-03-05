@@ -741,7 +741,7 @@ Public Function CptResult_GetChantiersToAdd(BaseCell As Range, NBChantiers As In
         Exit Function
     End If
 
-    Set CellWhereExpectedFormula = BaseCell.Cells(-2, Offset_NB_Cols_For_Percent_In_CptResultReal)
+    Set CellWhereExpectedFormula = BaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal)
     If CellWhereExpectedFormula.Value = "" Then
         Exit Function
     End If
@@ -971,9 +971,12 @@ Public Sub CptResult_View_ForOneOrSeveralChantiers_Create_With_Name( _
         ShowErrorMessage As Boolean _
     )
 
+    Dim BaseCell As Range
+    Dim BaseCellReal As Range
     Dim EndSheet As Worksheet
     Dim EndSheetIndex As Integer
     Dim FoundSheet As Worksheet
+    Dim FoundSheetReal As Worksheet
 
     ' Test if sheet exists
     Set FoundSheet = Nothing
@@ -1006,18 +1009,30 @@ Public Sub CptResult_View_ForOneOrSeveralChantiers_Create_With_Name( _
     EndSheetIndex = wb.Worksheets(Nom_Feuille_Eupl).Index
     Set FoundSheet = wb.Worksheets.Item(EndSheetIndex - 1)
     FoundSheet.Name = Nom_Feuille_CptResult_prefix & Suffix
+    ' copy formula
+    Set BaseCell = FoundSheet.Cells(1, 1).EntireColumn.Find("Compte") _
+        .Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal)
+    BaseCell.Formula = "=""" & Formula & """"
+    BaseCell.Cells(0, 1).Value = T_Formula
     
     If WithReal Then
-        Set FoundSheet = wb.Worksheets(Nom_Feuille_CptResult_Real_prefix & Nom_Feuille_CptResult_suffix)
-        FoundSheet.Copy EndSheet
+        Set FoundSheetReal = wb.Worksheets(Nom_Feuille_CptResult_Real_prefix & Nom_Feuille_CptResult_suffix)
+        FoundSheetReal.Copy EndSheet
         EndSheetIndex = wb.Worksheets(Nom_Feuille_Eupl).Index
-        Set FoundSheet = wb.Worksheets.Item(EndSheetIndex - 1)
-        FoundSheet.Name = Nom_Feuille_CptResult_Real_prefix & Suffix
+        Set FoundSheetReal = wb.Worksheets.Item(EndSheetIndex - 1)
+        FoundSheetReal.Name = Nom_Feuille_CptResult_Real_prefix & Suffix
+        
+        ' copy formula
+        Set BaseCellReal = FoundSheetReal.Cells(1, 1).EntireColumn.Find("Compte") _
+            .Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal)
+        BaseCellReal.Formula = "=" & CleanAddress(BaseCell.address(True, True, xlA1, True))
+        BaseCellReal.Cells(0, 1).Value = T_Formula
+        ' start refresh
+        CptResult_Update_ForASheet wb, FoundSheetReal.Name
+    Else
+        ' start refresh
+        CptResult_Update_ForASheet wb, FoundSheet.Name
     End If
-
-    ' copy formula
-
-    ' start refresh
 End Sub
 
 ' Macro pour mettre a jour le budget update
@@ -1137,7 +1152,7 @@ Public Function CptResult_Update_ForASheet( _
                 MsgBox Replace( _
                     T_Error_Formula_In_CptResult, _
                     "%adr%", _
-                    BaseCell.Cells(-2, Offset_NB_Cols_For_Percent_In_CptResultReal).address(False, False, xlA1, True) _
+                    BaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal).address(False, False, xlA1, True) _
                 )
             End If
             ReDim ChantiersToAdd(0 To 1)
