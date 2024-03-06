@@ -16,7 +16,7 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
         & "Excel avec macro (*.xlsm),*.xlsm," _
         & "Libre Office (*.ods),*.ods", _
         0, _
-        "Choisir le fichier à importer" _
+        "Choisir le fichier ï¿½ importer" _
     )
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" _
@@ -35,6 +35,7 @@ Public Sub ImportSheets(oldWorkbook As Workbook, NewWorkbook As Workbook)
 
     Dim DefSheetNames As Variant
     Dim Formula As String
+    Dim FormulaCell As Range
     Dim Index As Integer
     Dim ListOfCptResult As ListOfCptResult
     Dim NewWs As Worksheet
@@ -67,11 +68,15 @@ Public Sub ImportSheets(oldWorkbook As Workbook, NewWorkbook As Workbook)
                 End If
                 If Suffix <> Nom_Feuille_CptResult_suffix Then
                     ' extract formula
-                    Formula = ws.Cells(1, 1).EntireColumn.Find("Compte") _
-                        .Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal).Value
-                    ListOfCptResult = ImportSheets_Update_ListOfCptResult( _
-                        ListOfCptResult, Suffix, Formula, WithReal _
-                    )
+                    Set FormulaCell = CptResult_GetFormulaCell(ws)
+                    If Not (FormulaCell Is Nothing) Then
+                        Formula = FormulaCell.Value
+                        If Formula <> "" Then
+                            ListOfCptResult = ImportSheets_Update_ListOfCptResult( _
+                                ListOfCptResult, Suffix, Formula, WithReal _
+                            )
+                        End If
+                    End If
                 End If
             End If
         End If
@@ -121,15 +126,13 @@ Public Sub ImportSheets_Create_ListOfCptResult( _
     WithRealArr = ListOfCptResult.WithReal
     FormulaArr = ListOfCptResult.Formula
 
-    SetActive
-    SetSilent
-
     For Index = 1 To UBound(SuffixArr)
         CptResult_View_ForOneOrSeveralChantiers_Create_With_Name _
             wb, _
             FormulaArr(Index), _
             SuffixArr(Index), _
             WithRealArr(Index), _
+            False, _
             False
     Next Index
 

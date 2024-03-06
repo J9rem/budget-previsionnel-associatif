@@ -13,6 +13,7 @@ Option Explicit
 ' @param Boolean IsGlobal
 ' @param Boolean TestReal
 ' @param Integer() ChantiersToAdd
+' @param Boolean CheckIfEmpty
 ' @return Range NewCurrentCell
 Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
         Data As Data, _
@@ -23,7 +24,8 @@ Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
         BaseCellRelative As Range, _
         IsGlobal As Boolean, _
         TestReal As Boolean, _
-        ChantiersToAdd _
+        ChantiersToAdd, _
+        CheckIfEmpty As Boolean _
     )
 
     Dim CanAdd As Boolean
@@ -49,7 +51,7 @@ Public Function BudgetGlobal_Depenses_Add_From_Chantiers( _
     For Index = 1 To UBound(Depenses)
         Depense = Depenses(Index)
         If Left(Depense.Nom, 2) = CStr(CodeValue) Then
-            CanAdd = IsGlobal
+            CanAdd = IsGlobal Or Not (CheckIfEmpty)
             If Not CanAdd Then
                 ' test for prediction
                 For IndexChantier = 1 To UBound(ChantiersToAdd)
@@ -138,6 +140,7 @@ End Function
 ' @param Boolean IsGlobal
 ' @param Boolean TestReal
 ' @param Range BaseCellForRate
+' @param Boolean CheckIfEmpty
 ' @return Range NewCurrenCell
 Public Function BudgetGlobal_Depenses_Add_From_Charges( _
         Data As Data, _
@@ -148,7 +151,8 @@ Public Function BudgetGlobal_Depenses_Add_From_Charges( _
         IsReal As Boolean, _
         IsGlobal As Boolean, _
         TestReal As Boolean, _
-        BaseCellForRate As Range _
+        BaseCellForRate As Range, _
+        CheckIfEmpty As Boolean _
     )
 
     Dim CanAdd As Boolean
@@ -166,7 +170,7 @@ Public Function BudgetGlobal_Depenses_Add_From_Charges( _
         currentCharge = Charges(Index)
         
         If currentCharge.IndexTypeCharge = IndexFound Then
-            CanAdd = IsGlobal
+            CanAdd = IsGlobal Or Not (CheckIfEmpty)
             If Not CanAdd Then
                 If IsReal Or TestReal Then
                     CanAdd = (currentCharge.ChargeCell.Cells(1, 4).Value <> 0) _
@@ -247,6 +251,7 @@ End Function
 ' @param Boolean TestReal
 ' @param Integer() ChantiersToAdd
 ' @param Range BaseCellForRate
+' @param Boolean CheckIfEmpty
 ' @return Range CurrentCell
 Public Function BudgetGlobal_Depenses_Add( _
         wb As Workbook, _
@@ -257,7 +262,8 @@ Public Function BudgetGlobal_Depenses_Add( _
         IsGlobal As Boolean, _
         TestReal As Boolean, _
         ChantiersToAdd, _
-        BaseCellForRate As Range _
+        BaseCellForRate As Range, _
+        CheckIfEmpty As Boolean _
     ) As Range
 
     Dim CodeValue As Integer
@@ -298,11 +304,11 @@ Public Function BudgetGlobal_Depenses_Add( _
             Set CurrentCell = BudgetGlobal_Depenses_Add_From_Charges( _
                 Data, HeadCell, HeadCell, _
                 TmpBaseCellRelative, _
-                CodeIndex, IsReal, IsGlobal, TestReal, BaseCellForRate _
+                CodeIndex, IsReal, IsGlobal, TestReal, BaseCellForRate, CheckIfEmpty _
             )
             Set CurrentCell = BudgetGlobal_Depenses_Add_From_Chantiers( _
                 Data, CurrentCell, HeadCell, CodeValue, IsReal, TmpBaseCellRelative, _
-                IsGlobal, TestReal, ChantiersToAdd _
+                IsGlobal, TestReal, ChantiersToAdd, CheckIfEmpty _
             )
 
             If CodeValue = 64 Then
@@ -436,6 +442,7 @@ End Sub
 ' @param Boolean TestReal
 ' @param Integer() ChantiersToAdd
 ' @param Range BaseCellForRate
+' @param Boolean CheckIfEmpty
 ' @return Boolean All is right
 Public Function BudgetGlobal_Financements_Add( _
         wb As Workbook, _
@@ -446,7 +453,8 @@ Public Function BudgetGlobal_Financements_Add( _
         IsGlobal As Boolean, _
         TestReal As Boolean, _
         ChantiersToAdd, _
-        BaseCellForRate As Range _
+        BaseCellForRate As Range, _
+        CheckIfEmpty As Boolean _
     ) As Boolean
 
     Dim BaseCell As Range
@@ -472,7 +480,7 @@ Public Function BudgetGlobal_Financements_Add( _
         If Financement.TypeFinancement = 0 Then
             Set BaseCell = CptResult_Add_A_LineOfFinancement( _
                 BaseCell, HeadCell, StartCell, IsReal, BaseCellRelative, _
-                Financement, NBChantiers, IsGlobal, ChantiersToAdd)
+                Financement, NBChantiers, IsGlobal, ChantiersToAdd, CheckIfEmpty)
         End If
     Next Index
     
@@ -535,7 +543,7 @@ Public Function BudgetGlobal_Financements_Add( _
             If Financement.TypeFinancement = IndexTypeFinancement Then
                 Set BaseCell = CptResult_Add_A_LineOfFinancement( _
                     BaseCell, HeadCellFinancement, StartCell, IsReal, BaseCellRelative, _
-                    Financement, NBChantiers, IsGlobal, ChantiersToAdd)
+                    Financement, NBChantiers, IsGlobal, ChantiersToAdd, CheckIfEmpty)
             End If
         Next Index
         If BaseCell.Row > HeadCellFinancement.Row Then
@@ -638,6 +646,7 @@ End Function
 ' @param Integer NBChantiers
 ' @param Boolean IsGlobal
 ' @param Integer() ChantiersToAdd
+' @param Boolean CheckIfEmpty
 ' @return Range NewBaseCell
 Public Function CptResult_Add_A_LineOfFinancement( _
         BaseCellParam As Range, _
@@ -648,7 +657,8 @@ Public Function CptResult_Add_A_LineOfFinancement( _
         Financement As Financement, _
         NBChantiers As Integer, _
         IsGlobal As Boolean, _
-        ChantiersToAdd _
+        ChantiersToAdd, _
+        CheckIfEmpty As Boolean _
     ) As Range
 
     Dim BaseCell As Range
@@ -658,7 +668,7 @@ Public Function CptResult_Add_A_LineOfFinancement( _
     Dim ValueToTest As Double
 
     Set BaseCell = BaseCellParam
-    If Not IsGlobal Then
+    If (Not IsGlobal) And CheckIfEmpty Then
         CanAdd = False
         For Index = 1 To UBound(ChantiersToAdd)
             ValueToTest = 1
@@ -936,6 +946,44 @@ Public Function CptResult_FindEndOfHeaderTable(BaseCell As Range) As Range
     Set CptResult_FindEndOfHeaderTable = WorkingCell.Cells(0, 1)
 End Function
 
+Public Function CptResult_FindEndOfHeaderTableFromSheet(ws As Worksheet) As Range
+
+    Dim EndOfHeaderCell As Range
+    Dim WorkingCell As Range
+
+    Set WorkingCell = ws.Cells(1, 1).EntireColumn.Find("Compte")
+    Set EndOfHeaderCell = CptResult_FindEndOfHeaderTable(WorkingCell)
+    If EndOfHeaderCell Is Nothing Then
+        Set CptResult_FindEndOfHeaderTableFromSheet = Nothing
+    End If
+
+    Set CptResult_FindEndOfHeaderTableFromSheet = EndOfHeaderCell
+End Function
+
+' get formula cell in CptResult
+' @param Worksheet ws
+' @return Range
+Public function CptResult_GetFormulaCell(ws As Worksheet) As Range
+    
+    Dim BaseCell As Range
+
+    ' default value
+    Set CptResult_GetFormulaCell = Nothing
+
+    Set BaseCell = CptResult_FindEndOfHeaderTableFromSheet(ws)
+    If BaseCell Is Nothing Then
+        Exit Function
+    End If
+    ' right cell with "compte"
+    Set BaseCell = BaseCell.Cells(0, 1)
+    ' forumla cell
+    If BaseCell.Row = 1 Then
+        ' not right cell
+        Exit Function
+    End If
+    Set CptResult_GetFormulaCell = BaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal)
+End Function
+
 ' generat formula for percent
 ' @param Range BaseCell
 ' @param Range BaseCellRelative
@@ -1129,12 +1177,14 @@ End Sub
 ' @param String Suffix
 ' @param Boolean WithReal
 ' @param Boolean ShowErrorMessage
+' @param Boolean CheckIfEmpty
 Public Sub CptResult_View_ForOneOrSeveralChantiers_Create_With_Name( _
         wb As Workbook, _
         Formula As String, _
         Suffix As String, _
         WithReal As Boolean, _
-        ShowErrorMessage As Boolean _
+        ShowErrorMessage As Boolean, _
+        Optional CheckIfEmpty As Boolean = True _
     )
 
     Dim BaseCell As Range
@@ -1176,8 +1226,10 @@ Public Sub CptResult_View_ForOneOrSeveralChantiers_Create_With_Name( _
     Set FoundSheet = wb.Worksheets.Item(EndSheetIndex - 1)
     FoundSheet.Name = Nom_Feuille_CptResult_prefix & Suffix
     ' copy formula
-    Set BaseCell = FoundSheet.Cells(1, 1).EntireColumn.Find("Compte") _
-        .Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal)
+    Set BaseCell = CptResult_GetFormulaCell(ws)
+    If BaseCell Is Nothing Then
+        Exit Sub
+    End If
     BaseCell.Formula = "=""" & Formula & """"
     BaseCell.Cells(0, 1).Value = T_Formula
     
@@ -1189,15 +1241,17 @@ Public Sub CptResult_View_ForOneOrSeveralChantiers_Create_With_Name( _
         FoundSheetReal.Name = Nom_Feuille_CptResult_Real_prefix & Suffix
         
         ' copy formula
-        Set BaseCellReal = FoundSheetReal.Cells(1, 1).EntireColumn.Find("Compte") _
-            .Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal)
+        Set BaseCellReal = CptResult_GetFormulaCell(ws)
+        If BaseCellReal Is Nothing Then
+            Exit Sub
+        End If
         BaseCellReal.Formula = "=" & CleanAddress(BaseCell.address(True, True, xlA1, True))
         BaseCellReal.Cells(0, 1).Value = T_Formula
         ' start refresh
-        CptResult_Update_ForASheet wb, FoundSheetReal.Name
+        CptResult_Update_ForASheet wb, FoundSheetReal.Name, False, CheckIfEmpty
     Else
         ' start refresh
-        CptResult_Update_ForASheet wb, FoundSheet.Name
+        CptResult_Update_ForASheet wb, FoundSheet.Name, False, CheckIfEmpty
     End If
 End Sub
 
@@ -1216,11 +1270,13 @@ End Sub
 ' @param Workbook wb
 ' @param String PageName
 ' @param Boolean TestReal = False
+' @param Boolean CheckIfEmpty
 ' @return Boolean False If Error
 Public Function CptResult_Update_ForASheet( _
         wb As Workbook, _
         PageName As String, _
-        Optional TestReal As Boolean = False _
+        Optional TestReal As Boolean = False, _
+        Optional CheckIfEmpty As Boolean = True _
     ) As Boolean
 
     Dim BaseCell As Range
@@ -1293,15 +1349,13 @@ Public Function CptResult_Update_ForASheet( _
         Set ChantierSheetReal = Nothing
     End If
     
-    Set BaseCell = CurrentSheet.Cells(1, 1).EntireColumn.Find("Compte")
-    Set EndOfHeaderCell = CptResult_FindEndOfHeaderTable(BaseCell)
+    Set EndOfHeaderCell = CptResult_FindEndOfHeaderTableFromSheet(CurrentSheet)
     If EndOfHeaderCell Is Nothing Then
         GoTo EndCptResultUpdateForASheet
     End If
+    Set BaseCell = EndOfHeaderCell.Cells(0, 1)
     If IsReal Then
-        Set EndOfHeaderCellRelative = CptResult_FindEndOfHeaderTable( _
-            RelativeSheet.Cells(1, 1).EntireColumn.Find("Compte") _
-        )
+        Set EndOfHeaderCellRelative = CptResult_FindEndOfHeaderTableFromSheet(RelativeSheet)
         If EndOfHeaderCellRelative Is Nothing Then
             GoTo EndCptResultUpdateForASheet
         End If
@@ -1341,7 +1395,8 @@ Public Function CptResult_Update_ForASheet( _
         IsGlobal, _
         TestReal, _
         ChantiersToAdd, _
-        BaseCellForRate
+        BaseCellForRate, _
+        CheckIfEmpty
     
     ' Produits
     Set EndOfHeaderCell = BaseCell.Cells(1, 5)
@@ -1355,7 +1410,7 @@ Public Function CptResult_Update_ForASheet( _
 
     If Not BudgetGlobal_Financements_Add( _
         wb, Data, EndOfHeaderCell, EndOfHeaderCellRelative, _
-        IsReal, IsGlobal, TestReal, ChantiersToAdd, BaseCellForRate) Then
+        IsReal, IsGlobal, TestReal, ChantiersToAdd, BaseCellForRate, CheckIfEmpty) Then
         GoTo EndCptResultUpdateForASheet
     End If
     
