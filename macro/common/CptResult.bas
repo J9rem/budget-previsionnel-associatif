@@ -963,7 +963,7 @@ End Function
 ' get formula cell in CptResult
 ' @param Worksheet ws
 ' @return Range
-Public function CptResult_GetFormulaCell(ws As Worksheet) As Range
+Public Function CptResult_GetFormulaCell(ws As Worksheet) As Range
     
     Dim BaseCell As Range
 
