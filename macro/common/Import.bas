@@ -133,7 +133,7 @@ Public Sub ImportSheets_Create_ListOfCptResult( _
             SuffixArr(Index), _
             WithRealArr(Index), _
             False, _
-            False
+            True
     Next Index
 
 End Sub
