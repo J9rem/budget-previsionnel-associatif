@@ -16,7 +16,7 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
         & "Excel avec macro (*.xlsm),*.xlsm," _
         & "Libre Office (*.ods),*.ods", _
         0, _
-        "Choisir le fichier à importer" _
+        "Choisir le fichier ï¿½ importer" _
     )
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" _
@@ -31,7 +31,7 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
 
 End Function
 
-Public Sub ImportSheets(oldWorkbook As Workbook, NewWorkbook As Workbook)
+Public Function ImportSheets(oldWorkbook As Workbook, NewWorkbook As Workbook) As ListOfCptResult
 
     Dim DefSheetNames As Variant
     Dim Formula As String
@@ -83,13 +83,13 @@ Public Sub ImportSheets(oldWorkbook As Workbook, NewWorkbook As Workbook)
     Next ws
     
     removeCrossRef ThisWorkbook, oldWorkbook
-
-    ImportSheets_Create_ListOfCptResult NewWorkbook, ListOfCptResult
     
     NewWorkbook.Activate
     NewWorkbook.Worksheets(1).Activate
 
-End Sub
+    ImportSheets = ListOfCptResult
+
+End Function
 
 Public Function ImportSheets_Init_ListOfCptResult() As ListOfCptResult
 
@@ -236,6 +236,7 @@ End Sub
 Public Function importData(FileName As String) As Boolean
 
     Dim Informations As Informations
+    Dim ListOfCptResult As ListOfCptResult
     Dim oldWorkbook As Workbook
     Dim PreviousNBSalarie As Integer
     Dim PreviousNBChantiers As Integer
@@ -271,7 +272,10 @@ Public Function importData(FileName As String) As Boolean
     On Error GoTo 0
     
     ' copie des onglets avant la copie des donnees pour eviter les autres erreurs
-    ImportSheets oldWorkbook, ThisWorkbook
+    ListOfCptResult = ImportSheets(oldWorkbook, ThisWorkbook)
+
+    ' import et mise ï¿½ jour des Comptes Resultats Partiels, s'il y en a
+    ImportSheets_Create_ListOfCptResult ThisWorkbook, ListOfCptResult
     
     ' save file
     ThisWorkbook.Save
