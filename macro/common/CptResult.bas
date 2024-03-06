@@ -1226,7 +1226,7 @@ Public Sub CptResult_View_ForOneOrSeveralChantiers_Create_With_Name( _
     Set FoundSheet = wb.Worksheets.Item(EndSheetIndex - 1)
     FoundSheet.Name = Nom_Feuille_CptResult_prefix & Suffix
     ' copy formula
-    Set BaseCell = CptResult_GetFormulaCell(ws)
+    Set BaseCell = CptResult_GetFormulaCell(FoundSheet)
     If BaseCell Is Nothing Then
         Exit Sub
     End If
@@ -1241,7 +1241,7 @@ Public Sub CptResult_View_ForOneOrSeveralChantiers_Create_With_Name( _
         FoundSheetReal.Name = Nom_Feuille_CptResult_Real_prefix & Suffix
         
         ' copy formula
-        Set BaseCellReal = CptResult_GetFormulaCell(ws)
+        Set BaseCellReal = CptResult_GetFormulaCell(FoundSheetReal)
         If BaseCellReal Is Nothing Then
             Exit Sub
         End If
