@@ -1,6 +1,6 @@
 Attribute VB_Name = "Types"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dï¿½claration de toutes les variables
 Option Explicit
 
 ' Types
@@ -43,6 +43,7 @@ Public Type Financement
     Statut As Integer ' 0 = empty
     BaseCell As Range
     BaseCellReal As Range
+    IndexInProvisions As Integer ' 0 = not concerned
 End Type
 
 Public Type Chantier
@@ -80,7 +81,7 @@ Public Type DonneesSalarie
     MasseSalarialeAnnuelleFormula As String
     TauxOperateur As Double
     TauxOperateurFormula As String
-    JoursChantiers() As Double ' Tableau de temps de chantiers même index que le tableau Chantiers
+    JoursChantiers() As Double ' Tableau de temps de chantiers mï¿½me index que le tableau Chantiers
     JoursChantiersFormula() As String
     JoursChantiersReal() As Double
     JoursChantiersFormulaReal() As String
@@ -101,12 +102,31 @@ Public Type SetOfCharges
     Charges() As Charge
 End Type
 
+Public Type Provision
+    NomDuFinanceur As String
+    RangeForTitle As Range ' Nothing if not linked
+    NBYears As Integer ' 0 if empty
+    FirstYear As Integer ' ex 2020
+    WaitedValues() As Double ' for each year
+    RangeForLastYearWaitedValue As Range ' Nothing if not linked
+    PayedValues() As Double ' one dimension array
+      ' NBYears elements for first year
+      ' NBYears  - 1 elements for next year
+      ' etc up to LastYear
+    RangeForLastYearPayedValue As Range ' Nothing if not linked
+    RetrievalTenPercent() As Double ' one dimension array
+      ' NBYears - 1 elements for first year
+      ' NBYears - 2 elements for next year
+      ' etc up to LastYear - 1
+End Type
+
 Public Type Data
     Salaries() As DonneesSalarie
     Chantiers() As Chantier
     Informations As Informations
     Charges() As Charge
     TitlesForChargesCat() As String
+    Provisions() As Provision
 End Type
 
 Public Type TypeCharge
@@ -164,10 +184,12 @@ Public Function getDefaultData() As Data
     Dim EmptyArrayDonneesSalarie() As DonneesSalarie
     Dim EmptyChantiers() As Chantier
     Dim EmptyCharges() As Charge
+    Dim EmptyProvisions() As Provision
     Dim EmptyTitles(1 To 3) As String
     ReDim EmptyArrayDonneesSalarie(0)
     ReDim EmptyChantiers(0)
     ReDim EmptyCharges(0)
+    ReDim EmptyProvisions(0)
     Dim Informations As Informations
     
     Data.Salaries = EmptyArrayDonneesSalarie
@@ -175,6 +197,7 @@ Public Function getDefaultData() As Data
     Data.Informations = getDefaultInformations()
     Data.Charges = EmptyCharges
     Data.TitlesForChargesCat = EmptyTitles
+    Data.Provisions = EmptyProvisions
 
     getDefaultData = Data
 End Function
