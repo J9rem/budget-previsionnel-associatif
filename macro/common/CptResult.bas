@@ -570,6 +570,7 @@ Public Function BudgetGlobal_Financements_Add( _
             AddBottomBorder BaseCell.Cells(1, Index + Offset_NB_Cols_For_Percent_In_CptResultReal)
         End If
     Next Index
+    ' TOD manage 75 and 787
     BudgetGlobal_Financements_Add = True
 End Function
 
