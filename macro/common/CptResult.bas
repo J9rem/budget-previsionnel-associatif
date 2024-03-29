@@ -344,9 +344,14 @@ Public Function BudgetGlobal_Depenses_Add( _
             End If
             If CodeValue = 68 Then
                 ' ajouter les provisions pour risques
+                If IsReal Then
+                    Set TmpBaseCellRelative = BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1)
+                Else
+                    Set TmpBaseCellRelative = Nothing
+                End If
                 Set CurrentCell = CptResult_Provisions_Add( _
                     wb, CurrentCell, HeadCell, _
-                    T_Provisions_In_CptResult, IsReal, IsGlobal, BaseCellForRate _
+                    T_Provisions_In_CptResult, IsReal, TmpBaseCellRelative, IsGlobal, BaseCellForRate _
                 )
             End If
 
@@ -1027,6 +1032,7 @@ End Function
 ' @param Range HeadCell
 ' @param String Name
 ' @param Boolean IsReal
+' @param Range BaseCellRelative
 ' @param Boolean IsGlobal
 ' @param Range BaseCellForRate
 ' @return Range CurrentCell
@@ -1036,6 +1042,7 @@ Public Function CptResult_Provisions_Add( _
     HeadCell As Range, _
     Name As String, _
     IsReal As Boolean, _
+    BaseCellRelative As Range, _
     IsGlobal As Boolean, _
     BaseCellForRate As Range _
 ) As Range
@@ -1060,9 +1067,9 @@ Public Function CptResult_Provisions_Add( _
 
     Set WorkingDestination = Provisions_SearchRange(wb, True, Not IsReal)
     If WorkingDestination Is Nothing Then
-        WorkingCell.Cells(1, 3).Formula = ""
+        CurrentCell.Cells(1, 3).Formula = ""
     Else
-        WorkingCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+        CurrentCell.Cells(1, 3).Formula = "=" & CleanAddress( _
             WorkingDestination.address(False, False, xlA1, True) _
         ) & FormulaSuffix
     End If
@@ -1078,7 +1085,7 @@ Public Function CptResult_Provisions_Add( _
         CurrentBaseCell.Cells(1, 2).Formula = "=" & CleanAddress(CurrentCell.Cells(1, 2).address(False, False, xlA1, True))
         CurrentBaseCell.Cells(1, 3).Formula = CptResult_GetFormulaForPercent( _
                 CurrentCell.Cells(1, 3), _
-                BaseCellRelative.Cells(CurrentCell.Row - BaseCell.Row + 1, 3) _
+                BaseCellRelative.Cells(CurrentCell.Row - HeadCell.Row + 1, 3) _
             )
     End If
 End Function

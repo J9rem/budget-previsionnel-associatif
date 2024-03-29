@@ -216,13 +216,13 @@ End Function
 
 
 ' extract provision for a financier
-' @param Worksheet wb
+' @param Worksheet ws
 ' @param Integer NBYears
 ' @param Integer FirstYear
 ' @param Integer RowLine
 ' @return Provision
 Public Function Provisions_Extract_For_A_Financier( _
-        wb As Worksheet, _
+        ws As Worksheet, _
         NBYears As Integer, _
         FirstYear As Integer, _
         RowLine As Integer _
@@ -240,7 +240,7 @@ Public Function Provisions_Extract_For_A_Financier( _
     Dim WaitedValues() As Double
     Dim WorkingCell As Range
 
-    Set BaseCell = wb.Cells(RowLine, 1)
+    Set BaseCell = ws.Cells(RowLine, 1)
 
     Provision = getDefaultProvision(NBYears)
     
@@ -294,10 +294,10 @@ Public Function Provisions_Extract_For_A_Financier( _
 End Function
 
 ' search each line of a financier
-' @param Worksheet wb
+' @param Worksheet ws
 ' @param Integer NBYears
 ' @return String coma separated lines
-Public Function Provisions_Financiers_Get_Lines(wb As Worksheet, NBYears As Integer) As String
+Public Function Provisions_Financiers_Get_Lines(ws As Worksheet, NBYears As Integer) As String
 
     Dim CurrentRange As Range
     Dim CurrentValue
@@ -306,14 +306,14 @@ Public Function Provisions_Financiers_Get_Lines(wb As Worksheet, NBYears As Inte
     ' init (value to also define errors)
     Result = ""
 
-    Set CurrentRange = wb.Cells(1, 5)
+    Set CurrentRange = ws.Cells(1, 5)
     CurrentValue = CurrentRange.Value
-    While Not (CurrentValue Is Empty)
+    While Not (CurrentValue = "" Or CurrentValue = Empty)
         If Result <> "" Then
             Result = Result & ","
         End If
         Result = Result & CurrentRange.Row
-        Set CurrentRange = wb.Cells(1, NBYears + 3)
+        Set CurrentRange = ws.Cells(1, NBYears + 3)
     Wend
 
     Provisions_Financiers_Get_Lines = Result
@@ -374,12 +374,12 @@ Public Function Provisions_Init(Provision As Provision, NBYears As Integer) As P
 End Function
 
 ' search range for forecast of Provisions
-' @param Worksheet wb
+' @param Workbook wb
 ' @param Boolean ForProvisions
 ' @param Boolean ForForecast
 ' @return Range Nothing On Error
 Public Function Provisions_SearchRange( _
-        wb As Worksheet, _
+        wb As Workbook, _
         ForProvisions As Boolean, _
         ForForecast As Boolean _
     ) As Range
@@ -406,7 +406,7 @@ Public Function Provisions_SearchRange( _
                 End If
             Else
                 If ForProvisions Then
-                    Set Destination = ProvisionsSheet.Cells(1, 3 + 2 * NBYears)
+                    Set Destination = ProvisionsSheet.Cells(1, 4 + 2 * NBYears)
                 Else
                     Set Destination = ProvisionsSheet.Cells(1, 7 + 4 * NBYears)
                 End If
@@ -418,9 +418,9 @@ Public Function Provisions_SearchRange( _
 End Function
 
 ' search the NB years in Provisions sheet
-' @param Worksheet wb
+' @param Worksheet ws
 ' @return Integer ' return 0 in case of error
-Public Function Provisions_Years_getNb(wb As Worksheet) As Integer
+Public Function Provisions_Years_getNb(ws As Worksheet) As Integer
 
     Dim CurrentCounter As Integer
     Dim CurrentRange As Range
@@ -431,12 +431,12 @@ Public Function Provisions_Years_getNb(wb As Worksheet) As Integer
     CurrentCounter = 0
     NBYears = 0
 
-    Set CurrentRange = wb.Cells(4, 4)
+    Set CurrentRange = ws.Cells(4, 4)
     ' Limit to 20 years
     For Index = 1 To 20
         If NBYears = 0 Then
             CurrentValue = CurrentRange.Cells(1, Index).Value
-            If Not (CurrentValue Is Empty) Then
+            If Not (CurrentValue = "" Or CurrentValue = Empty) Then
                 If CurrentValue > 2000 _
                     And CurrentValue < 2050 Then
                     CurrentCounter = CurrentCounter + 1
