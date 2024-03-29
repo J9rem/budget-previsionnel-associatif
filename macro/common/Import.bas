@@ -16,7 +16,7 @@ Public Function choisirFichierAImporter(ByRef FilePath) As Boolean
         & "Excel avec macro (*.xlsm),*.xlsm," _
         & "Libre Office (*.ods),*.ods", _
         0, _
-        "Choisir le fichier ï¿½ importer" _
+        "Choisir le fichier à importer" _
     )
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" _
@@ -274,7 +274,7 @@ Public Function importData(FileName As String) As Boolean
     ' copie des onglets avant la copie des donnees pour eviter les autres erreurs
     ListOfCptResult = ImportSheets(oldWorkbook, ThisWorkbook)
 
-    ' import et mise ï¿½ jour des Comptes Resultats Partiels, s'il y en a
+    ' import et mise à jour des Comptes Resultats Partiels, s'il y en a
     ImportSheets_Create_ListOfCptResult ThisWorkbook, ListOfCptResult
     
     ' save file

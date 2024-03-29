@@ -74,7 +74,7 @@ End Function
 Public Function Provisions_Data_Update_Index_In_Financement( _
         Data As Data, _
         IndexFinancement As Integer, _
-        IndexProvision As Integer, _
+        IndexProvision As Integer _
     ) As Data
 
     Dim Chantier As Chantier
@@ -119,13 +119,13 @@ End Function
 Public Function Provisions_Data_Update_Range_In_Provisions( _
         Data As Data, _
         IndexFinancement As Integer, _
-        IndexProvision As Integer, _
+        IndexProvision As Integer _
     ) As Data
 
     Dim Chantier As Chantier
     Dim Chantiers() As Chantier
     Dim Financement As Financement
-    Dim Financements() As financement
+    Dim Financements() As Financement
     Dim Provision As Provision
     Dim Provisions() As Provision
     Dim NBChantiers As Integer
@@ -205,7 +205,7 @@ Public Function Provisions_Extract(wb As Workbook, Data As Data, Revision As WbR
     ReDim Provisions(1 To (UBound(FinanciersLines) + 1))
     For Index = 1 To UBound(Provisions)
         Provisions(Index) = Provisions_Extract_For_A_Financier(ProvisionsSheet, NBYears, FirstYear, FinanciersLines(Index - 1))
-    Next For
+    Next Index
     Data.Provisions = Provisions
 
     Data = Provisions_Data_Update_Index(Data)
@@ -272,7 +272,7 @@ Public Function Provisions_Extract_For_A_Financier( _
             IndexPayedValues = IndexPayedValues + 1
         Next IndexColumn
 
-        If (IndexYear < NBYears)
+        If IndexYear < NBYears Then
             ' RetrievalTenPercent
             For IndexColumn = (IndexYear + 1) To NBYears
                 Set WorkingCell = BaseCell.Cells(IndexYear, 6 + 3 * NBYears + IndexColumn)
@@ -301,22 +301,22 @@ Public Function Provisions_Financiers_Get_Lines(wb As Worksheet, NBYears As Inte
 
     Dim CurrentRange As Range
     Dim CurrentValue
-    Dim result As String
+    Dim Result As String
 
     ' init (value to also define errors)
-    result = ""
+    Result = ""
 
     Set CurrentRange = wb.Cells(1, 5)
     CurrentValue = CurrentRange.Value
     While Not (CurrentValue Is Empty)
-        If result <> "" Then
-            result = result & ","
+        If Result <> "" Then
+            Result = Result & ","
         End If
-        result = result & CurrentRange.Row
+        Result = Result & CurrentRange.Row
         Set CurrentRange = wb.Cells(1, NBYears + 3)
     Wend
 
-    Provisions_Financiers_Get_Lines = result
+    Provisions_Financiers_Get_Lines = Result
 End Function
 
 
@@ -394,7 +394,7 @@ Public Function Provisions_SearchRange( _
     On Error Resume Next
     Set ProvisionsSheet = wb.Worksheets(Nom_Feuille_Provisions)
     On Error GoTo 0
-    If Not(ProvisionsSheet Is Nothing) Then
+    If Not (ProvisionsSheet Is Nothing) Then
         NBYears = Provisions_Years_getNb(ProvisionsSheet)
         If NBYears > 0 Then
             ' define the right cell
@@ -436,7 +436,7 @@ Public Function Provisions_Years_getNb(wb As Worksheet) As Integer
     For Index = 1 To 20
         If NBYears = 0 Then
             CurrentValue = CurrentRange.Cells(1, Index).Value
-            If Not(CurrentValue Is Empty) Then
+            If Not (CurrentValue Is Empty) Then
                 If CurrentValue > 2000 _
                     And CurrentValue < 2050 Then
                     CurrentCounter = CurrentCounter + 1
@@ -451,3 +451,4 @@ Public Function Provisions_Years_getNb(wb As Worksheet) As Integer
 
     Provisions_Years_getNb = NBYears
 End Function
+
