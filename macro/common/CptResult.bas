@@ -342,6 +342,13 @@ Public Function BudgetGlobal_Depenses_Add( _
                 End If
                 Set CurrentCell = SecondLineCell
             End If
+            If CodeValue = 68 Then
+                ' ajouter les provisions pour risques
+                Set CurrentCell = CptResult_Provisions_Add( _
+                    wb, CurrentCell, HeadCell, _
+                    T_Provisions_In_CptResult, IsReal, IsGlobal, BaseCellForRate _
+                )
+            End If
 
             ' set sum
             If CurrentCell.Row > HeadCell.Row Then
@@ -1011,6 +1018,68 @@ Public Function CptResult_IsValidatedPageName(PageName As String) As Boolean
         Left(PageName, Len(Nom_Feuille_CptResult_prefix)) = Nom_Feuille_CptResult_prefix _
         Or CptResult_IsReal(PageName) _
     )
+End Function
+
+' add a personal depense for charge in CptResult
+' @param Workbook wb
+' @param Range CurrentCell
+' @param Range HeadCell
+' @param String Name
+' @param Boolean IsReal
+' @param Boolean IsGlobal
+' @param Range BaseCellForRate
+' @return Range CurrentCell
+Public Function CptResult_Provisions_Add( _
+    wb As Workbook, _
+    CurrentCell As Range, _
+    HeadCell As Range, _
+    Name As String, _
+    IsReal As Boolean, _
+    IsGlobal As Boolean, _
+    BaseCellForRate As Range _
+) As Range
+
+    Dim CurrentBaseCell As Range
+    Dim FormulaSuffix As String
+    Dim WorkingDestination As Range
+
+    ' insert new line
+    Set CurrentBaseCell = CurrentCell
+    Set CurrentCell = BudgetGlobal_InsertLineAndFormat(CurrentBaseCell, HeadCell, False)
+    Set CptResult_Provisions_Add = CurrentCell
+
+    ' update content
+    CurrentCell.Value = ""
+    CurrentCell.Cells(1, 2).Value = Name
+    If IsGlobal Then
+        FormulaSuffix = ""
+    Else
+        FormulaSuffix = "*" & CleanAddress(BaseCellForRate.address(True, True, xlA1, False))
+    End If
+
+    Set WorkingDestination = Provisions_SearchRange(wb, True, Not IsReal)
+    If WorkingDestination Is Nothing Then
+        WorkingCell.Cells(1, 3).Formula = ""
+    Else
+        WorkingCell.Cells(1, 3).Formula = "=" & CleanAddress( _
+            WorkingDestination.address(False, False, xlA1, True) _
+        ) & FormulaSuffix
+    End If
+    If IsReal Then
+        ' percent part
+        Set CurrentBaseCell = BudgetGlobal_InsertLineAndFormat( _
+            CurrentBaseCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+            HeadCell.Cells(1, Offset_NB_Cols_For_Percent_In_CptResultReal + 1), _
+            False, _
+            True _
+        )
+        
+        CurrentBaseCell.Cells(1, 2).Formula = "=" & CleanAddress(CurrentCell.Cells(1, 2).address(False, False, xlA1, True))
+        CurrentBaseCell.Cells(1, 3).Formula = CptResult_GetFormulaForPercent( _
+                CurrentCell.Cells(1, 3), _
+                BaseCellRelative.Cells(CurrentCell.Row - BaseCell.Row + 1, 3) _
+            )
+    End If
 End Function
 
 ' Test if formula is validate and return clean one if asked

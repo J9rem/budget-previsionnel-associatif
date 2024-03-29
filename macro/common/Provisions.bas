@@ -373,6 +373,50 @@ Public Function Provisions_Init(Provision As Provision, NBYears As Integer) As P
 
 End Function
 
+' search range for forecast of Provisions
+' @param Worksheet wb
+' @param Boolean ForProvisions
+' @param Boolean ForForecast
+' @return Range Nothing On Error
+Public Function Provisions_SearchRange( _
+        wb As Worksheet, _
+        ForProvisions As Boolean, _
+        ForForecast As Boolean _
+    ) As Range
+
+    Dim Destination As Range
+    Dim NBYears As Integer
+    Dim ProvisionsSheet As Worksheet
+
+    Set Destination = Nothing
+
+    ' First get the right sheet
+    On Error Resume Next
+    Set ProvisionsSheet = wb.Worksheets(Nom_Feuille_Provisions)
+    On Error GoTo 0
+    If Not(ProvisionsSheet Is Nothing) Then
+        NBYears = Provisions_Years_getNb(ProvisionsSheet)
+        If NBYears > 0 Then
+            ' define the right cell
+            If ForForecast Then
+                If ForProvisions Then
+                    Set Destination = ProvisionsSheet.Cells(1, 10 + 5 * NBYears)
+                Else
+                    Set Destination = ProvisionsSheet.Cells(1, 11 + 5 * NBYears)
+                End If
+            Else
+                If ForProvisions Then
+                    Set Destination = ProvisionsSheet.Cells(1, 3 + 2 * NBYears)
+                Else
+                    Set Destination = ProvisionsSheet.Cells(1, 7 + 4 * NBYears)
+                End If
+            End If
+        End If
+    End If
+
+    Set Provisions_SearchRange = Destination
+End Function
+
 ' search the NB years in Provisions sheet
 ' @param Worksheet wb
 ' @return Integer ' return 0 in case of error
