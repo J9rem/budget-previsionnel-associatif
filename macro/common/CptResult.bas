@@ -575,7 +575,8 @@ Public Function BudgetGlobal_Financements_Add( _
             AddBottomBorder BaseCell.Cells(1, Index + Offset_NB_Cols_For_Percent_In_CptResultReal)
         End If
     Next Index
-    ' TOD manage 75 and 787
+    CptResult_Common_Funding_update BaseCell, IsGlobal, IsReal, Data, NBChantiers, ChantiersToAdd
+    CptResult_Retrieval_update BaseCell, wb, IsGlobal, IsReal, BaseCellForRate
     BudgetGlobal_Financements_Add = True
 End Function
 
@@ -911,6 +912,87 @@ Public Function CptResult_AppendInArray(Values, Value)
     CptResult_AppendInArray = WorkingArray
 End Function
 
+' update formula for Common Funding
+' @param Range BaseCell
+' @param Boolean IsGlobal
+' @param Boolean IsReal
+' @param Data Data
+' @param Integer NBChantiers
+' @param Integer() ChantiersToAdd
+Public Sub CptResult_Common_Funding_update( _
+        BaseCell As Range, _
+        IsGlobal As Boolean, _
+        IsReal As Boolean, _
+        Data As Data, _
+        NBChantiers As Integer, _
+        ChantiersToAdd _
+    )
+
+    Dim Chantier As Chantier
+    Dim Chantiers() As Chantier
+    Dim ChantierSheet As Worksheet
+    Dim ChantierSheetReal As Worksheet
+    Dim Financement As Financement
+    Dim Financements() As Financement
+    Dim FormulaTmp As String
+    Dim Index As Integer
+    Dim IndexRow As Integer
+    Dim IsFound As Boolean
+    Dim SetOfRange As SetOfRange
+    Dim Value
+
+    IsFound = False
+    For IndexRow = 2 To 10
+        If Not IsFound Then
+            Value = BaseCell.Cells(IndexRow, 1).Value
+            If Value = 75 Then
+                IsFound = True
+                Chantiers = Data.Chantiers
+                Chantier = Chantiers(1)
+                Financements = Chantier.Financements
+                Financement = Financements(1)
+                Set ChantierSheet = Financement.BaseCell.Worksheet
+                Set ChantierSheetReal = Financement.BaseCellReal.Worksheet
+                SetOfRange = Chantiers_Financements_BaseCell_Get(ChantierSheet, ChantierSheetReal)
+                If SetOfRange.Status Then
+                    FormulaTmp = "="
+                    If IsGlobal Then
+                        If IsReal Then
+                            FormulaTmp = FormulaTmp & CleanAddress( _
+                                SetOfRange.ResultCellReal.Cells(2, 2 + 3 * NBChantiers).address(True, True, xlA1, True) _
+                            )
+                        Else
+                            FormulaTmp = FormulaTmp & CleanAddress( _
+                                SetOfRange.ResultCell.Cells(2, 2 + NBChantiers).address(True, True, xlA1, True) _
+                            )
+                        End If
+                    Else
+                        If UBound(ChantiersToAdd) > 0 Then
+                            For Index = 1 To UBound(ChantiersToAdd)
+                                If Index > 1 Then
+                                    FormulaTmp = FormulaTmp & "+"
+                                End If
+                                If IsReal Then
+                                    FormulaTmp = FormulaTmp & CleanAddress( _
+                                        SetOfRange.ResultCellReal.Cells(2, 3 * Index).address(True, True, xlA1, True) _
+                                    )
+                                Else
+                                    FormulaTmp = FormulaTmp & CleanAddress( _
+                                        SetOfRange.ResultCell.Cells(2, 1 + Index).address(True, True, xlA1, True) _
+                                    )
+                                End If
+                            Next Index
+                        Else
+                            FormulaTmp = FormulaTmp & "0"
+                        End If
+                    End If
+                    BaseCell.Cells(IndexRow + 1, 3).Formula = FormulaTmp
+                End If
+            End If
+        End If
+    Next
+End Sub
+
 ' Function to get formula to calculate CptResult
 ' @param Range BaseCell in CptResult sheet
 ' @param Integer NBChantiers
@@ -1089,6 +1171,51 @@ Public Function CptResult_Provisions_Add( _
             )
     End If
 End Function
+
+' update formula for Common Funding
+' @param Range BaseCell
+' @param Workbook wb
+' @param Boolean IsGlobal
+' @param Boolean IsReal
+' @param Range BaseCellForRate
+Public Sub CptResult_Retrieval_update( _
+        BaseCell As Range, _
+        wb As Workbook, _
+        IsGlobal As Boolean, _
+        IsReal As Boolean, _
+        BaseCellForRate As Range _
+    )
+
+    Dim FormulaSuffix As String
+    Dim IndexRow As Integer
+    Dim IsFound As Boolean
+    Dim Value
+
+    IsFound = False
+    For IndexRow = 2 To 10
+        If Not IsFound Then
+            Value = BaseCell.Cells(IndexRow, 1).Value
+            If Value = 78 Then
+                IsFound = True
+                BaseCell.Cells(IndexRow + 1, 2).Value = T_Retrieval_In_CptResult
+                If IsGlobal Then
+                    FormulaSuffix = ""
+                Else
+                    FormulaSuffix = "*" & CleanAddress(BaseCellForRate.address(True, True, xlA1, False))
+                End If
+                If IsReal Then
+                    BaseCell.Cells(IndexRow + 1, 3).Formula = "=" & CleanAddress( _
+                        Provisions_SearchRange(wb, False, False).address(True, True, xlA1, True) _
+                    ) & FormulaSuffix
+                Else
+                    BaseCell.Cells(IndexRow + 1, 3).Formula = "=" & CleanAddress( _
+                        Provisions_SearchRange(wb, False, True).address(True, True, xlA1, True) _
+                    ) & FormulaSuffix
+                End If
+            End If
+        End If
+    Next
+End Sub
 
 ' Test if formula is validate and return clean one if asked
 ' @param String ExtractedFormula
