@@ -118,6 +118,10 @@ Public Type Provision
       ' NBYears - 1 elements for first year
       ' NBYears - 2 elements for next year
       ' etc up to LastYear - 1
+    RetrievalTenPercentFormula() As String ' one dimension array
+      ' NBYears - 1 elements for first year
+      ' NBYears - 2 elements for next year
+      ' etc up to LastYear - 1
 End Type
 
 Public Type Data
@@ -331,4 +335,13 @@ Public Function getDefaultFinancements(NB As Integer) As Financement()
     
     getDefaultFinancements = ArrayTmp
     
+End Function
+
+Public Function getDefaultProvision(NBYears As Integer) As Provision
+
+    Dim Provision As Provision
+
+    Provision = Provisions_Init(Provision, NBYears)
+    getDefaultProvision = Provision
+
 End Function

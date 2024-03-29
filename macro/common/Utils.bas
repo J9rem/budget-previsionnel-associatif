@@ -1,11 +1,11 @@
 Attribute VB_Name = "Utils"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dï¿½claration de toutes les variables
 Option Explicit
 
 
 Public Sub NotAvailable()
-    MsgBox "Patience, cette fonction est encore en cours de développement"
+    MsgBox "Patience, cette fonction est encore en cours de dï¿½veloppement"
 End Sub
 
 Public Function FileExists(FilePath As String) As Boolean
@@ -110,8 +110,8 @@ Public Function SaveFileNoMacro(FilePath As String) As Boolean
 
     SaveFileNoMacro = False
     If (FilePath = ThisWorkbook.Path) Then
-        MsgBox "Il n'est pas possible d'écraser le fichier courant" & Chr(10) & _
-          "Veuillez réessayer avec un autre emplacement ou nom de fichier"
+        MsgBox "Il n'est pas possible d'ï¿½craser le fichier courant" & Chr(10) & _
+          "Veuillez rï¿½essayer avec un autre emplacement ou nom de fichier"
     Else
         
         ' check extension type
@@ -128,8 +128,8 @@ Public Function SaveFileNoMacro(FilePath As String) As Boolean
         SanitizedFilePath = FolderName & NewFileName
         
         If FileExists(SanitizedFilePath) Then
-            MsgBoxResult = MsgBox("Le fichie cible existe déjà !" & Chr(10) & _
-                "Faut-il l'écraser avec le nouveau ?", _
+            MsgBoxResult = MsgBox("Le fichie cible existe dï¿½jï¿½ !" & Chr(10) & _
+                "Faut-il l'ï¿½craser avec le nouveau ?", _
                 vbYesNo)
             If MsgBoxResult <> vbYes And MsgBoxResult <> vbOK Then
                 Exit Function
@@ -231,6 +231,25 @@ Public Function inArrayInt(IntValue As Integer, Arr As Variant) As Boolean
 
 End Function
 
+' search index of StrValue in Array
+' @param String StrValue
+' @param Varian Arr
+' @return Integer -1 if not found
+Public Function indexOfInArrayStr(StrValue As String, Arr As Variant) As Integer
+
+    Dim Index As Integer
+    
+    indexOfInArrayStr = -1
+    For Index = LBound(Arr) To UBound(Arr)
+        If indexOfInArrayStr = -1 Then
+            If StrValue = Arr(Index) Then
+                indexOfInArrayStr = Index
+            End If
+        End If
+    Next Index
+
+End Function
+
 Public Function AddWorksheetAtEnd(wb As Workbook, wsName As String) As Worksheet
     With wb.Worksheets
         .Add after:=.Item(.Count)
@@ -253,7 +272,7 @@ Public Function archiveThisFile() As Boolean
     FileName = Left(FileName, Len(FileName) - Len(Extension) - 1) & "-backup-" & Format(Now(), "yyyymdd_hhmmss") & "." & Extension
     
     If FileExists(ThisWorkbook.Path & "\" & FileName) Then
-        MsgBox "Impossible de sauvegarder le fichier de sauvegarde car il existe déjà"
+        MsgBox "Impossible de sauvegarder le fichier de sauvegarde car il existe dï¿½jï¿½"
         Exit Function
     End If
     
@@ -334,19 +353,19 @@ Public Function FindTypeChargeIndex(StrValue As String) As Integer
     For Index = 1 To UBound(TypesCharges)
         typeCh = TypesCharges(Index)
         tmpName = typeCh.NomLong
-        OtherName = Replace(tmpName, "É", "E")
-        OtherName = Replace(OtherName, "Ê", "E")
-        OtherName = Replace(OtherName, "È", "E")
-        OtherName = Replace(OtherName, "Ë", "E")
-        OtherName = Replace(OtherName, "Ä", "A")
-        OtherName = Replace(OtherName, "Â", "A")
-        OtherName = Replace(OtherName, "Á", "A")
-        OtherName = Replace(OtherName, "À", "A")
-        OtherName = Replace(OtherName, "Ò", "O")
-        OtherName = Replace(OtherName, "Ó", "O")
-        OtherName = Replace(OtherName, "Õ", "O")
-        OtherName = Replace(OtherName, "Ö", "O")
-        OtherName = Replace(OtherName, "Ô", "O")
+        OtherName = Replace(tmpName, "ï¿½", "E")
+        OtherName = Replace(OtherName, "ï¿½", "E")
+        OtherName = Replace(OtherName, "ï¿½", "E")
+        OtherName = Replace(OtherName, "ï¿½", "E")
+        OtherName = Replace(OtherName, "ï¿½", "A")
+        OtherName = Replace(OtherName, "ï¿½", "A")
+        OtherName = Replace(OtherName, "ï¿½", "A")
+        OtherName = Replace(OtherName, "ï¿½", "A")
+        OtherName = Replace(OtherName, "ï¿½", "O")
+        OtherName = Replace(OtherName, "ï¿½", "O")
+        OtherName = Replace(OtherName, "ï¿½", "O")
+        OtherName = Replace(OtherName, "ï¿½", "O")
+        OtherName = Replace(OtherName, "ï¿½", "O")
         If IndexFound = 0 And Len(tmpName) > 0 _
             And (Left(StrValue, Len(tmpName)) = tmpName _
             Or Left(StrValue, Len(OtherName)) = OtherName) Then
@@ -494,7 +513,7 @@ End Function
 
 Public Sub SetSilent()
     ' config to be faster
-    On Error Resume Next ' pour éviter les erreurs LibreOffice
+    On Error Resume Next ' pour ï¿½viter les erreurs LibreOffice
     Application.Calculation = xlCalculationManual
     Application.CalculateBeforeSave = True
     Application.ScreenUpdating = False
@@ -502,7 +521,7 @@ Public Sub SetSilent()
 End Sub
 
 Public Sub SetActive()
-    On Error Resume Next ' pour éviter les erreurs LibreOffice
+    On Error Resume Next ' pour ï¿½viter les erreurs LibreOffice
     Application.Calculation = xlCalculationAutomatic
     Application.CalculateBeforeSave = True
     Application.ScreenUpdating = True

@@ -463,6 +463,7 @@ Public Function Extract_Data_From_Table(oldWorkbook As Workbook, Revision As WbR
         End If
     End If
     Data = Charges_Extract(oldWorkbook, Data, Revision)
+    Data = Provisions_Extract(oldWorkbook, Data, Revision)
     
     Extract_Data_From_Table = Data
 
