@@ -319,7 +319,7 @@ Public Function BudgetGlobal_Depenses_Add( _
                 )
                 Set SecondLineCell = CptResult_Charges_Personal_Add( _
                     wb, FirstLineCell, HeadCell, _
-                    "Charges sociales", FirstLineCell, IsReal, Nothing, IsGlobal, ChantiersToAdd _
+                    T_Social_Charges, FirstLineCell, IsReal, Nothing, IsGlobal, ChantiersToAdd _
                 )
                 If IsReal Then
                     ' percent part
@@ -334,7 +334,7 @@ Public Function BudgetGlobal_Depenses_Add( _
                         wb, _
                         FirstLineCell.Cells(1, 1 + Offset_NB_Cols_For_Percent_In_CptResultReal), _
                         HeadCell.Cells(1, 1 + Offset_NB_Cols_For_Percent_In_CptResultReal), _
-                        "Charges sociales", _
+                        T_Social_Charges, _
                         FirstLineCell.Cells(1, 1 + Offset_NB_Cols_For_Percent_In_CptResultReal), _
                         IsReal, _
                         BaseCellRelative.Cells(HeadCell.Row - BaseCell.Row + 1, 1), _
