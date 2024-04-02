@@ -790,3 +790,85 @@ Public Function CreerStyle(Name As String, Red As Integer, Green As Integer, Blu
 	End If
 	CreerStyle = oStyles.getByName(Name)
 End Function
+
+
+
+' set theme for title'cell for provisions
+' @param Range Cell
+' @param Boolean IsCurrency otherwise is string
+' @param String BgColorName (choose no color if not recognized)
+' @param Boolean TextWhiteAndBold default false
+Public Sub Specific_Provisions_Theme_Set( _
+        Cell as Range, _
+        IsCurrency As Boolean, _
+        BgColorName As String, _
+        optional TextWhiteAndBold As Boolean = False _
+    )
+
+    Dim AuthorizedColorNames(1 To 7) As String
+    Dim ColorCodes(1 To 7) As String
+    Dim IndexOfColor As Integer
+	Dim oSheet
+    Dim oCellRange
+    Dim oFormat As Long
+	Dim oLine As New com.sun.star.table.BorderLine2
+
+    AuthorizedColorNames(1) = "lightGrey"
+    ColorCodes(1) = RGB(242, 242, 242)
+    AuthorizedColorNames(2) = "middleGrey"
+    ColorCodes(2) = RGB(233, 239, 247)
+    AuthorizedColorNames(3) = "Grey"
+    ColorCodes(3) = RGB(216, 216, 216)
+    AuthorizedColorNames(4) = "LightBlueForTotal"
+    ColorCodes(4) = RGB(219, 229, 241)
+    AuthorizedColorNames(5) = "Blue"
+    ColorCodes(5) = RGB(0, 176, 240)
+    AuthorizedColorNames(6) = "LightBlueForTotalForAutoFilledCell"
+    ColorCodes(6) = RGB(204, 236, 255)
+    AuthorizedColorNames(7) = "LightYellow"
+    ColorCodes(7) = RGB(255, 255, 204)
+
+	With oLine
+		.Color = RGB(0,0,0)
+		.InnerLineWidth = 0
+		.LineDistance = 0
+		.LineStyle = com.sun.star.table.BorderLineStyle.SOLID
+		.LineWidth = 26
+		.OuterLineWidth = 26
+	End With
+
+	oSheet = ThisComponent.Sheets.getByName(Cell.Worksheet.Name)
+	oCellRange = oSheet.getCellByPosition(Cell.Column-1,Cell.Row-1)
+	oCellRange.BottomBorder = oLine
+	oCellRange.LeftBorder = oLine
+	oCellRange.RightBorder = oLine
+	oCellRange.TopBorder = oLine
+
+	oCellRange.CharFontStyleName = ""
+	oCellRange.CharFontPitch = 2
+	oCellRange.CharFontCharSet = -1
+	oCellRange.CharFontFamily = 5
+	oCellRange.CharFontName = "Calibri"
+	If TextWhiteAndBold Then
+		oCellRange.CharColor = RGB(255,255,255)
+		oCellRange.CharWeight = com.sun.star.awt.FontWeight.BOLD
+	Else
+		oCellRange.CharColor = -1
+		oCellRange.CharWeight = 100
+	End If
+	oCellRange.CharHeight = 10
+
+	If IsCurrency Then
+		oFormat = CellSetNumberFormat("# ##0,00"" €""",ThisComponent)
+		oCellRange.NumberFormat = oFormat
+	Else
+		oCellRange.NumberFormat = 0
+	End If
+	
+	IndexOfColor = indexOfInArrayStr(BgColorName, AuthorizedColorNames)
+	If IndexOfColor = -1 Then
+		oCellRange.CellBackColor = ColorCodes(IndexOfColor)
+	Else
+		oCellRange.CellBackColor = -1
+	End If
+End Sub

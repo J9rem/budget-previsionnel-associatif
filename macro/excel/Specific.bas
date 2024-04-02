@@ -1,6 +1,6 @@
 Attribute VB_Name = "Specific"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la dï¿½claration de toutes les variables
 Option Explicit
 
 ' constantes
@@ -26,14 +26,14 @@ Public Function choisirNomFicherASauvegarderSansMacro(ByRef FilePath As String) 
     Adresse_dossier_courant = ThisWorkbook.Path
     ChDir (Adresse_dossier_courant)
     
-    ' Fenêtre pour demander le nom du fichier de sauvegarde
+    ' Fenï¿½tre pour demander le nom du fichier de sauvegarde
     On Error Resume Next
     ' InitialFileName, FileFilter, FiltrerIndex, Title
     Fichier_De_Sauvegarde = Application.GetSaveAsFilename( _
         Default_File_Name, _
         "Excel 2003-2007 (*.xls),*.xls,Excel (*.xlsx),*.xlsx", _
         2, _
-        "Choisir le fichier à exporter")
+        "Choisir le fichier ï¿½ exporter")
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" Or Fichier_De_Sauvegarde = Empty Or Fichier_De_Sauvegarde = "Faux" Or Fichier_De_Sauvegarde = "False" Then
         choisirNomFicherASauvegarderSansMacro = False
@@ -262,7 +262,7 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As 
                 If IsPercent Then
                     .NumberFormat = "0%"
                 Else
-                    .NumberFormat = "#,##0.00"" €"""
+                    .NumberFormat = "#,##0.00"" ï¿½"""
                 End If
             Else
                 .NumberFormat = "General"
@@ -372,7 +372,7 @@ Public Sub DefinirFormatPourChantier( _
             .ThemeFont = xlThemeFontNone
         End With
         If CurrencyFormat Then
-            .NumberFormat = "#,##0.00"" €"""
+            .NumberFormat = "#,##0.00"" ï¿½"""
         Else
             If IsPercent Then
                 .NumberFormat = "0%"
@@ -396,7 +396,7 @@ Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As S
     Set OldChargesSheet = oldWorkbook.Worksheets(Name)
     On Error GoTo 0
     If OldChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas été trouvée dans " & oldWorkbook.Name
+        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas ï¿½tï¿½ trouvï¿½e dans " & oldWorkbook.Name
         Exit Sub
     End If
     
@@ -404,7 +404,7 @@ Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As S
     Set NewChargesSheet = NewWorkbook.Worksheets(Name)
     On Error GoTo 0
     If NewChargesSheet Is Nothing Then
-        MsgBox "'" & Name & "' n'a pas été trouvée dans " & NewWorkbook.Name
+        MsgBox "'" & Name & "' n'a pas ï¿½tï¿½ trouvï¿½e dans " & NewWorkbook.Name
         Exit Sub
     End If
     
@@ -485,7 +485,7 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
                 If IndexBis = 6 Then
                     .NumberFormat = "0\ %"
                 Else
-                    .NumberFormat = "#,##0.00"" €"""
+                    .NumberFormat = "#,##0.00"" ï¿½"""
                 End If
             End If
         End With
@@ -597,5 +597,92 @@ Public Sub DefinirFormatConditionnelPourLesDossier( _
         .PatternColorIndex = xlAutomatic
         .Color = RGB(216, 216, 216)
         .TintAndShade = 0
+    End With
+End Sub
+
+' set theme for title'cell for provisions
+' @param Range Cell
+' @param Boolean IsCurrency otherwise is string
+' @param String BgColorName (choose no color if not recognized)
+' @param Boolean TextWhiteAndBold default false
+Public Sub Specific_Provisions_Theme_Set( _
+        Cell as Range, _
+        IsCurrency As Boolean, _
+        BgColorName As String, _
+        optional TextWhiteAndBold As Boolean = False _
+    )
+    Dim Arr1 As Variant
+    Dim Arr2 As Variant
+    Dim AuthorizedColorNames(1 To 7) As String
+    Dim ColorCodes(1 To 7) As String
+    Dim IndexOfColor As Integer
+    Dim VarTmp As Variant
+
+    AuthorizedColorNames(1) = "lightGrey"
+    ColorCodes(1) = RGB(242, 242, 242)
+    AuthorizedColorNames(2) = "middleGrey"
+    ColorCodes(2) = RGB(233, 239, 247)
+    AuthorizedColorNames(3) = "Grey"
+    ColorCodes(3) = RGB(216, 216, 216)
+    AuthorizedColorNames(4) = "LightBlueForTotal"
+    ColorCodes(4) = RGB(219, 229, 241)
+    AuthorizedColorNames(5) = "Blue"
+    ColorCodes(5) = RGB(0, 176, 240)
+    AuthorizedColorNames(6) = "LightBlueForTotalForAutoFilledCell"
+    ColorCodes(6) = RGB(204, 236, 255)
+    AuthorizedColorNames(7) = "LightYellow"
+    ColorCodes(7) = RGB(255, 255, 204)
+
+    Arr1 = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
+    Arr2 = Array(xlEdgeLeft, xlEdgeTop, xlEdgeRight, xlEdgeBottom)
+
+    With Cell
+        For Each VarTmp In Arr1
+            .Borders(VarTmp).LineStyle = xlNone
+        Next VarTmp
+        For Each VarTmp In Arr2
+            With .Borders(VarTmp)
+                .LineStyle = xlContinuous
+                .ColorIndex = 1
+                .TintAndShade = 0
+                .Weight = xlThin
+            End With
+        Next VarTmp
+        
+        With .Interior
+            IndexOfColor = indexOfInArrayStr(BgColorName, AuthorizedColorNames)
+            If IndexOfColor = -1 Then
+                .Pattern = xlSolid
+                .Color = ColorCodes(IndexOfColor)
+            Else
+                .Pattern = xlNone
+            End If
+        End With
+        With .Font
+            .Name = "Calibri"
+            .FontStyle = "Normal"
+            .Size = 10
+            .Strikethrough = False
+            .Superscript = False
+            .Subscript = False
+            .OutlineFont = False
+            .Shadow = False
+            .Underline = xlUnderlineStyleNone
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .ThemeFont = xlThemeFontNone
+            If TextWhiteAndBold Then
+                .Bold = True
+                .Color = RGB(255, 255, 255)
+            Else
+                .Bold = False
+                .ColorIndex = xlAutomatic
+            End If
+        End With
+        If IsCurrency Then
+            .NumberFormat = "#,##0.00"" ï¿½"""
+        Else
+            .NumberFormat = "General"
+        End If
     End With
 End Sub

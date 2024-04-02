@@ -3,6 +3,38 @@ Attribute VB_Name = "Provisions"
 ' Pour forcer la declaration de toutes les variables
 Option Explicit
 
+' clean content of Provision sheet
+' @param Worksheet ProvisionsSheet
+' @return Boolean allIsRight
+Public Function Provisions_Clean_Sheet(ProvisionsSheet as Worksheet) As Boolean
+
+    Dim FinanciersLines() As Integer
+    Dim FinanciersLinesRaw As String
+    Dim NBYears As Integer
+
+    ' Default False
+    Provisions_Clean_Sheet = False
+    
+    NBYears = Provisions_Years_getNb(ProvisionsSheet)
+    If NBYears > 0 Then
+        Provisions_Financiers_Get_Lines(ProvisionsSheet, NBYears)
+        FinanciersLinesRaw = Provisions_Financiers_Get_Lines(ProvisionsSheet, NBYears)
+        If FinanciersLinesRaw <> "" Then
+            FinanciersLines = Split(FinanciersLinesRaw, ",")
+
+            ' delete lines (margin of 5 lines)
+            Range( _
+                ProvisionsSheet.Cells(5, 1), _
+                ProvisionsSheet.Cells(FinanciersLines(UBound(FinanciersLines)) + NBYears + 5, 1) _
+            ).Delete Shift:=xlUp
+
+            ' All is right
+            Provisions_Clean_Sheet = True
+        End If
+    End If
+
+End Function
+
 ' find similar Financier in Data
 ' same name and european
 ' @param Data Data
@@ -319,7 +351,25 @@ Public Function Provisions_Financiers_Get_Lines(ws As Worksheet, NBYears As Inte
     Provisions_Financiers_Get_Lines = Result
 End Function
 
+' import Provisions
+' @param Workbook wb
+' @param Data data
+Public Sub Provisions_Import(wb as Workbook, Data as Data)
 
+    Dim ProvisionsSheet As Worksheet
+
+    ' get Provisions Sheet
+    On Error Resume Next
+    Set ProvisionsSheet = wb.Worksheets(Nom_Feuille_Provisions)
+    On Error GoTo 0
+    If Not (ProvisionsSheet Is Nothing) Then
+        ' clean Sheet
+        If Provisions_Clean_Sheet(ProvisionsSheet) Then
+            ' add new content
+            Provisions_NewContent_Add ProvisionsSheet, Data
+        End If
+    End If
+End Sub
 
 ' init content of a provision
 ' @param Provision Provision
@@ -371,6 +421,107 @@ Public Function Provisions_Init(Provision As Provision, NBYears As Integer) As P
     
     Provisions_Init = Provision
 
+End Function
+
+' add new content in Provisions sheet
+' @param Worksheet ProvisionsSheet
+' @param Data As Data
+Public Sub Provisions_NewContent_Add(ProvisionsSheet As Worksheet, Data As Data)
+
+    Dim CurrentStartCell As Range
+    Dim FirstYear As Integer
+    Dim Index As Integer
+    Dim NBYears As Integer
+    Dim Provision As Provision
+    Dim Provisions() As Provision
+
+    Provisions = Data.Provisions
+
+    If UBound(Provisions) > 0 Then
+        NBYears = Provisions_UpdateNBYears(ProvisionsSheet, Data)
+        FirstYear = CInt(ProvisionsSheet.Cells(4, 4).Value)
+        Set CurrentStartCell = ProvisionsSheet.Cells(5, 1)
+        For Index = 1 To UBound(Provisions)
+            Provision = Provisions(Index)
+            Set CurrentStartCell = Provisions_Provision_Add(CurrentStartCell, Provision, NBYears, FirstYear)
+        Next Index
+    End If
+
+End Sub
+
+' add content of a provision and return next start cell
+' @param Range CurrentStartCell
+' @param Provision Provision
+' @param Integer FirstYear
+' @param Integer NBYears
+' @return Range NextCurrentStartCell
+Public Function Provisions_Provision_Add( _
+        CurrentStartCell As Range, _
+        Provision As Provision, _
+        NBYears As Integer, _
+        FirstYear As Integer _
+    ) As Range
+
+    Dim Index As Integer
+    Dim RangeForTitle As Range
+    Dim NextCurrentStartCell As Range
+    Dim WaitedValue As Double
+    Dim WaitedValues() As Double
+    Dim WorkingYear As Integer
+
+    Set NextCurrentStartCell = Nothing
+    If Not (CurrentStartCell Is Nothing) Then
+
+        ' Add title
+        Set RangeForTitle = Provision.RangeForTitle
+        If RangeForTitle Is Nothing Then
+            CurrentStartCell.Cells(1, 1).Value = Provision.NomDuFinanceur
+        Else
+            CurrentStartCell.Cells(1, 1).Formula = "=SIERREUR(" _
+                    & CleanAddress(RangeForTitle.address(True, True, xlA1, True)) _
+                    & ";""" & Provision.NomDuFinanceur & """" _
+                & ")"
+        End If
+        Specific_Provisions_Theme_Set _
+            CurrentStartCell.Cells(1, 1), _
+            False, "lightGrey", False
+
+        ' add compta
+        For Index = 1 To NBYears
+            CurrentStartCell.Cells(Index, 2).Value = FirstYear + Index - 1
+            Specific_Provisions_Theme_Set _
+                CurrentStartCell.Cells(Index, 2), _
+                False, "middleGrey", False
+        Next Index
+
+        ' add to receive
+        WaitedValues = Provision.WaitedValues
+        For Index = 1 To NBYears
+            WorkingYear = FirstYear + Index - 1
+            If WorkingYear < Provision.FirstYear _
+                Or WorkingYear > (Provision.FirstYear + Provision.NBYears - 1) Then
+                CurrentStartCell.Cells(Index, 3).Value = 0
+            Else
+                WaitedValue = WaitedValues(WorkingYear - Provision.FirstYear + 1 )
+                CurrentStartCell.Cells(Index, 3).Value = WaitedValue
+            End If
+            Specific_Provisions_Theme_Set _
+                CurrentStartCell.Cells(Index, 3), _
+                True, "LightYellow", False
+        Next Index
+        If Not (Provision.RangeForLastYearWaitedValue Is Nothing) Then
+            CurrentStartCell.Cells(NBYears, 3).Formula = "=SIERREUR(" _
+                    & CleanAddress(RangeForLastYearWaitedValue.address(True, True, xlA1, True)) _
+                    & ";" & CurrentStartCell.Cells(NBYears, 3).Value _
+                & ")"
+        End If
+
+        ' update next cell
+        Set NextCurrentStartCell = CurrentStartCell.Cells(NBYears + 3, 1)
+
+    End If
+
+    Set Provisions_Provision_Add = NextCurrentStartCell
 End Function
 
 ' search range for forecast of Provisions

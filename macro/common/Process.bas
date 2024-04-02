@@ -1956,6 +1956,9 @@ Public Sub Chantiers_Import(NewWorkbook As Workbook, Data As Data)
     
     ' Ajouter Charges
     Charges_Import NewWorkbook, Data
+    
+    ' Ajouter Provisions
+    Provisions_Import NewWorkbook, Data
 
 End Sub
 
