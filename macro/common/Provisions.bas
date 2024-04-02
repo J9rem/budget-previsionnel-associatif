@@ -330,6 +330,7 @@ End Function
 ' @return String coma separated lines
 Public Function Provisions_Financiers_Get_Lines(ws As Worksheet, NBYears As Integer) As String
 
+    Dim ContinueTest As Boolean
     Dim CurrentRange As Range
     Dim CurrentValue
     Dim Result As String
@@ -337,14 +338,25 @@ Public Function Provisions_Financiers_Get_Lines(ws As Worksheet, NBYears As Inte
     ' init (value to also define errors)
     Result = ""
 
-    Set CurrentRange = ws.Cells(1, 5)
+    Set CurrentRange = ws.Cells(5, 1)
     CurrentValue = CurrentRange.Value
-    While Not (CurrentValue = "" Or CurrentValue = Empty)
+    If CurrentRange.HasFormula = True Then
+        ContinueTest = True
+    Else
+        ContinueTest = Not (CurrentValue = "" Or CurrentValue = Empty)
+    End If
+    While ContinueTest
         If Result <> "" Then
             Result = Result & ","
         End If
         Result = Result & CurrentRange.Row
-        Set CurrentRange = ws.Cells(1, NBYears + 3)
+        Set CurrentRange = CurrentRange.Cells(NBYears + 3, 1)
+        If CurrentRange.HasFormula = True Then
+            ContinueTest = True
+        Else
+            CurrentValue = CurrentRange.Value
+            ContinueTest = Not (CurrentValue = "" Or CurrentValue = Empty)
+        End If
     Wend
 
     Provisions_Financiers_Get_Lines = Result
