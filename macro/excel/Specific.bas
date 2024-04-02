@@ -1,6 +1,6 @@
 Attribute VB_Name = "Specific"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la d�claration de toutes les variables
+' Pour forcer la declaration de toutes les variables
 Option Explicit
 
 ' constantes
@@ -26,14 +26,14 @@ Public Function choisirNomFicherASauvegarderSansMacro(ByRef FilePath As String) 
     Adresse_dossier_courant = ThisWorkbook.Path
     ChDir (Adresse_dossier_courant)
     
-    ' Fen�tre pour demander le nom du fichier de sauvegarde
+    ' Fenetre pour demander le nom du fichier de sauvegarde
     On Error Resume Next
     ' InitialFileName, FileFilter, FiltrerIndex, Title
     Fichier_De_Sauvegarde = Application.GetSaveAsFilename( _
         Default_File_Name, _
         "Excel 2003-2007 (*.xls),*.xls,Excel (*.xlsx),*.xlsx", _
         2, _
-        "Choisir le fichier � exporter")
+        Choose_File_To_Export)
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" Or Fichier_De_Sauvegarde = Empty Or Fichier_De_Sauvegarde = "Faux" Or Fichier_De_Sauvegarde = "False" Then
         choisirNomFicherASauvegarderSansMacro = False
@@ -262,7 +262,7 @@ Public Sub SetFormatForBudget(BaseCell As Range, HeadCell As Range, IsHeader As 
                 If IsPercent Then
                     .NumberFormat = "0%"
                 Else
-                    .NumberFormat = "#,##0.00"" �"""
+                    .NumberFormat = T_Currency_Format
                 End If
             Else
                 .NumberFormat = "General"
@@ -372,7 +372,7 @@ Public Sub DefinirFormatPourChantier( _
             .ThemeFont = xlThemeFontNone
         End With
         If CurrencyFormat Then
-            .NumberFormat = "#,##0.00"" �"""
+            .NumberFormat = T_Currency_Format
         Else
             If IsPercent Then
                 .NumberFormat = "0%"
@@ -396,7 +396,7 @@ Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As S
     Set OldChargesSheet = oldWorkbook.Worksheets(Name)
     On Error GoTo 0
     If OldChargesSheet Is Nothing Then
-        MsgBox "'" & Nom_Feuille_Cout_J_Salaire & "' n'a pas �t� trouv�e dans " & oldWorkbook.Name
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Cout_J_Salaire)
         Exit Sub
     End If
     
@@ -404,7 +404,7 @@ Public Sub CopieLogo(oldWorkbook As Workbook, NewWorkbook As Workbook, Name As S
     Set NewChargesSheet = NewWorkbook.Worksheets(Name)
     On Error GoTo 0
     If NewChargesSheet Is Nothing Then
-        MsgBox "'" & Name & "' n'a pas �t� trouv�e dans " & NewWorkbook.Name
+        MsgBox Replace(T_NotFoundPage, "%PageName%", Name)
         Exit Sub
     End If
     
@@ -485,7 +485,7 @@ Public Sub formatChargeCell(CurrentCell As Range, NoBorderOnRightAndLeft As Bool
                 If IndexBis = 6 Then
                     .NumberFormat = "0\ %"
                 Else
-                    .NumberFormat = "#,##0.00"" �"""
+                    .NumberFormat = T_Currency_Format
                 End If
             End If
         End With
@@ -680,7 +680,7 @@ Public Sub Specific_Provisions_Theme_Set( _
             End If
         End With
         If IsCurrency Then
-            .NumberFormat = "#,##0.00"" �"""
+            .NumberFormat = T_Currency_Format
         Else
             .NumberFormat = "General"
         End If

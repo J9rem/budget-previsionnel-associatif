@@ -1,6 +1,6 @@
 Attribute VB_Name = "Types"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la declaration de toutes les variables
 Option Explicit
 
 ' Types
@@ -81,7 +81,7 @@ Public Type DonneesSalarie
     MasseSalarialeAnnuelleFormula As String
     TauxOperateur As Double
     TauxOperateurFormula As String
-    JoursChantiers() As Double ' Tableau de temps de chantiers même index que le tableau Chantiers
+    JoursChantiers() As Double ' Tableau de temps de chantiers meme index que le tableau Chantiers
     JoursChantiersFormula() As String
     JoursChantiersReal() As Double
     JoursChantiersFormulaReal() As String
