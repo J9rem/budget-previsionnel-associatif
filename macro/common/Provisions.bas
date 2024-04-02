@@ -6,7 +6,7 @@ Option Explicit
 ' clean content of Provision sheet
 ' @param Worksheet ProvisionsSheet
 ' @return Boolean allIsRight
-Public Function Provisions_Clean_Sheet(ProvisionsSheet as Worksheet) As Boolean
+Public Function Provisions_Clean_Sheet(ProvisionsSheet As Worksheet) As Boolean
 
     Dim FinanciersLines() As Integer
     Dim FinanciersLinesRaw As String
@@ -17,7 +17,6 @@ Public Function Provisions_Clean_Sheet(ProvisionsSheet as Worksheet) As Boolean
     
     NBYears = Provisions_Years_getNb(ProvisionsSheet)
     If NBYears > 0 Then
-        Provisions_Financiers_Get_Lines(ProvisionsSheet, NBYears)
         FinanciersLinesRaw = Provisions_Financiers_Get_Lines(ProvisionsSheet, NBYears)
         If FinanciersLinesRaw <> "" Then
             FinanciersLines = Split(FinanciersLinesRaw, ",")
@@ -354,7 +353,7 @@ End Function
 ' import Provisions
 ' @param Workbook wb
 ' @param Data data
-Public Sub Provisions_Import(wb as Workbook, Data as Data)
+Public Sub Provisions_Import(wb As Workbook, Data As Data)
 
     Dim ProvisionsSheet As Worksheet
 
@@ -502,7 +501,7 @@ Public Function Provisions_Provision_Add( _
                 Or WorkingYear > (Provision.FirstYear + Provision.NBYears - 1) Then
                 CurrentStartCell.Cells(Index, 3).Value = 0
             Else
-                WaitedValue = WaitedValues(WorkingYear - Provision.FirstYear + 1 )
+                WaitedValue = WaitedValues(WorkingYear - Provision.FirstYear + 1)
                 CurrentStartCell.Cells(Index, 3).Value = WaitedValue
             End If
             Specific_Provisions_Theme_Set _

@@ -54,7 +54,7 @@ Public Function choisirNomFicherASauvegarderSansMacro(ByRef FilePath As String) 
     Fichier_De_Sauvegarde = GetSaveAsFilename( _
         Default_File_Name, _
         Array(Array("Libre Office (*.ods)","*.ods"),Array("Excel (*.xls)","*.xls")), _
-        "Choisir le fichier à exporter", _
+        T_Choose_File_To_Export, _
         Adresse_dossier_courant)
     On Error GoTo 0
     If Fichier_De_Sauvegarde = "" Or Fichier_De_Sauvegarde = Empty Or Fichier_De_Sauvegarde = "Faux" Or Fichier_De_Sauvegarde = "False" Then
@@ -799,10 +799,10 @@ End Function
 ' @param String BgColorName (choose no color if not recognized)
 ' @param Boolean TextWhiteAndBold default false
 Public Sub Specific_Provisions_Theme_Set( _
-        Cell as Range, _
+        Cell As Range, _
         IsCurrency As Boolean, _
         BgColorName As String, _
-        optional TextWhiteAndBold As Boolean = False _
+        Optional TextWhiteAndBold As Boolean = False _
     )
 
     Dim AuthorizedColorNames(1 To 7) As String

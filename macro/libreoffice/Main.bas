@@ -45,9 +45,9 @@ Public Sub ExporterSansMacro()
         End If
         
         If Erreur Then
-            MsgBox "Fichier non exporté"
+            MsgBox T_File_Not_Exported
         Else
-            MsgBox "Fichier sauvegardé"
+            MsgBox T_File_Saved
         End If
     End If
 End Sub
@@ -65,7 +65,7 @@ Public Sub ImporterDesDonnees()
         If choisirFichierAImporter(FilePath) Then
             MsgBoxResult = MsgBox( _
                 "Faut-il faire une sauvegarde de ce fichier avant l'importation ?" & Chr(10) & _
-                "Les données importées remplaceront toutes les données contenues dans le présent fichier.", _
+                T_Data_Were_Replaced, _
                 vbYesNo, _
                 "Sauvegarder ce fichier ?" _
                 )
@@ -83,7 +83,7 @@ Public Sub ImporterDesDonnees()
         If Erreur Then
             MsgBox "Impossible d'importer le ficher"
         Else
-            MsgBox "Fichier importé"
+            MsgBox T_File_Imported
         End If
     End If
 End Sub

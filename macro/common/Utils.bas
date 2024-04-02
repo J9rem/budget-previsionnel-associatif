@@ -1,11 +1,11 @@
 Attribute VB_Name = "Utils"
 ' SPDX-License-Identifier: EUPL-1.2
-' Pour forcer la déclaration de toutes les variables
+' Pour forcer la declaration de toutes les variables
 Option Explicit
 
 
 Public Sub NotAvailable()
-    MsgBox "Patience, cette fonction est encore en cours de développement"
+    MsgBox T_Development_In_Course
 End Sub
 
 Public Function FileExists(FilePath As String) As Boolean
@@ -110,8 +110,7 @@ Public Function SaveFileNoMacro(FilePath As String) As Boolean
 
     SaveFileNoMacro = False
     If (FilePath = ThisWorkbook.Path) Then
-        MsgBox "Il n'est pas possible d'écraser le fichier courant" & Chr(10) & _
-          "Veuillez réessayer avec un autre emplacement ou nom de fichier"
+        MsgBox Replace(T_NotPossibleToForceSave, "%n%", Chr(10))
     Else
         
         ' check extension type
@@ -128,8 +127,8 @@ Public Function SaveFileNoMacro(FilePath As String) As Boolean
         SanitizedFilePath = FolderName & NewFileName
         
         If FileExists(SanitizedFilePath) Then
-            MsgBoxResult = MsgBox("Le fichie cible existe déjà !" & Chr(10) & _
-                "Faut-il l'écraser avec le nouveau ?", _
+            MsgBoxResult = MsgBox( _
+                Replace(T_Existing_File_What_To_Do, "%n%", Chr(10)), _
                 vbYesNo)
             If MsgBoxResult <> vbYes And MsgBoxResult <> vbOK Then
                 Exit Function
@@ -272,7 +271,7 @@ Public Function archiveThisFile() As Boolean
     FileName = Left(FileName, Len(FileName) - Len(Extension) - 1) & "-backup-" & Format(Now(), "yyyymdd_hhmmss") & "." & Extension
     
     If FileExists(ThisWorkbook.Path & "\" & FileName) Then
-        MsgBox "Impossible de sauvegarder le fichier de sauvegarde car il existe déjà"
+        MsgBox T_NotPossibleToSaveFileBecauseExisting
         Exit Function
     End If
     
@@ -513,7 +512,7 @@ End Function
 
 Public Sub SetSilent()
     ' config to be faster
-    On Error Resume Next ' pour éviter les erreurs LibreOffice
+    On Error Resume Next ' pour eviter les erreurs LibreOffice
     Application.Calculation = xlCalculationManual
     Application.CalculateBeforeSave = True
     Application.ScreenUpdating = False
@@ -521,7 +520,7 @@ Public Sub SetSilent()
 End Sub
 
 Public Sub SetActive()
-    On Error Resume Next ' pour éviter les erreurs LibreOffice
+    On Error Resume Next ' pour eviter les erreurs LibreOffice
     Application.Calculation = xlCalculationAutomatic
     Application.CalculateBeforeSave = True
     Application.ScreenUpdating = True
