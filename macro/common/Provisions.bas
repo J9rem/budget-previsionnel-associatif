@@ -434,6 +434,28 @@ Public Function Provisions_Init(Provision As Provision, NBYears As Integer) As P
 
 End Function
 
+' extract value of current main year in first worskeet
+' @param Workbook wb
+' @param Integer MainYearValue
+Public Function Provisions_Main_Year_Get(wb As NewWorkbook) As Integer
+
+    Dim CurrentSheet As Worksheet
+    Dim BaseCell As Range
+
+    ' default value
+    Provisions_Main_Year_Get = 2024
+    
+    On Error Resume Next
+    Set CurrentSheet = wb.Worksheets(Nom_Feuille_Informations)
+    On Error GoTo 0
+    If Not (CurrentSheet Is Nothing) Then
+        Set BaseCell = CurrentSheet.Range("A:A").Find(Label_Annees)
+        If Not BaseCell Is Nothing Then
+            Provisions_Main_Year_Get = BaseCell.Cells(1, 2).Value
+        End If
+    End If
+End Function
+
 ' add new content in Provisions sheet
 ' @param Worksheet ProvisionsSheet
 ' @param Data As Data
@@ -579,6 +601,165 @@ Public Function Provisions_SearchRange( _
     Set Provisions_SearchRange = Destination
 End Function
 
+' search the first years without empty value
+' then update years update to current year or maximum year
+' @param Worksheet ProvisionsSheet
+' @param Data Data
+' @return Integer
+Public Function Provisions_UpdateNBYears(ProvisionsSheet As Worksheet, Data As Data) As Integer
+
+    Dim CurrentNBYears As Integer
+    Dim CurrentIndex As Integer
+    Dim CurrentIndexes(1 To 5) As Integer
+    Dim CurrentValue As Double
+    Dim CurrentValues() As Double
+    Dim CurrentYear As Integer
+    Dim Index As Integer
+    Dim IndexYear As Integer
+    Dim Index2 As Integer
+    Dim Provision As Provision
+    Dim Provisions() As Provision
+    Dim NBColsToChange As Integer
+    Dim MaximumLastYear As Integer
+    Dim MinimumFirstYear As Integer
+    Dim WantedFirstYear As Integer
+    Dim WantedLastYear As Integer
+    Dim WantedNBYears As Integer
+
+    ' default
+    WantedLastYear = Provisions_Main_Year_Get(ProvisionsSheet.Parent)
+    WantedFirstYear = WantedLastYear - 4
+
+    Provisions = Data.Provisions
+    If UBound(Provisions) > 0 Then
+        For Index = 1 To UBound(Provisions)
+            Provision = Provisions(Index)
+            MaximumLastYear = Provision.FirstYear + Provision.NBYears - 1
+            MinimumFirstYear = MaximumLastYear
+
+            ' test waited values
+            CurrentValues = Provision.WaitedValues
+            For IndexYear = 1 To Provision.NBYears
+                ' test if empty for this year
+                CurrentYear = Provision.FirstYear + IndexYear - 1
+                CurrentValue = CurrentValues(IndexYear)
+                If CurrentValue <> 0 Then
+                    If CurrentYear < MinimumFirstYear Then
+                        MinimumFirstYear = CurrentYear
+                    End If
+                End If
+            Next IndexYear
+
+            ' test payments
+            CurrentValues = Provision.PayedValues
+            CurrentIndex = 1
+            For IndexYear = 1 To Provision.NBYears
+                ' test if empty for this year
+                For Index2 = IndexYear To Provision.NBYears
+                    CurrentYear = Provision.FirstYear + Index2 - 1
+                    CurrentValue = CurrentValues(CurrentIndex)
+                    If CurrentValue <> 0 Then
+                        If CurrentYear < MinimumFirstYear Then
+                            MinimumFirstYear = CurrentYear
+                        End If
+                    End If
+                    CurrentIndex = CurrentIndex + 1
+                Next Index2
+
+            Next IndexYear
+            
+            ' test RetrievalTenPercent
+            CurrentValues = Provision.RetrievalTenPercent
+            CurrentIndex = 1
+            For IndexYear = 1 To Provision.NBYears
+                ' test if empty for this year
+                For Index2 = (IndexYear + 1) To Provision.NBYears
+                    CurrentYear = Provision.FirstYear + Index2 - 1
+                    CurrentValue = CurrentValues(CurrentIndex)
+                    If CurrentValue <> 0 Then
+                        If CurrentYear < MinimumFirstYear Then
+                            MinimumFirstYear = CurrentYear
+                        End If
+                    End If
+                    CurrentIndex = CurrentIndex + 1
+                Next Index2
+
+            Next IndexYear
+
+            If MinimumFirstYear < WantedFirstYear Then
+                WantedFirstYear = MinimumFirstYear
+            End If
+            If WantedLastYear < MaximumLastYear Then
+                WantedLastYear = MaximumLastYear
+            End If
+        Next Index
+    End If
+
+    WantedNBYears = WantedLastYear - WantedFirstYear + 1
+
+    CurrentNBYears = Provisions_Years_getNb(ProvisionsSheet)
+    ' net
+    CurrentIndexes(1) = 4 * CurrentNBYears + 9
+    ' 10% manual
+    CurrentIndexes(2) = 3 * CurrentNBYears + 8
+    ' 25% auto
+    CurrentIndexes(3) = 2 * CurrentNBYears + 6
+    ' provision
+    CurrentIndexes(4) = CurrentNBYears + 6
+    ' payments
+    CurrentIndexes(5) = 5
+    If CurrentNBYears > WantedNBYears Then
+        ' remove rows
+        NBColsToChange = CurrentNBYears - WantedNBYears
+        For Index2 = 1 To 5
+            For Index = 1 To NBColsToChange
+                ProvisionsSheet.Cells(1, CurrentIndexes(Index2)).EntireColumn.Delete Shift:=xlToLeft
+            Next Index
+        Next Index2
+    Else
+        If CurrentNBYears < WantedNBYears Then
+            ' add rows
+            NBColsToChange = WantedNBYears - CurrentNBYears
+            For Index2 = 1 To 5
+                For Index = 1 To NBColsToChange
+                    ProvisionsSheet.Cells(1, CurrentIndexes(Index2)).Select
+                    ProvisionsSheet.Cells(1, CurrentIndexes(Index2)).Copy
+                    ProvisionsSheet.Cells(1, CurrentIndexes(Index2)).EntireColumn.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+                Next Index
+            Next Index2
+        End If
+    End If
+    CurrentNBYears = Provisions_Years_getNb(ProvisionsSheet)
+    Provisions_UpdateNBYears = CurrentNBYears
+
+    ' update values of years in header
+    ' net
+    CurrentIndexes(1) = 4 * CurrentNBYears + 8
+    ' 10% manual
+    CurrentIndexes(2) = 3 * CurrentNBYears + 7
+    ' 25% auto
+    CurrentIndexes(3) = 2 * CurrentNBYears + 5
+    ' provision
+    CurrentIndexes(4) = CurrentNBYears + 5
+    ' payments
+    CurrentIndexes(5) = 4
+
+    ' payments
+    For Index = 1 To CurrentNBYears
+        ProvisionsSheet.Cells(1, CurrentIndexes(5) + Index - 1).Value = WantedFirstYear + Index - 1
+    Next Index
+    ' then others
+    For Index2 = 1 To 4
+        For Index = 1 To CurrentNBYears
+            ProvisionsSheet.Cells(1, CurrentIndexes(Index2) + Index - 1).Formula = _
+                "=" & CleanAddress( _
+                    ProvisionsSheet.Cells(1, CurrentIndexes(5) + Index - 1).address(True, True, xlA1, False) _
+                )
+        Next Index
+    Next Index2
+
+End Function
+
 ' search the NB years in Provisions sheet
 ' @param Worksheet ws
 ' @return Integer ' return 0 in case of error
@@ -613,4 +794,5 @@ Public Function Provisions_Years_getNb(ws As Worksheet) As Integer
 
     Provisions_Years_getNb = NBYears
 End Function
+
 
