@@ -501,6 +501,7 @@ Public Function Provisions_Provision_Add( _
     ) As Range
 
     Dim Index As Integer
+    Dim Index2 As Integer
     Dim RangeForTitle As Range
     Dim NextCurrentStartCell As Range
     Dim PayedValue As Double
@@ -563,7 +564,7 @@ Public Function Provisions_Provision_Add( _
                     Else
                         WorkingYear2 = FirstYear + Index2 - 1
                         If WorkingYear2 < Provision.FirstYear _
-                            Or WorkingYear2 > (Provision.FirstYear + Provision.NBYears - 1) > Then
+                            Or WorkingYear2 > (Provision.FirstYear + Provision.NBYears - 1) Then
                             CurrentStartCell.Cells(Index, 3 + Index2).Value = 0
                         Else
                             PayedValue = PayedValues(WorkingYear2 - Provision.FirstYear + 1)
@@ -600,14 +601,14 @@ Public Function Provisions_Provision_Add( _
                         )
                     If Index2 = Index Then
                         CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Formula = _
-                            & CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Formula _
+                            CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Formula _
                             & "+0.25*SUM(" _
-                                CleanAddress( _
-                                    CurrentStartCell.Cells(Index, 4 + Index2).Address(False, False, xlA1, False) _
+                                & CleanAddress( _
+                                    CurrentStartCell.Cells(Index, 4 + Index2).address(False, False, xlA1, False) _
                                 ) _
                                 & ":" _
-                                CleanAddress( _
-                                    CurrentStartCell.Cells(Index, 4 + NBYears).Address(False, True, xlA1, False) _
+                                & CleanAddress( _
+                                    CurrentStartCell.Cells(Index, 4 + NBYears).address(False, True, xlA1, False) _
                                 ) _
                             & ")"
                     End If
@@ -618,12 +619,12 @@ Public Function Provisions_Provision_Add( _
             Next
             ' add waited payments formula
             CurrentStartCell.Cells(Index, 4 + NBYears).Formula = "=MAX(0;" _
-                & CleanAddress(CurrentStartCell.Cells(Index, 3).Address(False, False, xlA1, False)) _
-                & "-SUM(" _&
-                    CleanAddress(Range( _
+                & CleanAddress(CurrentStartCell.Cells(Index, 3).address(False, False, xlA1, False)) _
+                & "-SUM(" _
+                    & CleanAddress(Range( _
                         CurrentStartCell.Cells(Index, 4), _
                         CurrentStartCell.Cells(Index, 3 + NBYears) _
-                    ).Address(False, False, xlA1, False))_
+                    ).address(False, False, xlA1, False)) _
                     & ")" _
             & ")"
             Specific_Provisions_Theme_Set _
