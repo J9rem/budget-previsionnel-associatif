@@ -546,7 +546,7 @@ Public Function Provisions_Provision_Add( _
                     Else
                         CurrentStartCell.Cells(Index, 3 + Index2).Value = 0
                     End If
-                Next 
+                Next
             Else
                 WaitedValue = WaitedValues(WorkingYear - Provision.FirstYear + 1)
                 ' add to receive
@@ -565,7 +565,7 @@ Public Function Provisions_Provision_Add( _
                             CurrentStartCell.Cells(Index, 3 + Index2).Value = PayedValue
                         End If
                     End If
-                Next 
+                Next
             End If
             ' add to receive
             Specific_Provisions_Theme_Set _
@@ -591,7 +591,7 @@ Public Function Provisions_Provision_Add( _
                     ' add provisions
                     CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Formula = "=" _
                         & "0.1*" & CleanAddress( _
-                            CurrentStartCell.Cells(Index, 3 + Index2).Address(False, False, xlA1, False) _
+                            CurrentStartCell.Cells(Index, 3 + Index2).address(False, False, xlA1, False) _
                         )
                     If Index2 = Index Then
                         CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Formula = _
@@ -614,7 +614,7 @@ Public Function Provisions_Provision_Add( _
             ' add waited payments formula
             CurrentStartCell.Cells(Index, 4 + NBYears).Formula = "=MAX(0;" _
                 & CleanAddress(CurrentStartCell.Cells(Index, 3).Address(False, False, xlA1, False)) _
-                & "-SUM(" _& 
+                & "-SUM(" _&
                     CleanAddress(Range( _
                         CurrentStartCell.Cells(Index, 4), _
                         CurrentStartCell.Cells(Index, 3 + NBYears) _
