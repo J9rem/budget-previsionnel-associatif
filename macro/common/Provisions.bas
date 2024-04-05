@@ -8,7 +8,7 @@ Option Explicit
 ' @return Boolean allIsRight
 Public Function Provisions_Clean_Sheet(ProvisionsSheet As Worksheet) As Boolean
 
-    Dim FinanciersLines() As Integer
+    Dim FinanciersLines() As String
     Dim FinanciersLinesRaw As String
     Dim NBYears As Integer
 
@@ -24,8 +24,8 @@ Public Function Provisions_Clean_Sheet(ProvisionsSheet As Worksheet) As Boolean
             ' delete lines (margin of 5 lines)
             Range( _
                 ProvisionsSheet.Cells(5, 1), _
-                ProvisionsSheet.Cells(FinanciersLines(UBound(FinanciersLines)) + NBYears + 5, 1) _
-            ).Delete Shift:=xlUp
+                ProvisionsSheet.Cells(CInt(FinanciersLines(UBound(FinanciersLines))) + NBYears + 5, 1) _
+            ).EntireRow.Delete Shift:=xlUp
 
             ' All is right
             Provisions_Clean_Sheet = True
@@ -191,7 +191,7 @@ End Function
 
 Public Function Provisions_Extract(wb As Workbook, Data As Data, Revision As WbRevision) As Data
 
-    Dim FinanciersLines() As Integer
+    Dim FinanciersLines() As String
     Dim FinanciersLinesRaw As String
     Dim FirstYear As Integer
     Dim Index As Integer
@@ -235,7 +235,12 @@ Public Function Provisions_Extract(wb As Workbook, Data As Data, Revision As WbR
 
     ReDim Provisions(1 To (UBound(FinanciersLines) + 1))
     For Index = 1 To UBound(Provisions)
-        Provisions(Index) = Provisions_Extract_For_A_Financier(ProvisionsSheet, NBYears, FirstYear, FinanciersLines(Index - 1))
+        Provisions(Index) = Provisions_Extract_For_A_Financier( _
+            ProvisionsSheet, _
+            NBYears, _
+            FirstYear, _
+            CInt(FinanciersLines(Index - 1)) _
+        )
     Next Index
     Data.Provisions = Provisions
 
@@ -295,11 +300,11 @@ Public Function Provisions_Extract_For_A_Financier( _
 
     For IndexYear = 1 To NBYears
 
-        WaitedValues(IndexYear) = CBdl(BaseCell.Cells(IndexYear, 3).Value)
+        WaitedValues(IndexYear) = CDbl(BaseCell.Cells(IndexYear, 3).Value)
 
         ' PayedValues
         For IndexColumn = IndexYear To NBYears
-            PayedValues(IndexPayedValues) = CBdl(BaseCell.Cells(IndexYear, 3 + IndexColumn).Value)
+            PayedValues(IndexPayedValues) = CDbl(BaseCell.Cells(IndexYear, 3 + IndexColumn).Value)
             IndexPayedValues = IndexPayedValues + 1
         Next IndexColumn
 
@@ -307,7 +312,7 @@ Public Function Provisions_Extract_For_A_Financier( _
             ' RetrievalTenPercent
             For IndexColumn = (IndexYear + 1) To NBYears
                 Set WorkingCell = BaseCell.Cells(IndexYear, 6 + 3 * NBYears + IndexColumn)
-                RetrievalTenPercent(IndexRetrievalTenPercent) = CBdl(WorkingCell.Value)
+                RetrievalTenPercent(IndexRetrievalTenPercent) = CDbl(WorkingCell.Value)
                 RetrievalTenPercentFormula(IndexRetrievalTenPercent) = Common_GetFormula(WorkingCell)
                 IndexRetrievalTenPercent = IndexRetrievalTenPercent + 1
             Next IndexColumn
@@ -437,7 +442,7 @@ End Function
 ' extract value of current main year in first worskeet
 ' @param Workbook wb
 ' @param Integer MainYearValue
-Public Function Provisions_Main_Year_Get(wb As NewWorkbook) As Integer
+Public Function Provisions_Main_Year_Get(wb As Workbook) As Integer
 
     Dim CurrentSheet As Worksheet
     Dim BaseCell As Range
