@@ -1,4 +1,4 @@
-Attribute VB_Name = "Provisions"
+﻿Attribute VB_Name = "Provisions"
 ' SPDX-License-Identifier: EUPL-1.2
 ' Pour forcer la declaration de toutes les variables
 Option Explicit
@@ -439,6 +439,24 @@ Public Function Provisions_Init(Provision As Provision, NBYears As Integer) As P
 
 End Function
 
+' Check if working year is in range for Provision
+' @param Integer FirstYear
+' @param Provision Provision
+' @return Integer IndexForProvision otherwose -1
+Public Function Provisions_Is_WorkingYear_Between_Provision_Range( _
+        WorkingYear As Integer, _
+        Provision As Provision _
+    ) As Integer
+
+    If WorkingYear >= Provision.FirstYear _
+        And WorkingYear < (Provision.FirstYear + Provision.NBYears) Then
+        Provisions_Is_WorkingYear_Between_Provision_Range = WorkingYear - Provision.FirstYear + 1
+    Else
+        Provisions_Is_WorkingYear_Between_Provision_Range = -1
+    End If
+        
+End Function
+
 ' extract value of current main year in first worskeet
 ' @param Workbook wb
 ' @param Integer MainYearValue
@@ -501,136 +519,31 @@ Public Function Provisions_Provision_Add( _
     ) As Range
 
     Dim Index As Integer
-    Dim Index2 As Integer
-    Dim RangeForTitle As Range
+    Dim IndexInRange As Integer
     Dim NextCurrentStartCell As Range
-    Dim PayedValue As Double
-    Dim PayedValues() As Double
-    Dim WaitedValue As Double
-    Dim WaitedValues() As Double
     Dim WorkingYear As Integer
     Dim WorkingYear2 As Integer
 
     Set NextCurrentStartCell = Nothing
     If Not (CurrentStartCell Is Nothing) Then
 
-        ' Add title
-        Set RangeForTitle = Provision.RangeForTitle
-        If RangeForTitle Is Nothing Then
-            CurrentStartCell.Cells(1, 1).Value = Provision.NomDuFinanceur
-        Else
-            CurrentStartCell.Cells(1, 1).Formula = "=SIERREUR(" _
-                    & CleanAddress(RangeForTitle.address(True, True, xlA1, True)) _
-                    & ";""" & Provision.NomDuFinanceur & """" _
-                & ")"
-        End If
-        Specific_Provisions_Theme_Set _
-            CurrentStartCell.Cells(1, 1), _
-            False, "lightGrey", False
-
-        ' add compta
-        For Index = 1 To NBYears
-            CurrentStartCell.Cells(Index, 2).Value = FirstYear + Index - 1
-            Specific_Provisions_Theme_Set _
-                CurrentStartCell.Cells(Index, 2), _
-                False, "middleGrey", False
-        Next Index
+        Provisions_Provision_Add_Title CurrentStartCell, Provision
+        Provisions_Provision_Add_Compta CurrentStartCell, Provision, FirstYear, NBYears
 
         ' add content
-        PayedValues = Provision.PayedValues
-        WaitedValues = Provision.WaitedValues
         For Index = 1 To NBYears
-            WorkingYear = FirstYear + Index - 1
-            If WorkingYear < Provision.FirstYear _
-                Or WorkingYear > (Provision.FirstYear + Provision.NBYears - 1) Then
-                ' add to receive
-                CurrentStartCell.Cells(Index, 3).Value = 0
-                ' add payments
-                For Index2 = 1 To NBYears
-                    If Index2 < Index Then
-                        CurrentStartCell.Cells(Index, 3 + Index2).Value = ""
-                    Else
-                        CurrentStartCell.Cells(Index, 3 + Index2).Value = 0
-                    End If
-                Next
-            Else
-                WaitedValue = WaitedValues(WorkingYear - Provision.FirstYear + 1)
-                ' add to receive
-                CurrentStartCell.Cells(Index, 3).Value = WaitedValue
-                ' add payments
-                For Index2 = 1 To NBYears
-                    If Index2 < Index Then
-                        CurrentStartCell.Cells(Index, 3 + Index2).Value = ""
-                    Else
-                        WorkingYear2 = FirstYear + Index2 - 1
-                        If WorkingYear2 < Provision.FirstYear _
-                            Or WorkingYear2 > (Provision.FirstYear + Provision.NBYears - 1) Then
-                            CurrentStartCell.Cells(Index, 3 + Index2).Value = 0
-                        Else
-                            PayedValue = PayedValues(WorkingYear2 - Provision.FirstYear + 1)
-                            CurrentStartCell.Cells(Index, 3 + Index2).Value = PayedValue
-                        End If
-                    End If
-                Next
-            End If
-            ' add to receive
-            Specific_Provisions_Theme_Set _
-                CurrentStartCell.Cells(Index, 3), _
-                True, "LightYellow", False
-            ' add payments and provisions
-            For Index2 = 1 To NBYears
-                If Index2 < Index Then
-                    ' add payments
-                    Specific_Provisions_Theme_Set _
-                        CurrentStartCell.Cells(Index, 3 + Index2), _
-                        False, "Grey", False
-                    ' add provisions
-                    CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Value = ""
-                    Specific_Provisions_Theme_Set _
-                        CurrentStartCell.Cells(Index, 4 + NBYears + Index2), _
-                        False, "Grey", False
-                Else
-                    ' add payments
-                    Specific_Provisions_Theme_Set _
-                        CurrentStartCell.Cells(Index, 3 + Index2), _
-                        True, "", False
-                    ' add provisions
-                    CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Formula = "=" _
-                        & "0.1*" & CleanAddress( _
-                            CurrentStartCell.Cells(Index, 3 + Index2).address(False, False, xlA1, False) _
-                        )
-                    If Index2 = Index Then
-                        CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Formula = _
-                            CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Formula _
-                            & "+0.25*SUM(" _
-                                & CleanAddress( _
-                                    CurrentStartCell.Cells(Index, 4 + Index2).address(False, False, xlA1, False) _
-                                ) _
-                                & ":" _
-                                & CleanAddress( _
-                                    CurrentStartCell.Cells(Index, 4 + NBYears).address(False, True, xlA1, False) _
-                                ) _
-                            & ")"
-                    End If
-                    Specific_Provisions_Theme_Set _
-                        CurrentStartCell.Cells(Index, 4 + NBYears + Index2), _
-                        True, "LightBlueForTotalForAutoFilledCell", False
-                End If
-            Next
-            ' add waited payments formula
-            CurrentStartCell.Cells(Index, 4 + NBYears).Formula = "=MAX(0;" _
-                & CleanAddress(CurrentStartCell.Cells(Index, 3).address(False, False, xlA1, False)) _
-                & "-SUM(" _
-                    & CleanAddress(Range( _
-                        CurrentStartCell.Cells(Index, 4), _
-                        CurrentStartCell.Cells(Index, 3 + NBYears) _
-                    ).address(False, False, xlA1, False)) _
-                    & ")" _
-            & ")"
-            Specific_Provisions_Theme_Set _
-                CurrentStartCell.Cells(Index, 4 + NBYears), _
-                True, "lightGrey", False
+            WorkingYear = Provisions_Provision_Get_WorkingYear(FirstYear, Index)
+            IndexInRange = Provisions_Is_WorkingYear_Between_Provision_Range(WorkingYear, Provision)
+
+            Provisions_Provision_Add_ToReceive CurrentStartCell, Provision, Index, IndexInRange
+            Provisions_Provision_Add_Payments CurrentStartCell, Provision, Index, IndexInRange, FirstYear, NBYears
+            Provisions_Provision_Add_Waited_Payments CurrentStartCell, Index, NBYears
+            Provisions_Provision_Add_Provisions CurrentStartCell, Index, NBYears
+            Provisions_Provision_Add_RetrievalAuto25 CurrentStartCell, Index, NBYears
+            Provisions_Provision_Add_Retrieval10 CurrentStartCell, Provision, Index, IndexInRange, FirstYear, NBYears
+            Provisions_Provision_Add_Net CurrentStartCell, Index, NBYears
         Next Index
+        ' TODO find a way to update range with the rigth and updated value event for title
         ' add to receive
         If Not (Provision.RangeForLastYearWaitedValue Is Nothing) Then
             CurrentStartCell.Cells(NBYears, 3).Formula = "=SIERREUR(" _
@@ -646,27 +559,7 @@ Public Function Provisions_Provision_Add( _
                     & ";" & CurrentStartCell.Cells(NBYears, 3 + NBYears).Value _
                 & ")"
         End If
-        ' total below waited payments formula
-        CurrentStartCell.Cells(NBYears + 1, 4 + NBYears).Value = "Total"
-        Specific_Provisions_Theme_Set _
-            CurrentStartCell.Cells(NBYears + 1, 4 + NBYears), _
-            False, "Blue", True
-        ' total below
-        For Index = (5 + NBYears) To (5 * NBYears + 13)
-            CurrentStartCell.Cells(NBYears + 1, Index).Formula = "=SUM(" _
-                & CleanAddress(Range( _
-                        CurrentStartCell.Cells(1, Index), _
-                        CurrentStartCell.Cells(NBYears, Index) _
-                    ).address(False, False, xlA1, False)) _
-                & ")"
-            Specific_Provisions_Theme_Set _
-                CurrentStartCell.Cells(NBYears + 1, Index), _
-                True, "LightBlueForTotal", False
-        Next Index
-        CurrentStartCell.Cells(NBYears + 1, 5 * NBYears + 10).Value = ""
-        Specific_Provisions_Theme_Set _
-            CurrentStartCell.Cells(NBYears + 1, 5 * NBYears + 10), _
-            False, "", False
+        Provisions_Provision_Add_Total CurrentStartCell, Provision, NBYears
 
         ' update next cell
         Set NextCurrentStartCell = CurrentStartCell.Cells(NBYears + 3, 1)
@@ -674,6 +567,456 @@ Public Function Provisions_Provision_Add( _
     End If
 
     Set Provisions_Provision_Add = NextCurrentStartCell
+End Function
+
+
+' Add and format Title Cell
+' @param Range CurrentStartCell
+' @param Provision Provision
+Public Sub Provisions_Provision_Add_Title( _
+        CurrentStartCell As Range, _
+        Provision As Provision _
+    )
+
+    Dim RangeForTitle As Range
+
+    ' Add title
+    Set RangeForTitle = Provision.RangeForTitle
+    If RangeForTitle Is Nothing Then
+        CurrentStartCell.Cells(1, 1).Value = Provision.NomDuFinanceur
+    Else
+        CurrentStartCell.Cells(1, 1).Formula = "=SIERREUR(" _
+                & CleanAddress(RangeForTitle.address(True, True, xlA1, True)) _
+                & ";""" & Provision.NomDuFinanceur & """" _
+            & ")"
+    End If
+    Specific_Provisions_Theme_Set _
+        CurrentStartCell.Cells(1, 1), _
+        False, "lightGrey", False
+End Sub
+
+' Add and format Compta Cell
+' @param Range CurrentStartCell
+' @param Provision Provision
+' @param Integer FirstYear
+' @param Integer NBYears
+Public Sub Provisions_Provision_Add_Compta( _
+        CurrentStartCell As Range, _
+        Provision As Provision, _
+        FirstYear As Integer, _
+        NBYears As Integer _
+    )
+
+    Dim Index As Integer
+
+    ' add compta
+    For Index = 1 To NBYears
+        CurrentStartCell.Cells(Index, 2).Value = FirstYear + Index - 1
+        Specific_Provisions_Theme_Set _
+            CurrentStartCell.Cells(Index, 2), _
+            False, "middleGrey", False
+    Next Index
+End Sub
+
+' Add and format Net Cell
+' @param Range CurrentStartCell
+' @param Integer Index of line
+' @param Integer NBYears
+Public Sub Provisions_Provision_Add_Net( _
+        CurrentStartCell As Range, _
+        Index As Integer, _
+        NBYears As Integer _
+    )
+
+    Dim InternalIndex As Integer
+    Dim WorkingCell As Range
+
+    For InternalIndex = 1 To NBYears
+        Set WorkingCell = CurrentStartCell.Cells(Index, 7 + 4 * NBYears + InternalIndex)
+        If InternalIndex < Index Then
+            WorkingCell.Value = ""
+            Specific_Provisions_Theme_Set WorkingCell, False, "Grey", False
+        Else
+            WorkingCell.Formula = "=" _
+                & CleanAddress(WorkingCell.Cells(1, -NBYears).address(False, False, xlA1, False)) _
+                & "+" _
+                & CleanAddress(WorkingCell.Cells(1, -2 - 2 * NBYears).address(False, False, xlA1, False)) _
+                & "-" _
+                & CleanAddress(WorkingCell.Cells(1, -2 - 3 * NBYears).address(False, False, xlA1, False))
+            Specific_Provisions_Theme_Set WorkingCell, True, "LightBlueForTotalForAutoFilledCell", False
+        End If
+    Next InternalIndex
+    ' rest
+    Set WorkingCell = CurrentStartCell.Cells(Index, 8 + 5 * NBYears)
+    WorkingCell.Formula = "=" _
+        & CleanAddress(WorkingCell.Cells(1, -NBYears).address(False, False, xlA1, False)) _
+        & "-" _
+        & CleanAddress(WorkingCell.Cells(1, -2 - 2 * NBYears).address(False, False, xlA1, False))
+    Specific_Provisions_Theme_Set WorkingCell, True, "LightBlueForTotalForAutoFilledCell", False
+    ' set empty column
+    Set WorkingCell = WorkingCell.Cells(1, 2)
+    WorkingCell.Value = ""
+    Specific_Provisions_Theme_Set WorkingCell, False, "", False, False
+    ' set provision forecast
+    Set WorkingCell = WorkingCell.Cells(1, 2)
+    WorkingCell.FormulaLocal = "=SI(ANNEE_COURANTE=" _
+        & CleanAddress( _
+            CurrentStartCell.Worksheet.Cells(4, 3 + NBYears).address(True, True, xlA1, False) _
+        ) _
+        & ";0,1*" _
+        & CleanAddress( _
+            CurrentStartCell.Cells(Index, 3 + NBYears).address(False, False, xlA1, False) _
+        ) _
+        & ";0)+0,1*" _
+        & CleanAddress( _
+            CurrentStartCell.Cells(Index, 4 + NBYears).address(False, False, xlA1, False) _
+        )
+    Specific_Provisions_Theme_Set WorkingCell, True, "LightBlueForTotalForAutoFilledCell", False
+    ' set retrieval forecast
+    Set WorkingCell = WorkingCell.Cells(1, 2)
+    WorkingCell.Formula = "=" _
+        & CleanAddress( _
+            CurrentStartCell.Cells(Index, 4 + 3 * NBYears).address(False, False, xlA1, False) _
+        ) _
+        & "+0.1*SUM(" _
+        & CleanAddress(Range( _
+            CurrentStartCell.Cells(Index, 4), _
+            CurrentStartCell.Cells(Index, 2 + NBYears) _
+            ).address(False, False, xlA1, False) _
+        ) _
+        & ")-SUM(" _
+        & CleanAddress(Range( _
+            CurrentStartCell.Cells(Index, 7 + 3 * NBYears), _
+            CurrentStartCell.Cells(Index, 5 + 4 * NBYears) _
+            ).address(False, False, xlA1, False) _
+        ) _
+        & ")"
+    Specific_Provisions_Theme_Set WorkingCell, True, "LightBlueForTotalForAutoFilledCell", False
+    ' set net forecast
+    Set WorkingCell = WorkingCell.Cells(1, 2)
+    WorkingCell.Formula = "=" _
+        & CleanAddress(WorkingCell.Cells(1, 0).address(False, False, xlA1, False)) _
+        & "-" _
+        & CleanAddress(WorkingCell.Cells(1, -1).address(False, False, xlA1, False))
+    Specific_Provisions_Theme_Set WorkingCell, True, "LightBlueForTotalForAutoFilledCell", False
+End Sub
+
+' Add and format Payments Cell
+' @param Range CurrentStartCell
+' @param Provision Provision
+' @param Integer Index of line
+' @param Integer IndexInRange
+' @param Integer FirstYear
+' @param Integer NBYears
+Public Sub Provisions_Provision_Add_Payments( _
+        CurrentStartCell As Range, _
+        Provision As Provision, _
+        Index As Integer, _
+        IndexInRange As Integer, _
+        FirstYear As Integer, _
+        NBYears As Integer _
+    )
+
+    Dim InternalIndex As Integer
+    Dim IndexInRangeLevel2 As Integer
+    Dim PayedValue As Double
+    Dim PayedValues() As Double
+    Dim WorkingCell As Range
+    Dim WorkingYear As Integer
+
+    For InternalIndex = 1 To NBYears
+        Set WorkingCell = CurrentStartCell.Cells(Index, 3 + InternalIndex)
+        If InternalIndex < Index Then
+            WorkingCell.Value = ""
+            Specific_Provisions_Theme_Set WorkingCell, False, "Grey", False
+
+        Else
+            WorkingYear = Provisions_Provision_Get_WorkingYear(FirstYear, InternalIndex)
+            IndexInRangeLevel2 = Provisions_Is_WorkingYear_Between_Provision_Range(WorkingYear, Provision)
+            If IndexInRange > -1 And IndexInRangeLevel2 > -1 Then
+                PayedValues = Provision.PayedValues
+                ' TODO calculate right Index with
+                '   for k = 0 < (index - 1)
+                '     counter += NBYears - k
+                '   counter += InternalIndex - Index
+                PayedValue = PayedValues(IndexInRangeLevel2)
+                WorkingCell.Value = PayedValue
+            Else
+                WorkingCell.Value = 0
+            End If
+            Specific_Provisions_Theme_Set WorkingCell, True, "", False
+
+        End If
+    Next InternalIndex
+End Sub
+
+' Add and format Provisions Cell
+' @param Range CurrentStartCell
+' @param Integer Index of line
+' @param Integer NBYears
+Public Sub Provisions_Provision_Add_Provisions( _
+        CurrentStartCell As Range, _
+        Index As Integer, _
+        NBYears As Integer _
+    )
+
+    Dim InternalIndex As Integer
+    Dim WorkingCell As Range
+
+    For InternalIndex = 1 To NBYears
+        Set WorkingCell = CurrentStartCell.Cells(Index, 4 + NBYears + InternalIndex)
+        If InternalIndex < Index Then
+            WorkingCell.Value = ""
+            Specific_Provisions_Theme_Set WorkingCell, False, "Grey", False
+        Else
+            WorkingCell.Formula = "=" _
+                & "0.1*" & CleanAddress( _
+                    CurrentStartCell.Cells(Index, 3 + InternalIndex).address(False, False, xlA1, False) _
+                )
+            If InternalIndex = Index Then
+                WorkingCell.Formula = WorkingCell.Formula _
+                    & "+0.25*SUM(" _
+                        & CleanAddress( _
+                            CurrentStartCell.Cells(Index, 4 + InternalIndex).address(False, False, xlA1, False) _
+                        ) _
+                        & ":" _
+                        & CleanAddress( _
+                            CurrentStartCell.Cells(Index, 4 + NBYears).address(False, True, xlA1, False) _
+                        ) _
+                    & ")"
+            End If
+            Specific_Provisions_Theme_Set WorkingCell, True, "LightBlueForTotalForAutoFilledCell", False
+        End If
+    Next InternalIndex
+End Sub
+
+' Add and format Retrieval Cell auto 10%
+' @param Range CurrentStartCell
+' @param Provision Provision
+' @param Integer Index of line
+' @param Integer IndexInRange
+' @param Integer FirstYear
+' @param Integer NBYears
+Public Sub Provisions_Provision_Add_Retrieval10( _
+        CurrentStartCell As Range, _
+        Provision As Provision, _
+        Index As Integer, _
+        IndexInRange As Integer, _
+        FirstYear As Integer, _
+        NBYears As Integer _
+    )
+
+    Dim InternalIndex As Integer
+    Dim IndexInRangeLevel2 As Integer
+    Dim RetrievalFormula As String
+    Dim RetrievalValue As Double
+    Dim RetrievalTenPercent() As Double
+    Dim RetrievalTenPercentFormula() As String
+    Dim WantedFormula As String
+    Dim WorkingCell As Range
+    Dim WorkingCellEnd As Range
+    Dim WorkingYear As Integer
+
+    For InternalIndex = 1 To NBYears
+        Set WorkingCell = CurrentStartCell.Cells(Index, 6 + 3 * NBYears + InternalIndex)
+        If InternalIndex <= Index Then
+            WorkingCell.Value = ""
+            Specific_Provisions_Theme_Set WorkingCell, False, "Grey", False
+
+        Else
+            WorkingYear = Provisions_Provision_Get_WorkingYear(FirstYear, InternalIndex)
+            IndexInRangeLevel2 = Provisions_Is_WorkingYear_Between_Provision_Range(WorkingYear, Provision)
+            If IndexInRange > -1 And IndexInRangeLevel2 > -1 Then
+                RetrievalTenPercent = Provision.RetrievalTenPercent
+                RetrievalTenPercentFormula = Provision.RetrievalTenPercentFormula
+                RetrievalValue = RetrievalTenPercent(IndexInRangeLevel2)
+                RetrievalFormula = RetrievalTenPercentFormula(IndexInRangeLevel2)
+                If RetrievalFormula <> "" Then
+                    ' Force a formula because it could have offset in imported formula
+                    WantedFormula = "=" _
+                        & "0.1*" _
+                        & CleanAddress( _
+                            CurrentStartCell.Cells(Index, 2 + InternalIndex).address(False, False, xlA1, False) _
+                        )
+                Else
+                    WantedFormula = ""
+                End If
+                Common_SetFormula WorkingCell, RetrievalValue, RetrievalFormula
+                ' test if bad formula
+                If WorkingCell.Value <> RetrievalValue Then
+                    WorkingCell.Value = RetrievalValue
+                End If
+            Else
+                WorkingCell.Value = 0
+            End If
+            Specific_Provisions_Theme_Set WorkingCell, True, "", False
+
+        End If
+    Next InternalIndex
+    
+    ' First cell
+
+    Set WorkingCell = CurrentStartCell.Cells(Index, 6 + 3 * NBYears)
+    WorkingCell.Formula = "=" _
+        & "0.1*" & Provisions_Provision_Get_FormulaForSum(CurrentStartCell, Index, NBYears)
+    Specific_Provisions_Theme_Set WorkingCell, True, "LightBlueForTotalForAutoFilledCell", False
+
+    Set WorkingCellEnd = WorkingCell.Cells(1, 2 + NBYears)
+    WorkingCellEnd.Formula = "=" _
+        & CleanAddress(WorkingCell.address(False, False, xlA1, False)) _
+        & "-SUM(" _
+            & CleanAddress(Range( _
+                WorkingCell.Cells(1, 2), _
+                WorkingCellEnd.Cells(1, 0) _
+            ).address(False, False, xlA1, False)) _
+        & ")"
+    Specific_Provisions_Theme_Set WorkingCellEnd, True, "LightBlueForTotalForAutoFilledCell", False
+End Sub
+
+' Add and format Retrieval Cell auto 25%
+' @param Range CurrentStartCell
+' @param Integer Index of line
+' @param Integer NBYears
+Public Sub Provisions_Provision_Add_RetrievalAuto25( _
+        CurrentStartCell As Range, _
+        Index As Integer, _
+        NBYears As Integer _
+    )
+
+    Dim InternalIndex As Integer
+    Dim WorkingCell As Range
+
+    For InternalIndex = 1 To (NBYears + 1)
+        Set WorkingCell = CurrentStartCell.Cells(Index, 4 + 2 * NBYears + InternalIndex)
+        If InternalIndex <= Index Then
+            WorkingCell.Value = ""
+            Specific_Provisions_Theme_Set WorkingCell, False, "Grey", False
+        Else
+            WorkingCell.Formula = "=" _
+                & "0.25*" & CleanAddress( _
+                    CurrentStartCell.Cells(Index, 3 + InternalIndex).address(False, False, xlA1, False) _
+                )
+            Specific_Provisions_Theme_Set WorkingCell, True, "LightBlueForTotalForAutoFilledCell", False
+        End If
+    Next InternalIndex
+End Sub
+
+' Add and format To Receive Cell
+' @param Range CurrentStartCell
+' @param Provision Provision
+' @param Integer Index of line
+' @param Integer IndexInRange
+Public Sub Provisions_Provision_Add_ToReceive( _
+        CurrentStartCell As Range, _
+        Provision As Provision, _
+        Index As Integer, _
+        IndexInRange As Integer _
+    )
+
+    Dim WaitedValue As Double
+    Dim WaitedValues() As Double
+    Dim WorkingCell As Range
+    
+    Set WorkingCell = CurrentStartCell.Cells(Index, 3)
+
+    If IndexInRange > -1 Then
+        WaitedValues = Provision.WaitedValues
+        WaitedValue = WaitedValues(IndexInRange)
+        WorkingCell.Value = WaitedValue
+    Else
+        WorkingCell.Value = 0
+    End If
+    
+    Specific_Provisions_Theme_Set WorkingCell, True, "LightYellow", False
+End Sub
+
+' Add and format Total Cell
+' @param Range CurrentStartCell
+' @param Provision Provision
+' @param Integer NBYears
+Public Sub Provisions_Provision_Add_Total( _
+        CurrentStartCell As Range, _
+        Provision As Provision, _
+        NBYears As Integer _
+    )
+
+    Dim Index As Integer
+    Dim WorkingCell As Range
+    
+    Set WorkingCell = CurrentStartCell.Cells(NBYears + 1, 4 + NBYears)
+
+    WorkingCell.Value = "Total"
+    Specific_Provisions_Theme_Set WorkingCell, False, "Blue", True
+
+    ' add other total cells below table
+    For Index = (5 + NBYears) To (5 * NBYears + 12)
+        Set WorkingCell = CurrentStartCell.Cells(NBYears + 1, Index)
+        
+        WorkingCell.Formula = "=SUM(" _
+                & CleanAddress(Range( _
+                        CurrentStartCell.Cells(1, Index), _
+                        CurrentStartCell.Cells(NBYears, Index) _
+                    ).address(False, False, xlA1, False)) _
+                & ")"
+        Specific_Provisions_Theme_Set WorkingCell, True, "LightBlueForTotal", False
+    Next Index
+    Set WorkingCell = CurrentStartCell.Cells(NBYears + 1, 5 * NBYears + 9)
+    WorkingCell.Value = ""
+    Specific_Provisions_Theme_Set WorkingCell, False, "", False, False
+
+End Sub
+
+' Add and format Waited Payment Cell
+' @param Range CurrentStartCell
+' @param Integer Index of line
+' @param Integer NBYears
+Public Sub Provisions_Provision_Add_Waited_Payments( _
+        CurrentStartCell As Range, _
+        Index As Integer, _
+        NBYears As Integer _
+    )
+
+    Dim WorkingCell As Range
+    
+    Set WorkingCell = CurrentStartCell.Cells(Index, 4 + NBYears)
+
+    WorkingCell.Formula = "=MAX(0," _
+        & CleanAddress(CurrentStartCell.Cells(Index, 3).address(False, False, xlA1, False)) _
+        & "-" & Provisions_Provision_Get_FormulaForSum(CurrentStartCell, Index, NBYears) _
+    & ")"
+    Specific_Provisions_Theme_Set WorkingCell, True, "lightGrey", False
+End Sub
+
+' Get formula for sum of payments
+' @param Range CurrentStartCell
+' @param Integer Index of line
+' @param Integer NBYears
+' @return String
+Public Function Provisions_Provision_Get_FormulaForSum( _
+        CurrentStartCell As Range, _
+        Index As Integer, _
+        NBYears As Integer _
+    ) As String
+
+    Provisions_Provision_Get_FormulaForSum = _
+        "SUM(" _
+            & CleanAddress(Range( _
+                CurrentStartCell.Cells(Index, 4), _
+                CurrentStartCell.Cells(Index, 3 + NBYears) _
+            ).address(False, False, xlA1, False)) _
+        & ")"
+End Function
+
+' Calculate working year
+' @param Integer FirstYear
+' @param Integer Index
+' @return Integer
+Public Function Provisions_Provision_Get_WorkingYear( _
+        FirstYear As Integer, _
+        Index As Integer _
+    ) As Integer
+
+    Provisions_Provision_Get_WorkingYear = FirstYear + Index - 1
 End Function
 
 ' search range for forecast of Provisions
@@ -865,14 +1208,14 @@ Public Function Provisions_UpdateNBYears(ProvisionsSheet As Worksheet, Data As D
 
     ' payments
     For Index = 1 To CurrentNBYears
-        ProvisionsSheet.Cells(1, CurrentIndexes(5) + Index - 1).Value = WantedFirstYear + Index - 1
+        ProvisionsSheet.Cells(4, CurrentIndexes(5) + Index - 1).Value = WantedFirstYear + Index - 1
     Next Index
     ' then others
     For Index2 = 1 To 4
         For Index = 1 To CurrentNBYears
-            ProvisionsSheet.Cells(1, CurrentIndexes(Index2) + Index - 1).Formula = _
+            ProvisionsSheet.Cells(4, CurrentIndexes(Index2) + Index - 1).Formula = _
                 "=" & CleanAddress( _
-                    ProvisionsSheet.Cells(1, CurrentIndexes(5) + Index - 1).address(True, True, xlA1, False) _
+                    ProvisionsSheet.Cells(4, CurrentIndexes(5) + Index - 1).address(True, True, xlA1, False) _
                 )
         Next Index
     Next Index2

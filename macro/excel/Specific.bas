@@ -604,12 +604,14 @@ End Sub
 ' @param Range Cell
 ' @param Boolean IsCurrency otherwise is string
 ' @param String BgColorName (choose no color if not recognized)
-' @param Boolean TextWhiteAndBold default false
+' @param Boolean TextWhiteAndBold default False
+' @param Boolean WithTopBottomBorders default True
 Public Sub Specific_Provisions_Theme_Set( _
         Cell As Range, _
         IsCurrency As Boolean, _
         BgColorName As String, _
-        Optional TextWhiteAndBold As Boolean = False _
+        Optional TextWhiteAndBold As Boolean = False, _
+        Optional WithTopBottomBorders As Boolean = True _
     )
     Dim Arr1 As Variant
     Dim Arr2 As Variant
@@ -633,8 +635,13 @@ Public Sub Specific_Provisions_Theme_Set( _
     AuthorizedColorNames(7) = "LightYellow"
     ColorCodes(7) = RGB(255, 255, 204)
 
-    Arr1 = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
-    Arr2 = Array(xlEdgeLeft, xlEdgeTop, xlEdgeRight, xlEdgeBottom)
+    If WithTopBottomBorders Then
+        Arr1 = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal)
+        Arr2 = Array(xlEdgeLeft, xlEdgeTop, xlEdgeRight, xlEdgeBottom)
+    Else
+        Arr1 = Array(xlDiagonalDown, xlDiagonalUp, xlInsideVertical, xlInsideHorizontal, xlEdgeTop, xlEdgeBottom)
+        Arr2 = Array(xlEdgeLeft, xlEdgeRight)
+    End If
 
     With Cell
         For Each VarTmp In Arr1
@@ -652,14 +659,14 @@ Public Sub Specific_Provisions_Theme_Set( _
         With .Interior
             IndexOfColor = indexOfInArrayStr(BgColorName, AuthorizedColorNames)
             If IndexOfColor = -1 Then
+                .Pattern = xlNone
+            Else
                 .Pattern = xlSolid
                 .Color = ColorCodes(IndexOfColor)
-            Else
-                .Pattern = xlNone
             End If
         End With
         With .Font
-            .Name = "Calibri"
+            .Name = "Arial"
             .FontStyle = "Normal"
             .Size = 10
             .Strikethrough = False

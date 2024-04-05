@@ -791,18 +791,18 @@ Public Function CreerStyle(Name As String, Red As Integer, Green As Integer, Blu
 	CreerStyle = oStyles.getByName(Name)
 End Function
 
-
-
 ' set theme for title'cell for provisions
 ' @param Range Cell
 ' @param Boolean IsCurrency otherwise is string
 ' @param String BgColorName (choose no color if not recognized)
-' @param Boolean TextWhiteAndBold default false
+' @param Boolean TextWhiteAndBold default False
+' @param Boolean WithTopBottomBorders default True
 Public Sub Specific_Provisions_Theme_Set( _
         Cell As Range, _
         IsCurrency As Boolean, _
         BgColorName As String, _
-        Optional TextWhiteAndBold As Boolean = False _
+        Optional TextWhiteAndBold As Boolean = False, _
+        Optional WithTopBottomBorders As Boolean = True _
     )
 
     Dim AuthorizedColorNames(1 To 7) As String
@@ -812,6 +812,7 @@ Public Sub Specific_Provisions_Theme_Set( _
     Dim oCellRange
     Dim oFormat As Long
 	Dim oLine As New com.sun.star.table.BorderLine2
+	Dim oNoLine As New com.sun.star.table.BorderLine2
 
     AuthorizedColorNames(1) = "lightGrey"
     ColorCodes(1) = RGB(242, 242, 242)
@@ -836,19 +837,32 @@ Public Sub Specific_Provisions_Theme_Set( _
 		.LineWidth = 26
 		.OuterLineWidth = 26
 	End With
+	With oNoLine
+		.Color = 0
+		.InnerLineWidth = 0
+		.LineDistance = 0
+		.LineStyle = com.sun.star.table.BorderLineStyle.NONE
+		.LineWidth = 0
+		.OuterLineWidth = 0
+	End With
 
 	oSheet = ThisComponent.Sheets.getByName(Cell.Worksheet.Name)
 	oCellRange = oSheet.getCellByPosition(Cell.Column-1,Cell.Row-1)
-	oCellRange.BottomBorder = oLine
 	oCellRange.LeftBorder = oLine
 	oCellRange.RightBorder = oLine
-	oCellRange.TopBorder = oLine
+	If WithTopBottomBorders Then
+		oCellRange.BottomBorder = oLine
+		oCellRange.TopBorder = oLine
+	Else
+		oCellRange.BottomBorder = oNoLine
+		oCellRange.TopBorder = oNoLine
+	End If
 
 	oCellRange.CharFontStyleName = ""
 	oCellRange.CharFontPitch = 2
 	oCellRange.CharFontCharSet = -1
 	oCellRange.CharFontFamily = 5
-	oCellRange.CharFontName = "Calibri"
+	oCellRange.CharFontName = "Arial"
 	If TextWhiteAndBold Then
 		oCellRange.CharColor = RGB(255,255,255)
 		oCellRange.CharWeight = com.sun.star.awt.FontWeight.BOLD
@@ -867,8 +881,8 @@ Public Sub Specific_Provisions_Theme_Set( _
 	
 	IndexOfColor = indexOfInArrayStr(BgColorName, AuthorizedColorNames)
 	If IndexOfColor = -1 Then
-		oCellRange.CellBackColor = ColorCodes(IndexOfColor)
-	Else
 		oCellRange.CellBackColor = -1
+	Else
+		oCellRange.CellBackColor = ColorCodes(IndexOfColor)
 	End If
 End Sub
