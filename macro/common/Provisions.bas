@@ -498,9 +498,12 @@ Public Function Provisions_Provision_Add( _
     Dim Index As Integer
     Dim RangeForTitle As Range
     Dim NextCurrentStartCell As Range
+    Dim PayedValue As Double
+    Dim PayedValues() As Double
     Dim WaitedValue As Double
     Dim WaitedValues() As Double
     Dim WorkingYear As Integer
+    Dim WorkingYear2 As Integer
 
     Set NextCurrentStartCell = Nothing
     If Not (CurrentStartCell Is Nothing) Then
@@ -527,27 +530,137 @@ Public Function Provisions_Provision_Add( _
                 False, "middleGrey", False
         Next Index
 
-        ' add to receive
+        ' add content
+        PayedValues = Provision.PayedValues
         WaitedValues = Provision.WaitedValues
         For Index = 1 To NBYears
             WorkingYear = FirstYear + Index - 1
             If WorkingYear < Provision.FirstYear _
                 Or WorkingYear > (Provision.FirstYear + Provision.NBYears - 1) Then
+                ' add to receive
                 CurrentStartCell.Cells(Index, 3).Value = 0
+                ' add payments
+                For Index2 = 1 To NBYears
+                    If Index2 < Index Then
+                        CurrentStartCell.Cells(Index, 3 + Index2).Value = ""
+                    Else
+                        CurrentStartCell.Cells(Index, 3 + Index2).Value = 0
+                    End If
+                Next 
             Else
                 WaitedValue = WaitedValues(WorkingYear - Provision.FirstYear + 1)
+                ' add to receive
                 CurrentStartCell.Cells(Index, 3).Value = WaitedValue
+                ' add payments
+                For Index2 = 1 To NBYears
+                    If Index2 < Index Then
+                        CurrentStartCell.Cells(Index, 3 + Index2).Value = ""
+                    Else
+                        WorkingYear2 = FirstYear + Index2 - 1
+                        If WorkingYear2 < Provision.FirstYear _
+                            Or WorkingYear2 > (Provision.FirstYear + Provision.NBYears - 1) > Then
+                            CurrentStartCell.Cells(Index, 3 + Index2).Value = 0
+                        Else
+                            PayedValue = PayedValues(WorkingYear2 - Provision.FirstYear + 1)
+                            CurrentStartCell.Cells(Index, 3 + Index2).Value = PayedValue
+                        End If
+                    End If
+                Next 
             End If
+            ' add to receive
             Specific_Provisions_Theme_Set _
                 CurrentStartCell.Cells(Index, 3), _
                 True, "LightYellow", False
+            ' add payments and provisions
+            For Index2 = 1 To NBYears
+                If Index2 < Index Then
+                    ' add payments
+                    Specific_Provisions_Theme_Set _
+                        CurrentStartCell.Cells(Index, 3 + Index2), _
+                        False, "Grey", False
+                    ' add provisions
+                    CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Value = ""
+                    Specific_Provisions_Theme_Set _
+                        CurrentStartCell.Cells(Index, 4 + NBYears + Index2), _
+                        False, "Grey", False
+                Else
+                    ' add payments
+                    Specific_Provisions_Theme_Set _
+                        CurrentStartCell.Cells(Index, 3 + Index2), _
+                        True, "", False
+                    ' add provisions
+                    CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Formula = "=" _
+                        & "0.1*" & CleanAddress( _
+                            CurrentStartCell.Cells(Index, 3 + Index2).Address(False, False, xlA1, False) _
+                        )
+                    If Index2 = Index Then
+                        CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Formula = _
+                            & CurrentStartCell.Cells(Index, 4 + NBYears + Index2).Formula _
+                            & "+0.25*SUM(" _
+                                CleanAddress( _
+                                    CurrentStartCell.Cells(Index, 4 + Index2).Address(False, False, xlA1, False) _
+                                ) _
+                                & ":" _
+                                CleanAddress( _
+                                    CurrentStartCell.Cells(Index, 4 + NBYears).Address(False, True, xlA1, False) _
+                                ) _
+                            & ")"
+                    End If
+                    Specific_Provisions_Theme_Set _
+                        CurrentStartCell.Cells(Index, 4 + NBYears + Index2), _
+                        True, "LightBlueForTotalForAutoFilledCell", False
+                End If
+            Next
+            ' add waited payments formula
+            CurrentStartCell.Cells(Index, 4 + NBYears).Formula = "=MAX(0;" _
+                & CleanAddress(CurrentStartCell.Cells(Index, 3).Address(False, False, xlA1, False)) _
+                & "-SUM(" _& 
+                    CleanAddress(Range( _
+                        CurrentStartCell.Cells(Index, 4), _
+                        CurrentStartCell.Cells(Index, 3 + NBYears) _
+                    ).Address(False, False, xlA1, False))_
+                    & ")" _
+            & ")"
+            Specific_Provisions_Theme_Set _
+                CurrentStartCell.Cells(Index, 4 + NBYears), _
+                True, "lightGrey", False
         Next Index
+        ' add to receive
         If Not (Provision.RangeForLastYearWaitedValue Is Nothing) Then
             CurrentStartCell.Cells(NBYears, 3).Formula = "=SIERREUR(" _
-                    & CleanAddress(RangeForLastYearWaitedValue.address(True, True, xlA1, True)) _
+                    & CleanAddress(Provision.RangeForLastYearWaitedValue.address(True, True, xlA1, True)) _
                     & ";" & CurrentStartCell.Cells(NBYears, 3).Value _
                 & ")"
         End If
+        ' add to waited payment
+        If Not (Provision.RangeForLastYearPayedValue Is Nothing) _
+            And (Provision.FirstYear + Provision.NBYears) = (FirstYear + NBYears) Then
+            CurrentStartCell.Cells(NBYears, 3 + NBYears).Formula = "=SIERREUR(" _
+                    & CleanAddress(Provision.RangeForLastYearPayedValue.address(True, True, xlA1, True)) _
+                    & ";" & CurrentStartCell.Cells(NBYears, 3 + NBYears).Value _
+                & ")"
+        End If
+        ' total below waited payments formula
+        CurrentStartCell.Cells(NBYears + 1, 4 + NBYears).Value = "Total"
+        Specific_Provisions_Theme_Set _
+            CurrentStartCell.Cells(NBYears + 1, 4 + NBYears), _
+            False, "Blue", True
+        ' total below
+        For Index = (5 + NBYears) To (5 * NBYears + 13)
+            CurrentStartCell.Cells(NBYears + 1, Index).Formula = "=SUM(" _
+                & CleanAddress(Range( _
+                        CurrentStartCell.Cells(1, Index), _
+                        CurrentStartCell.Cells(NBYears, Index) _
+                    ).address(False, False, xlA1, False)) _
+                & ")"
+            Specific_Provisions_Theme_Set _
+                CurrentStartCell.Cells(NBYears + 1, Index), _
+                True, "LightBlueForTotal", False
+        Next Index
+        CurrentStartCell.Cells(NBYears + 1, 5 * NBYears + 10).Value = ""
+        Specific_Provisions_Theme_Set _
+            CurrentStartCell.Cells(NBYears + 1, 5 * NBYears + 10), _
+            False, "", False
 
         ' update next cell
         Set NextCurrentStartCell = CurrentStartCell.Cells(NBYears + 3, 1)
