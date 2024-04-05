@@ -497,6 +497,7 @@ Public Sub Provisions_NewContent_Add(ProvisionsSheet As Worksheet, Data As Data)
         NBYears = Provisions_UpdateNBYears(ProvisionsSheet, Data)
         FirstYear = CInt(ProvisionsSheet.Cells(4, 4).Value)
         Set CurrentStartCell = ProvisionsSheet.Cells(5, 1)
+        ' TODO init sum formula
         For Index = 1 To UBound(Provisions)
             Provision = Provisions(Index)
             Set CurrentStartCell = Provisions_Provision_Add(CurrentStartCell, Provision, NBYears, FirstYear)
@@ -560,6 +561,8 @@ Public Function Provisions_Provision_Add( _
                 & ")"
         End If
         Provisions_Provision_Add_Total CurrentStartCell, Provision, NBYears
+        
+        ' TODO update sum formula
 
         ' update next cell
         Set NextCurrentStartCell = CurrentStartCell.Cells(NBYears + 3, 1)
