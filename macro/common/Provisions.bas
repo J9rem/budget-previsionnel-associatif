@@ -407,12 +407,10 @@ Public Function Provisions_Init(Provision As Provision, NBYears As Integer) As P
     ReDim WaitedValues(1 To NBYears)
 
     ' Init Values
-    For Index = 1 To LengthForPayed
+    For Index = 1 To LengthForTables
         PayedValues(Index) = 0
         RetrievalTenPercent(Index) = 0
         RetrievalTenPercentFormula(Index) = ""
-    Next Index
-    For Index = 1 To LengthForRetrieval
     Next Index
     
     Provision.NomDuFinanceur = ""
