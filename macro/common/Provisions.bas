@@ -1,4 +1,4 @@
-﻿Attribute VB_Name = "Provisions"
+Attribute VB_Name = "Provisions"
 ' SPDX-License-Identifier: EUPL-1.2
 ' Pour forcer la declaration de toutes les variables
 Option Explicit
@@ -266,7 +266,7 @@ Public Function Provisions_Extract_For_A_Financier( _
 
     Dim BaseCell As Range
     Dim IndexColumn As Integer
-    Dim IndexPayedValues As Integer
+    Dim IndexForTables As Integer
     Dim IndexRetrievalTenPercent As Integer
     Dim IndexYear As Integer
     Dim PayedValues() As Double
@@ -295,26 +295,23 @@ Public Function Provisions_Extract_For_A_Financier( _
     RetrievalTenPercentFormula = Provision.RetrievalTenPercentFormula
     WaitedValues = Provision.WaitedValues
 
-    IndexPayedValues = 1
-    IndexRetrievalTenPercent = 1
-
     For IndexYear = 1 To NBYears
 
         WaitedValues(IndexYear) = CDbl(BaseCell.Cells(IndexYear, 3).Value)
 
         ' PayedValues
         For IndexColumn = IndexYear To NBYears
-            PayedValues(IndexPayedValues) = CDbl(BaseCell.Cells(IndexYear, 3 + IndexColumn).Value)
-            IndexPayedValues = IndexPayedValues + 1
+            IndexForTables = (IndexYear - 1) * NBYears + IndexColumn
+            PayedValues(IndexForTables) = CDbl(BaseCell.Cells(IndexYear, 3 + IndexColumn).Value)
         Next IndexColumn
 
         If IndexYear < NBYears Then
             ' RetrievalTenPercent
             For IndexColumn = (IndexYear + 1) To NBYears
                 Set WorkingCell = BaseCell.Cells(IndexYear, 6 + 3 * NBYears + IndexColumn)
-                RetrievalTenPercent(IndexRetrievalTenPercent) = CDbl(WorkingCell.Value)
-                RetrievalTenPercentFormula(IndexRetrievalTenPercent) = Common_GetFormula(WorkingCell)
-                IndexRetrievalTenPercent = IndexRetrievalTenPercent + 1
+                IndexForTables = (IndexYear - 1) * NBYears + IndexColumn
+                RetrievalTenPercent(IndexForTables) = CDbl(WorkingCell.Value)
+                RetrievalTenPercentFormula(IndexForTables) = Common_GetFormula(WorkingCell)
             Next IndexColumn
         End If
 
@@ -394,34 +391,28 @@ End Sub
 Public Function Provisions_Init(Provision As Provision, NBYears As Integer) As Provision
     
     Dim Index As Integer
-    Dim LengthForPayed As Integer
-    Dim LengthForRetrieval As Integer
+    Dim LengthForTables As Integer
     Dim PayedValues() As Double
     Dim RetrievalTenPercent() As Double
     Dim RetrievalTenPercentFormula() As String
     Dim WaitedValues() As Double
 
     ' Initiate length for retrieval and payed
-    LengthForPayed = 0
-    LengthForRetrieval = 0
-    For Index = 1 To NBYears
-        LengthForPayed = LengthForPayed + (NBYears - Index + 1)
-        LengthForRetrieval = LengthForRetrieval + (NBYears - Index)
-    Next Index
+    LengthForTables = NBYears * NBYears
 
     ' calculate sum of n element algebric
-    ReDim PayedValues(1 To LengthForPayed)
-    ReDim RetrievalTenPercent(1 To LengthForRetrieval)
-    ReDim RetrievalTenPercentFormula(1 To LengthForRetrieval)
+    ReDim PayedValues(1 To LengthForTables)
+    ReDim RetrievalTenPercent(1 To LengthForTables)
+    ReDim RetrievalTenPercentFormula(1 To LengthForTables)
     ReDim WaitedValues(1 To NBYears)
 
     ' Init Values
     For Index = 1 To LengthForPayed
         PayedValues(Index) = 0
-    Next Index
-    For Index = 1 To LengthForRetrieval
         RetrievalTenPercent(Index) = 0
         RetrievalTenPercentFormula(Index) = ""
+    Next Index
+    For Index = 1 To LengthForRetrieval
     Next Index
     
     Provision.NomDuFinanceur = ""
@@ -721,6 +712,7 @@ Public Sub Provisions_Provision_Add_Payments( _
     )
 
     Dim InternalIndex As Integer
+    Dim IndexForTables As Integer
     Dim IndexInRangeLevel2 As Integer
     Dim PayedValue As Double
     Dim PayedValues() As Double
@@ -738,11 +730,8 @@ Public Sub Provisions_Provision_Add_Payments( _
             IndexInRangeLevel2 = Provisions_Is_WorkingYear_Between_Provision_Range(WorkingYear, Provision)
             If IndexInRange > -1 And IndexInRangeLevel2 > -1 Then
                 PayedValues = Provision.PayedValues
-                ' TODO calculate right Index with
-                '   for k = 0 < (index - 1)
-                '     counter += NBYears - k
-                '   counter += InternalIndex - Index
-                PayedValue = PayedValues(IndexInRangeLevel2)
+                IndexForTables = (IndexInRange - 1) * NBYears + IndexInRangeLevel2
+                PayedValue = PayedValues(IndexForTables)
                 WorkingCell.Value = PayedValue
             Else
                 WorkingCell.Value = 0
@@ -810,6 +799,7 @@ Public Sub Provisions_Provision_Add_Retrieval10( _
     )
 
     Dim InternalIndex As Integer
+    Dim IndexForTables As Integer
     Dim IndexInRangeLevel2 As Integer
     Dim RetrievalFormula As String
     Dim RetrievalValue As Double
@@ -832,8 +822,9 @@ Public Sub Provisions_Provision_Add_Retrieval10( _
             If IndexInRange > -1 And IndexInRangeLevel2 > -1 Then
                 RetrievalTenPercent = Provision.RetrievalTenPercent
                 RetrievalTenPercentFormula = Provision.RetrievalTenPercentFormula
-                RetrievalValue = RetrievalTenPercent(IndexInRangeLevel2)
-                RetrievalFormula = RetrievalTenPercentFormula(IndexInRangeLevel2)
+                IndexForTables = (IndexInRange - 1) * NBYears + IndexInRangeLevel2
+                RetrievalValue = RetrievalTenPercent(IndexForTables)
+                RetrievalFormula = RetrievalTenPercentFormula(IndexForTables)
                 If RetrievalFormula <> "" Then
                     ' Force a formula because it could have offset in imported formula
                     WantedFormula = "=" _
@@ -1080,6 +1071,7 @@ Public Function Provisions_UpdateNBYears(ProvisionsSheet As Worksheet, Data As D
     Dim CurrentValues() As Double
     Dim CurrentYear As Integer
     Dim Index As Integer
+    Dim IndexForTables As Integer
     Dim IndexYear As Integer
     Dim Index2 As Integer
     Dim Provision As Provision
@@ -1122,7 +1114,8 @@ Public Function Provisions_UpdateNBYears(ProvisionsSheet As Worksheet, Data As D
                 ' test if empty for this year
                 For Index2 = IndexYear To Provision.NBYears
                     CurrentYear = Provision.FirstYear + Index2 - 1
-                    CurrentValue = CurrentValues(CurrentIndex)
+                    IndexForTables = (IndexYear - 1) * Provision.NBYears + Index2
+                    CurrentValue = CurrentValues(IndexForTables)
                     If CurrentValue <> 0 Then
                         If CurrentYear < MinimumFirstYear Then
                             MinimumFirstYear = CurrentYear
@@ -1140,7 +1133,8 @@ Public Function Provisions_UpdateNBYears(ProvisionsSheet As Worksheet, Data As D
                 ' test if empty for this year
                 For Index2 = (IndexYear + 1) To Provision.NBYears
                     CurrentYear = Provision.FirstYear + Index2 - 1
-                    CurrentValue = CurrentValues(CurrentIndex)
+                    IndexForTables = (IndexYear - 1) * Provision.NBYears + Index2
+                    CurrentValue = CurrentValues(IndexForTables)
                     If CurrentValue <> 0 Then
                         If CurrentYear < MinimumFirstYear Then
                             MinimumFirstYear = CurrentYear
