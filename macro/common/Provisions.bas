@@ -69,7 +69,7 @@ Public Function Provisions_Data_Update_Index(Data As Data) As Data
             Financements = Chantier.Financements
             FinancementFound = 0
             For IndexFinancement = 1 To UBound(Financements)
-                If FinancementFound < 0 Then
+                If FinancementFound = 0 Then
                     Financement = Financements(IndexFinancement)
                     ' only check european funding
                     If Financement.TypeFinancement = 6 Then
@@ -176,9 +176,11 @@ Public Function Provisions_Data_Update_Range_In_Provisions( _
             ' get
             Provision = Provisions(IndexProvision)
             ' update range
-            Set Provision.RangeForTitle = Financement.BaseCell.Cells(1, 2)
-            Set RangeForLastYearWaitedValue = Financement.BaseCell.Cells(1, 3 + NBChantiers)
-            Set RangeForLastYearPayedValue = Financement.BaseCell.Cells(1, 3 + 3 * NBChantiers)
+            Set Provision.RangeForTitle = Financement.BaseCell.Cells(1, 0)
+            Set Provision.RangeForLastYearWaitedValue = Financement.BaseCell.Cells(1, 1 + NBChantiers)
+            If Not (Financement.BaseCellReal Is Nothing) Then
+                Set Provision.RangeForLastYearPayedValue = Financement.BaseCellReal.Cells(1, 3 * NBChantiers)
+            End If
 
             ' set
             Provisions(IndexProvision) = Provision
@@ -534,10 +536,9 @@ Public Function Provisions_Provision_Add( _
             Provisions_Provision_Add_Retrieval10 CurrentStartCell, Provision, Index, IndexInRange, FirstYear, NBYears
             Provisions_Provision_Add_Net CurrentStartCell, Index, NBYears
         Next Index
-        ' TODO find a way to update range with the rigth and updated value event for title
         ' add to receive
         If Not (Provision.RangeForLastYearWaitedValue Is Nothing) Then
-            CurrentStartCell.Cells(NBYears, 3).Formula = "=SIERREUR(" _
+            CurrentStartCell.Cells(NBYears, 3).FormulaLocal = "=SIERREUR(" _
                     & CleanAddress(Provision.RangeForLastYearWaitedValue.address(True, True, xlA1, True)) _
                     & ";" & CurrentStartCell.Cells(NBYears, 3).Value _
                 & ")"
@@ -545,7 +546,7 @@ Public Function Provisions_Provision_Add( _
         ' add to waited payment
         If Not (Provision.RangeForLastYearPayedValue Is Nothing) _
             And (Provision.FirstYear + Provision.NBYears) = (FirstYear + NBYears) Then
-            CurrentStartCell.Cells(NBYears, 3 + NBYears).Formula = "=SIERREUR(" _
+            CurrentStartCell.Cells(NBYears, 3 + NBYears).FormulaLocal = "=SIERREUR(" _
                     & CleanAddress(Provision.RangeForLastYearPayedValue.address(True, True, xlA1, True)) _
                     & ";" & CurrentStartCell.Cells(NBYears, 3 + NBYears).Value _
                 & ")"
@@ -579,7 +580,7 @@ Public Sub Provisions_Provision_Add_Title( _
     If RangeForTitle Is Nothing Then
         CurrentStartCell.Cells(1, 1).Value = Provision.NomDuFinanceur
     Else
-        CurrentStartCell.Cells(1, 1).Formula = "=SIERREUR(" _
+        CurrentStartCell.Cells(1, 1).FormulaLocal = "=SIERREUR(" _
                 & CleanAddress(RangeForTitle.address(True, True, xlA1, True)) _
                 & ";""" & Provision.NomDuFinanceur & """" _
             & ")"
