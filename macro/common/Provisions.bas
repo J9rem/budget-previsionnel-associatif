@@ -486,7 +486,8 @@ Public Sub Provisions_NewContent_Add(ProvisionsSheet As Worksheet, Data As Data)
         NBYears = Provisions_UpdateNBYears(ProvisionsSheet, Data)
         FirstYear = CInt(ProvisionsSheet.Cells(4, 4).Value)
         Set CurrentStartCell = ProvisionsSheet.Cells(5, 1)
-        ' TODO init sum formula
+        ' Init sum formula
+        Provisions_Totals_Update_Formula ProvisionsSheet.Parent, NBYears, Nothing
         For Index = 1 To UBound(Provisions)
             Provision = Provisions(Index)
             Set CurrentStartCell = Provisions_Provision_Add(CurrentStartCell, Provision, NBYears, FirstYear)
@@ -551,7 +552,8 @@ Public Function Provisions_Provision_Add( _
         End If
         Provisions_Provision_Add_Total CurrentStartCell, Provision, NBYears
         
-        ' TODO update sum formula
+        ' Update sum formula
+        Provisions_Totals_Update_Formula CurrentStartCell.Worksheet.Parent, NBYears, CurrentStartCell
 
         ' update next cell
         Set NextCurrentStartCell = CurrentStartCell.Cells(NBYears + 3, 1)
@@ -1054,6 +1056,56 @@ Public Function Provisions_SearchRange( _
 
     Set Provisions_SearchRange = Destination
 End Function
+
+' Update the formula of totals cells in Provision sheet
+' @param Workbook wb
+' @param Integer NBYears
+' @param Range FirstCellOfRow
+Public Sub Provisions_Totals_Update_Formula( _
+        wb As Workbook, _
+        NBYears As Integer, _
+        FirstCellOfRow As Range _
+    )
+
+    Dim CurrentRange As Range
+    Dim Index As Integer
+    Dim Ranges(1 To 7) As Range
+    Dim WorkingFormula As String
+
+    ' Realistic provision
+    Set Ranges(1) = Provisions_SearchRange(wb, True, False)
+    ' Realistic Retrieval 25%
+    Set Ranges(2) = Provisions_SearchRange(wb, True, False).Cells(1, 1 + NBYears)
+    ' Realistic Retrieval 10%
+    Set Ranges(3) = Provisions_SearchRange(wb, False, False).Cells(1, 0)
+    ' Realistic net
+    Set Ranges(4) = Provisions_SearchRange(wb, False, False).Cells(1, 1 + NBYears)
+    ' Forecast provision
+    Set Ranges(5) = Provisions_SearchRange(wb, True, True)
+    ' Forecast Retrieval
+    Set Ranges(6) = Provisions_SearchRange(wb, False, True)
+    ' Forecast Net
+    Set Ranges(7) = Provisions_SearchRange(wb, False, True).Cells(1, 2)
+
+    For Index = 1 To UBound(Ranges)
+        Set CurrentRange = Ranges(Index)
+        If FirstCellOfRow Is Nothing Then
+            CurrentRange.Formula = "=0"
+        Else
+            If CurrentRange.Formula = "=0" Then
+                WorkingFormula = "="
+            Else
+                WorkingFormula = CurrentRange.Formula & "+"
+            End If
+            WorkingFormula = WorkingFormula & "SIERREUR(" _
+                & CleanAddress( _
+                    FirstCellOfRow.Cells(1 + NBYears, CurrentRange.Column).address(False, False, xlA1, False) _
+                ) _
+                & ";0)"
+            CurrentRange.FormulaLocal = WorkingFormula
+        End If
+    Next Index
+End Sub
 
 ' search the first years without empty value
 ' then update years update to current year or maximum year
