@@ -817,17 +817,17 @@ Public Sub Specific_Provisions_Theme_Set( _
     AuthorizedColorNames(1) = "lightGrey"
     ColorCodes(1) = RGB(242, 242, 242)
     AuthorizedColorNames(2) = "middleGrey"
-    ColorCodes(2) = RGB(233, 239, 247)
+    ColorCodes(2) = RGB(247, 239, 233)
     AuthorizedColorNames(3) = "Grey"
     ColorCodes(3) = RGB(216, 216, 216)
     AuthorizedColorNames(4) = "LightBlueForTotal"
-    ColorCodes(4) = RGB(219, 229, 241)
+    ColorCodes(4) = RGB(241, 229, 219)
     AuthorizedColorNames(5) = "Blue"
-    ColorCodes(5) = RGB(0, 176, 240)
+    ColorCodes(5) = RGB(240, 176, 0)
     AuthorizedColorNames(6) = "LightBlueForTotalForAutoFilledCell"
-    ColorCodes(6) = RGB(204, 236, 255)
+    ColorCodes(6) = RGB(255, 236, 204)
     AuthorizedColorNames(7) = "LightYellow"
-    ColorCodes(7) = RGB(255, 255, 204)
+    ColorCodes(7) = RGB(204, 255, 255)
 
 	With oLine
 		.Color = RGB(0,0,0)
