@@ -26,10 +26,10 @@ Public Function Provisions_Clean_Sheet(ProvisionsSheet As Worksheet) As Boolean
                 ProvisionsSheet.Cells(5, 1), _
                 ProvisionsSheet.Cells(CInt(FinanciersLines(UBound(FinanciersLines))) + NBYears + 5, 1) _
             ).EntireRow.Delete Shift:=xlUp
-
-            ' All is right
-            Provisions_Clean_Sheet = True
         End If
+
+        ' All is right
+        Provisions_Clean_Sheet = True
     End If
 
 End Function
@@ -66,80 +66,86 @@ Public Function Provisions_Data_Update_Index(Data As Data, NBYears As Integer, F
             Provision = Provisions(IndexProvision)
             ProvisionsNames(IndexProvision) = Provision.NomDuFinanceur
         Next IndexProvision
+    Else
+        ReDim ProvisionsNames(0)
+    End If
 
-        ' Find similar financement in Chantiers
-        Chantiers = Data.Chantiers
-        If UBound(Chantiers) > 0 Then
-            Chantier = Chantiers(1)
-            Financements = Chantier.Financements
-            MissingFinancementsIdx = ""
-            For IndexFinancement = 1 To UBound(Financements)
-                Financement = Financements(IndexFinancement)
-                ' only check european funding
-                If Financement.TypeFinancement = 6 Then
+    ' Find similar financement in Chantiers
+    Chantiers = Data.Chantiers
+    If UBound(Chantiers) > 0 Then
+        Chantier = Chantiers(1)
+        Financements = Chantier.Financements
+        MissingFinancementsIdx = ""
+        For IndexFinancement = 1 To UBound(Financements)
+            Financement = Financements(IndexFinancement)
+            ' only check european funding
+            If Financement.TypeFinancement = 6 Then
+                If UBound(Provisions) > 0 Then
                     IndexProvision = indexOfInArrayStr(Financement.Nom, ProvisionsNames)
-                    If IndexProvision <> -1 Then
-                        Data = Provisions_Data_Update_Index_In_Financement( _
-                            Data, _
-                            IndexFinancement, _
-                            IndexProvision _
-                        )
-                        Data = Provisions_Data_Update_Range_In_Provisions( _
-                            Data, _
-                            IndexFinancement, _
-                            IndexProvision _
-                        )
-                    Else
-                        If MissingFinancementsIdx <> "" Then
-                            MissingFinancementsIdx = MissingFinancementsIdx & ","
-                        End If
-                        MissingFinancementsIdx = MissingFinancementsIdx & IndexFinancement
-                    End If
+                Else
+                    IndexProvision = -1
                 End If
-            Next IndexFinancement
-            ' Add missing financement
-            If MissingFinancementsIdx <> "" Then
-                MissingFinancementsIdxs = Split(MissingFinancementsIdx, ",")
-
-                For IndexProvision = 0 To UBound(MissingFinancementsIdxs)
-                    IndexFinancement = CInt(MissingFinancementsIdxs(IndexProvision))
-                    Financement = Financements(IndexFinancement)
-
-                    ' update Data with new provision
-                    Provision = getDefaultProvision(NBYears)
-    
-                    ' Title
-                    Provision.NomDuFinanceur = Financement.Nom
-                    Provision.FirstYear = FirstYear
-                    ' Search base range default
-                    Set Provision.RangeForTitle = Nothing
-                    Set Provision.RangeForLastYearWaitedValue = Nothing
-                    Set Provision.RangeForLastYearPayedValue = Nothing
-
-                    ' Append in Provisions
-                    Provisions = Data.Provisions
-                    ReDim ProvisionsCopy(1 To (UBound(Provisions) + 1))
-                    For Index = 1 To UBound(Provisions)
-                        ProvisionsCopy(Index) = Provisions(Index)
-                    Next Index
-                    ProvisionsCopy(UBound(Provisions) + 1) = Provision
-                    Provisions = ProvisionsCopy
-                    Data.Provisions = ProvisionsCopy
-
-                    ' update indexes
+                If IndexProvision <> -1 Then
                     Data = Provisions_Data_Update_Index_In_Financement( _
                         Data, _
                         IndexFinancement, _
-                        UBound(Provisions) _
+                        IndexProvision _
                     )
                     Data = Provisions_Data_Update_Range_In_Provisions( _
                         Data, _
                         IndexFinancement, _
-                        UBound(Provisions) _
+                        IndexProvision _
                     )
-                    
-                Next IndexProvision
+                Else
+                    If MissingFinancementsIdx <> "" Then
+                        MissingFinancementsIdx = MissingFinancementsIdx & ","
+                    End If
+                    MissingFinancementsIdx = MissingFinancementsIdx & IndexFinancement
+                End If
             End If
+        Next IndexFinancement
+        ' Add missing financement
+        If MissingFinancementsIdx <> "" Then
+            MissingFinancementsIdxs = Split(MissingFinancementsIdx, ",")
+
+            For IndexProvision = 0 To UBound(MissingFinancementsIdxs)
+                IndexFinancement = CInt(MissingFinancementsIdxs(IndexProvision))
+                Financement = Financements(IndexFinancement)
+
+                ' update Data with new provision
+                Provision = getDefaultProvision(NBYears)
+
+                ' Title
+                Provision.NomDuFinanceur = Financement.Nom
+                Provision.FirstYear = FirstYear
+                ' Search base range default
+                Set Provision.RangeForTitle = Nothing
+                Set Provision.RangeForLastYearWaitedValue = Nothing
+                Set Provision.RangeForLastYearPayedValue = Nothing
+
+                ' Append in Provisions
+                Provisions = Data.Provisions
+                ReDim ProvisionsCopy(1 To (UBound(Provisions) + 1))
+                For Index = 1 To UBound(Provisions)
+                    ProvisionsCopy(Index) = Provisions(Index)
+                Next Index
+                ProvisionsCopy(UBound(Provisions) + 1) = Provision
+                Provisions = ProvisionsCopy
+                Data.Provisions = ProvisionsCopy
+
+                ' update indexes
+                Data = Provisions_Data_Update_Index_In_Financement( _
+                    Data, _
+                    IndexFinancement, _
+                    UBound(Provisions) _
+                )
+                Data = Provisions_Data_Update_Range_In_Provisions( _
+                    Data, _
+                    IndexFinancement, _
+                    UBound(Provisions) _
+                )
+                
+            Next IndexProvision
         End If
     End If
 
@@ -269,31 +275,38 @@ Public Function Provisions_Extract(wb As Workbook, Data As Data, Revision As WbR
         ' only show error message if revision higher than 2.3
         If ShouldHaveProvisions Then
             MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Provisions)
+            GoTo FinFunctionProvisions
         End If
-        GoTo FinFunctionProvisions
     End If
 
-    NBYears = Provisions_Years_getNb(ProvisionsSheet)
-    If NBYears = 0 Then
-        GoTo FinFunctionProvisions
+    If ShouldHaveProvisions Then
+        NBYears = Provisions_Years_getNb(ProvisionsSheet)
+        If NBYears = 0 Then
+            GoTo FinFunctionProvisions
+        End If
+        FirstYear = CInt(ProvisionsSheet.Cells(4, 4).Value)
+    
+        FinanciersLinesRaw = Provisions_Financiers_Get_Lines(ProvisionsSheet, NBYears)
+        If FinanciersLinesRaw = "" Then
+            ReDim Provisions(0)
+        Else
+            FinanciersLines = Split(FinanciersLinesRaw, ",")
+        
+            ReDim Provisions(1 To (UBound(FinanciersLines) + 1))
+            For Index = 1 To UBound(Provisions)
+                Provisions(Index) = Provisions_Extract_For_A_Financier( _
+                    ProvisionsSheet, _
+                    NBYears, _
+                    FirstYear, _
+                    CInt(FinanciersLines(Index - 1)) _
+                )
+            Next Index
+        End If
+    Else
+        ReDim Provisions(0)
+        NBYears = 5
+        FirstYear = Provisions_Main_Year_Get(wb) - 5
     End If
-    FirstYear = CInt(ProvisionsSheet.Cells(4, 4).Value)
-
-    FinanciersLinesRaw = Provisions_Financiers_Get_Lines(ProvisionsSheet, NBYears)
-    If FinanciersLinesRaw = "" Then
-        GoTo FinFunctionProvisions
-    End If
-    FinanciersLines = Split(FinanciersLinesRaw, ",")
-
-    ReDim Provisions(1 To (UBound(FinanciersLines) + 1))
-    For Index = 1 To UBound(Provisions)
-        Provisions(Index) = Provisions_Extract_For_A_Financier( _
-            ProvisionsSheet, _
-            NBYears, _
-            FirstYear, _
-            CInt(FinanciersLines(Index - 1)) _
-        )
-    Next Index
     Data.Provisions = Provisions
 
     Data = Provisions_Data_Update_Index(Data, NBYears, FirstYear)
@@ -382,11 +395,9 @@ End Function
 Public Sub Provisions_Financiers_Add()
 
     Dim CurrentWs As Worksheet
-    Dim Data As Data
     Dim FinancementFantome As FinancementComplet
     Dim FormatedValue As String
     Dim NBChantiers As Integer
-    Dim rev As WbRevision
     Dim Value
     Dim wb As Workbook
     
@@ -405,11 +416,6 @@ Public Sub Provisions_Financiers_Add()
             FinancementFantome.Status = False
             ' Type = 6 for european financier
             Chantiers_Financements_Add_One wb, NBChantiers, FinancementFantome, FormatedValue, 6
-            ' Scan data
-            rev = DetecteVersion(wb)
-            Data = Extract_Data_From_Table(wb, rev)
-            ' reset provisions
-            Provisions_Import wb, Data
             SetActive
         End If
     End If
@@ -459,15 +465,19 @@ End Function
 
 ' import Provisions
 ' @param Workbook wb
-' @param Data data
 ' @param Boolean AddOneYear Optional
 Public Sub Provisions_Import( _
         wb As Workbook, _
-        Data As Data, _
         Optional AddOneYear As Boolean = False _
     )
 
+    Dim Data As Data
     Dim ProvisionsSheet As Worksheet
+    Dim rev As WbRevision
+
+    ' ReScan data
+    rev = DetecteVersion(wb)
+    Data = Extract_Data_From_Table(wb, rev)
 
     ' get Provisions Sheet
     On Error Resume Next
@@ -585,12 +595,12 @@ Public Sub Provisions_NewContent_Add( _
 
     Provisions = Data.Provisions
 
+    NBYears = Provisions_UpdateNBYears(ProvisionsSheet, Data, AddOneYear)
+    FirstYear = CInt(ProvisionsSheet.Cells(4, 4).Value)
+    Set CurrentStartCell = ProvisionsSheet.Cells(5, 1)
+    ' Init sum formula
+    Provisions_Totals_Update_Formula ProvisionsSheet.Parent, NBYears, Nothing
     If UBound(Provisions) > 0 Then
-        NBYears = Provisions_UpdateNBYears(ProvisionsSheet, Data, AddOneYear)
-        FirstYear = CInt(ProvisionsSheet.Cells(4, 4).Value)
-        Set CurrentStartCell = ProvisionsSheet.Cells(5, 1)
-        ' Init sum formula
-        Provisions_Totals_Update_Formula ProvisionsSheet.Parent, NBYears, Nothing
         For Index = 1 To UBound(Provisions)
             Provision = Provisions(Index)
             Set CurrentStartCell = Provisions_Provision_Add(CurrentStartCell, Provision, NBYears, FirstYear)
@@ -1386,19 +1396,14 @@ End Function
 Public Sub Provisions_Years_Add()
 
     Dim CurrentWs As Worksheet
-    Dim Data As Data
-    Dim rev As WbRevision
     Dim wb As Workbook
     
     Set wb = ThisWorkbook
     Set CurrentWs = wb.ActiveSheet
 
     SetSilent
-    ' Scan data
-    rev = DetecteVersion(wb)
-    Data = Extract_Data_From_Table(wb, rev)
     ' reset provisions adding one year
-    Provisions_Import wb, Data, True
+    Provisions_Import wb, True
     SetActive
     
     CurrentWs.Activate

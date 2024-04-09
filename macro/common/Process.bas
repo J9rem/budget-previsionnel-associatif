@@ -1201,6 +1201,12 @@ Public Sub Chantiers_Financements_Add_One(wb As Workbook, _
     
     Chantiers_Totals_UpdateSumsAndFormat wb, SetOfRange, NBChantiers
 
+    If TypeFinancement = 6 Then
+        ' Update Provisions after adding new finencement
+        ' reset provisions
+        Provisions_Import wb
+    End If
+
 End Sub
 
 Public Sub Chantiers_Financements_Format_Add_ValidationDossier(CurrentRange As Range)
@@ -1958,7 +1964,7 @@ Public Sub Chantiers_Import(NewWorkbook As Workbook, Data As Data)
     Charges_Import NewWorkbook, Data
     
     ' Ajouter Provisions
-    Provisions_Import NewWorkbook, Data
+    Provisions_Import NewWorkbook
 
 End Sub
 
@@ -2013,7 +2019,6 @@ Public Sub Chantiers_Import_Depenses_ChangeNB(BaseCell As Range, NBSalaries As I
         If PreviousNBDepenses < NewNBDepenses Then
             ' Insert Lines
             BaseCell.Cells(1, 1).Worksheet.Activate
-            BaseCell.Cells(PreviousNBDepenses - 1, 1).EntireRow.Select
             BaseCell.Cells(PreviousNBDepenses - 1, 1).EntireRow.Copy
             Range(BaseCell.Cells(PreviousNBDepenses - 1, 1).EntireRow, BaseCell.Cells(NewNBDepenses - 1, 1).EntireRow).Insert _
                 Shift:=xlShiftDown, CopyOrigin:=xlFormatFromLeftOrAbove
