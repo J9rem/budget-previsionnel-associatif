@@ -1,4 +1,4 @@
-Attribute VB_Name = "Provisions"
+﻿Attribute VB_Name = "Provisions"
 ' SPDX-License-Identifier: EUPL-1.2
 ' Pour forcer la declaration de toutes les variables
 Option Explicit
@@ -377,6 +377,47 @@ Public Function Provisions_Extract_For_A_Financier( _
     
     Provisions_Extract_For_A_Financier = Provision
 End Function
+
+' Sub for button to add a new european financiers
+Public Sub Provisions_Financiers_Add()
+
+    Dim CurrentWs As Worksheet
+    Dim Data As Data
+    Dim FinancementFantome As FinancementComplet
+    Dim FormatedValue As String
+    Dim NBChantiers As Integer
+    Dim rev As WbRevision
+    Dim Value
+    Dim wb As Workbook
+    
+    Set wb = ThisWorkbook
+    Set CurrentWs = wb.ActiveSheet
+
+    ' Get name of new Financement
+    Value = InputBox(T_Add_New_Financier_Name, T_Add_New_Financier_Title, T_Add_New_Financier_Default)
+
+    If Value <> "" Then
+        FormatedValue = Trim(CStr(Value))
+        If FormatedValue <> "" Then
+            SetSilent
+            ' Current NB
+            NBChantiers = GetNbChantiers(wb)
+            FinancementFantome.Status = False
+            ' Type = 6 for european financier
+            Chantiers_Financements_Add_One wb, NBChantiers, FinancementFantome, FormatedValue, 6
+            ' Scan data
+            rev = DetecteVersion(wb)
+            Data = Extract_Data_From_Table(wb, rev)
+            ' reset provisions
+            Provisions_Import wb, Data
+            SetActive
+        End If
+    End If
+
+    
+    CurrentWs.Activate
+End Sub
+
 
 ' search each line of a financier
 ' @param Worksheet ws
