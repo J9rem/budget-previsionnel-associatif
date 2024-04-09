@@ -37,18 +37,23 @@ End Function
 ' find similar Financier in Data
 ' same name and european
 ' @param Data Data
+' @param Integer NBYears
+' @param Integer FirstYear
 ' @return Data
-Public Function Provisions_Data_Update_Index(Data As Data) As Data
+Public Function Provisions_Data_Update_Index(Data As Data, NBYears As Integer, FirstYear As Integer) As Data
 
     Dim Chantier As Chantier
     Dim Chantiers() As Chantier
     Dim Financement As Financement
-    Dim FinancementFound As Integer
     Dim Financements() As Financement
+    Dim Index As Integer
     Dim IndexFinancement As Integer
     Dim IndexProvision As Integer
+    Dim MissingFinancementsIdx As String
+    Dim MissingFinancementsIdxs() As String
     Dim Provision As Provision
     Dim Provisions() As Provision
+    Dim ProvisionsCopy() As Provision
     Dim ProvisionsNames() As String
 
     Provisions = Data.Provisions
@@ -67,29 +72,74 @@ Public Function Provisions_Data_Update_Index(Data As Data) As Data
         If UBound(Chantiers) > 0 Then
             Chantier = Chantiers(1)
             Financements = Chantier.Financements
-            FinancementFound = 0
+            MissingFinancementsIdx = ""
             For IndexFinancement = 1 To UBound(Financements)
-                If FinancementFound = 0 Then
-                    Financement = Financements(IndexFinancement)
-                    ' only check european funding
-                    If Financement.TypeFinancement = 6 Then
-                        IndexProvision = indexOfInArrayStr(Financement.Nom, ProvisionsNames)
-                        If IndexProvision <> -1 Then
-                            FinancementFound = IndexFinancement
-                            Data = Provisions_Data_Update_Index_In_Financement( _
-                                Data, _
-                                IndexFinancement, _
-                                IndexProvision _
-                            )
-                            Data = Provisions_Data_Update_Range_In_Provisions( _
-                                Data, _
-                                IndexFinancement, _
-                                IndexProvision _
-                            )
+                Financement = Financements(IndexFinancement)
+                ' only check european funding
+                If Financement.TypeFinancement = 6 Then
+                    IndexProvision = indexOfInArrayStr(Financement.Nom, ProvisionsNames)
+                    If IndexProvision <> -1 Then
+                        Data = Provisions_Data_Update_Index_In_Financement( _
+                            Data, _
+                            IndexFinancement, _
+                            IndexProvision _
+                        )
+                        Data = Provisions_Data_Update_Range_In_Provisions( _
+                            Data, _
+                            IndexFinancement, _
+                            IndexProvision _
+                        )
+                    Else
+                        If MissingFinancementsIdx <> "" Then
+                            MissingFinancementsIdx = MissingFinancementsIdx & ","
                         End If
+                        MissingFinancementsIdx = MissingFinancementsIdx & IndexFinancement
                     End If
                 End If
             Next IndexFinancement
+            ' Add missing financement
+            If MissingFinancementsIdx <> "" Then
+                MissingFinancementsIdxs = Split(MissingFinancementsIdx, ",")
+
+                For IndexProvision = 0 To UBound(MissingFinancementsIdxs)
+                    IndexFinancement = CInt(MissingFinancementsIdxs(IndexProvision))
+                    Financement = Financements(IndexFinancement)
+
+                    ' update Data with new provision
+                    Provision = getDefaultProvision(NBYears)
+    
+                    ' Title
+                    Provision.NomDuFinanceur = Financement.Nom
+                    Provision.FirstYear = FirstYear
+                    ' Search base range default
+                    Set Provision.RangeForTitle = Nothing
+                    Set Provision.RangeForLastYearWaitedValue = Nothing
+                    Set Provision.RangeForLastYearPayedValue = Nothing
+
+                    ' Append in Provisions
+                    Provisions = Data.Provisions
+                    ReDim ProvisionsCopy(1 To (UBound(Provisions) + 1))
+                    For Index = 1 To UBound(Provisions)
+                        ProvisionsCopy(Index) = Provisions(Index)
+                    Next Index
+                    ProvisionsCopy(UBound(Provisions) + 1) = Provision
+                    Provisions = ProvisionsCopy
+                    Data.Provisions = ProvisionsCopy
+
+                    ' update indexes
+                    Data = Provisions_Data_Update_Index_In_Financement( _
+                        Data, _
+                        IndexFinancement, _
+                        UBound(Provisions) _
+                    )
+                    Data = Provisions_Data_Update_Range_In_Provisions( _
+                        Data, _
+                        IndexFinancement, _
+                        UBound(Provisions) _
+                    )
+                    
+                Next IndexProvision
+            End If
         End If
     End If
 
@@ -246,7 +296,7 @@ Public Function Provisions_Extract(wb As Workbook, Data As Data, Revision As WbR
     Next Index
     Data.Provisions = Provisions
 
-    Data = Provisions_Data_Update_Index(Data)
+    Data = Provisions_Data_Update_Index(Data, NBYears, FirstYear)
 
 FinFunctionProvisions:
     Provisions_Extract = Data
@@ -1096,7 +1146,7 @@ Public Sub Provisions_Totals_Update_Formula( _
             If CurrentRange.Formula = "=0" Then
                 WorkingFormula = "="
             Else
-                WorkingFormula = CurrentRange.Formula & "+"
+                WorkingFormula = CurrentRange.FormulaLocal & "+"
             End If
             WorkingFormula = WorkingFormula & "SIERREUR(" _
                 & CleanAddress( _
