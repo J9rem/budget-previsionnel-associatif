@@ -1355,7 +1355,6 @@ Public Function Provisions_UpdateNBYears( _
             NBColsToChange = WantedNBYears - CurrentNBYears
             For Index2 = 1 To 5
                 For Index = 1 To NBColsToChange
-                    ProvisionsSheet.Cells(1, CurrentIndexes(Index2)).Select
                     ProvisionsSheet.Cells(1, CurrentIndexes(Index2)).Copy
                     ProvisionsSheet.Cells(1, CurrentIndexes(Index2)).EntireColumn.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
                 Next Index
