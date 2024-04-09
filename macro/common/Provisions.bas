@@ -1,4 +1,4 @@
-Attribute VB_Name = "Provisions"
+﻿Attribute VB_Name = "Provisions"
 ' SPDX-License-Identifier: EUPL-1.2
 ' Pour forcer la declaration de toutes les variables
 Option Explicit
@@ -1179,44 +1179,49 @@ Public Sub Provisions_Totals_Update_Formula( _
         FirstCellOfRow As Range _
     )
 
-    Dim CurrentRange As Range
-    Dim Index As Integer
-    Dim Ranges(1 To 7) As Range
-    Dim WorkingFormula As String
-
     ' Realistic provision
-    Set Ranges(1) = Provisions_SearchRange(wb, True, False)
+    Provisions_Totals_Update_Formula_Sub Provisions_SearchRange(wb, True, False), NBYears, FirstCellOfRow
     ' Realistic Retrieval 25%
-    Set Ranges(2) = Provisions_SearchRange(wb, True, False).Cells(1, 1 + NBYears)
+    Provisions_Totals_Update_Formula_Sub Provisions_SearchRange(wb, True, False).Cells(1, 1 + NBYears), NBYears, FirstCellOfRow
     ' Realistic Retrieval 10%
-    Set Ranges(3) = Provisions_SearchRange(wb, False, False).Cells(1, 0)
+    Provisions_Totals_Update_Formula_Sub Provisions_SearchRange(wb, False, False).Cells(1, 0), NBYears, FirstCellOfRow
     ' Realistic net
-    Set Ranges(4) = Provisions_SearchRange(wb, False, False).Cells(1, 1 + NBYears)
+    Provisions_Totals_Update_Formula_Sub Provisions_SearchRange(wb, False, False).Cells(1, 1 + NBYears), NBYears, FirstCellOfRow
     ' Forecast provision
-    Set Ranges(5) = Provisions_SearchRange(wb, True, True)
+    Provisions_Totals_Update_Formula_Sub Provisions_SearchRange(wb, True, True), NBYears, FirstCellOfRow
     ' Forecast Retrieval
-    Set Ranges(6) = Provisions_SearchRange(wb, False, True)
+    Provisions_Totals_Update_Formula_Sub Provisions_SearchRange(wb, False, True), NBYears, FirstCellOfRow
     ' Forecast Net
-    Set Ranges(7) = Provisions_SearchRange(wb, False, True).Cells(1, 2)
+    Provisions_Totals_Update_Formula_Sub Provisions_SearchRange(wb, False, True).Cells(1, 2), NBYears, FirstCellOfRow
+End Sub
 
-    For Index = 1 To UBound(Ranges)
-        Set CurrentRange = Ranges(Index)
-        If FirstCellOfRow Is Nothing Then
-            CurrentRange.Formula = "=0"
+' Update the formula of totals cells in Provision sheet sub function for one columne
+' @param Range CurrentRange
+' @param Integer NBYears
+' @param Range FirstCellOfRow
+Public Sub Provisions_Totals_Update_Formula_Sub( _
+        CurrentRange As Range, _
+        NBYears As Integer, _
+        FirstCellOfRow As Range _
+    )
+
+    Dim WorkingFormula As String
+    
+    If FirstCellOfRow Is Nothing Then
+        CurrentRange.Formula = "=0"
+    Else
+        If CurrentRange.Formula = "=0" Then
+            WorkingFormula = "="
         Else
-            If CurrentRange.Formula = "=0" Then
-                WorkingFormula = "="
-            Else
-                WorkingFormula = CurrentRange.FormulaLocal & "+"
-            End If
-            WorkingFormula = WorkingFormula & "SIERREUR(" _
-                & CleanAddress( _
-                    FirstCellOfRow.Cells(1 + NBYears, CurrentRange.Column).address(False, False, xlA1, False) _
-                ) _
-                & ";0)"
-            CurrentRange.FormulaLocal = WorkingFormula
+            WorkingFormula = CurrentRange.FormulaLocal & "+"
         End If
-    Next Index
+        WorkingFormula = WorkingFormula & "SIERREUR(" _
+            & CleanAddress( _
+                FirstCellOfRow.Cells(1 + NBYears, CurrentRange.Column).address(False, False, xlA1, False) _
+            ) _
+            & ";0)"
+        CurrentRange.FormulaLocal = WorkingFormula
+    End If
 End Sub
 
 ' search the first years without empty value
