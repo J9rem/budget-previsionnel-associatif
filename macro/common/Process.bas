@@ -1183,6 +1183,7 @@ Public Sub Chantiers_Financements_Add_One(wb As Workbook, _
         Optional TypeFinancement As Integer = 0, _
         Optional RetirerLignesVides As Boolean = False)
 
+    Dim Data As Data
     Dim SetOfRange As SetOfRange
     
     If Not (NewFinancementInChantier.Status) And Nom = "" Then
@@ -1204,7 +1205,7 @@ Public Sub Chantiers_Financements_Add_One(wb As Workbook, _
     If TypeFinancement = 6 Then
         ' Update Provisions after adding new finencement
         ' reset provisions
-        Provisions_Import wb
+        Provisions_Import wb, False, Data
     End If
 
 End Sub
@@ -1964,7 +1965,7 @@ Public Sub Chantiers_Import(NewWorkbook As Workbook, Data As Data)
     Charges_Import NewWorkbook, Data
     
     ' Ajouter Provisions
-    Provisions_Import NewWorkbook
+    Provisions_Import NewWorkbook, True, Data
 
 End Sub
 

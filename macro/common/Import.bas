@@ -401,7 +401,18 @@ Public Sub CopyPreviousValues(oldWorkbook As Workbook, NewWorkbook As Workbook, 
 
 End Sub
 
-Public Function Extract_Data_From_Table(oldWorkbook As Workbook, Revision As WbRevision) As Data
+' Extract data from a workbook
+' @param Workbook wb
+' @param WbRevision Revision
+' @param Boolean OnlyChantiersFinancements
+' @param Boolean WithProvisions
+' @return Data Data
+Public Function Extract_Data_From_Table( _
+        wb As Workbook, _
+        Revision As WbRevision, _
+        Optional OnlyChantiersFinancements As Boolean = False, _
+        Optional WithProvisions As Boolean = True _
+    ) As Data
 
     Dim BaseCell As Range
     Dim BaseCellChantier As Range
@@ -420,14 +431,14 @@ Public Function Extract_Data_From_Table(oldWorkbook As Workbook, Revision As WbR
     DonneesSalaries(0) = DonneesSalarie
     Data.Salaries = DonneesSalaries
     
-    Data.Informations = extraireInfos(oldWorkbook)
+    Data.Informations = extraireInfos(wb)
     
-    NBSalaries = GetNbSalaries(oldWorkbook)
+    NBSalaries = GetNbSalaries(wb)
     
     If NBSalaries > 0 Then
         
         On Error Resume Next
-        Set CurrentSheet = oldWorkbook.Worksheets(Nom_Feuille_Personnel)
+        Set CurrentSheet = wb.Worksheets(Nom_Feuille_Personnel)
         On Error GoTo 0
         If CurrentSheet Is Nothing Then
             MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Personnel)
@@ -438,7 +449,7 @@ Public Function Extract_Data_From_Table(oldWorkbook As Workbook, Revision As WbR
             Else
                 NBChantiers = 0
                 On Error Resume Next
-                Set ChantierSheet = oldWorkbook.Worksheets(Nom_Feuille_Budget_chantiers)
+                Set ChantierSheet = wb.Worksheets(Nom_Feuille_Budget_chantiers)
                 On Error GoTo 0
                 If ChantierSheet Is Nothing Then
                     MsgBox Replace(T_NotFoundPage, "%PageName%", Nom_Feuille_Budget_chantiers)
@@ -447,10 +458,12 @@ Public Function Extract_Data_From_Table(oldWorkbook As Workbook, Revision As WbR
                     If BaseCellChantier.Column > 1000 Or Left(BaseCellChantier.Value, Len("Chantier")) <> "Chantier" Then
                         Set BaseCellChantier = Nothing
                     Else
-                        NBChantiers = GetNbChantiers(oldWorkbook)
+                        NBChantiers = GetNbChantiers(wb)
                     End If
                     
-                    Data = Extract_Salaries(Data, BaseCell, BaseCellChantier, NBSalaries, NBChantiers)
+                    If Not OnlyChantiersFinancements Then
+                        Data = Extract_Salaries(Data, BaseCell, BaseCellChantier, NBSalaries, NBChantiers)
+                    End If
                     
                     If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
                         Data.Chantiers = Chantiers_Depenses_Extract(BaseCellChantier, NBSalaries, NBChantiers).Chantiers
@@ -462,8 +475,12 @@ Public Function Extract_Data_From_Table(oldWorkbook As Workbook, Revision As WbR
             End If
         End If
     End If
-    Data = Charges_Extract(oldWorkbook, Data, Revision)
-    Data = Provisions_Extract(oldWorkbook, Data, Revision)
+    If Not OnlyChantiersFinancements Then
+        Data = Charges_Extract(wb, Data, Revision)
+    End If
+    If WithProvisions Then
+        Data = Provisions_Extract(wb, Data, Revision)
+    End If
     
     Extract_Data_From_Table = Data
 

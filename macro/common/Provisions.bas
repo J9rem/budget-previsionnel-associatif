@@ -465,19 +465,31 @@ End Function
 
 ' import Provisions
 ' @param Workbook wb
+' @param Boolean DataFurnished
+' @param Data Data
 ' @param Boolean AddOneYear Optional
 Public Sub Provisions_Import( _
         wb As Workbook, _
+        DataFurnished As Boolean, _
+        Data As Data, _
         Optional AddOneYear As Boolean = False _
     )
 
-    Dim Data As Data
+    Dim ExtractedData As Data
+    Dim InputData As Data
     Dim ProvisionsSheet As Worksheet
     Dim rev As WbRevision
 
     ' ReScan data
     rev = DetecteVersion(wb)
-    Data = Extract_Data_From_Table(wb, rev)
+    ExtractedData = Extract_Data_From_Table(wb, rev, True, Not DataFurnished)
+    If DataFurnished Then
+        InputData = Data
+        ' update Chantiers with new values to obtain updated basecells
+        InputData.Chantiers = ExtractedData.Chantiers
+    Else
+        InputData = ExtractedData
+    End If
 
     ' get Provisions Sheet
     On Error Resume Next
@@ -1400,6 +1412,7 @@ End Function
 Public Sub Provisions_Years_Add()
 
     Dim CurrentWs As Worksheet
+    Dim Data As Data
     Dim wb As Workbook
     
     Set wb = ThisWorkbook
@@ -1407,7 +1420,7 @@ Public Sub Provisions_Years_Add()
 
     SetSilent
     ' reset provisions adding one year
-    Provisions_Import wb, True
+    Provisions_Import wb, False, Data, True
     SetActive
     
     CurrentWs.Activate
