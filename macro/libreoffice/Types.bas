@@ -347,3 +347,4 @@ Public Function getDefaultProvision(NBYears As Integer) As Provision
     getDefaultProvision = Provision
 
 End Function
+

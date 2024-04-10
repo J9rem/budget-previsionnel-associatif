@@ -1,4 +1,4 @@
-Rem Attribute VBA_ModuleType=VBAModule
+﻿Rem Attribute VBA_ModuleType=VBAModule
 Option VBASupport 1
 
 ' SPDX-License-Identifier: EUPL-1.2
@@ -384,4 +384,5 @@ Public Sub Common_UpdateSumsByColumn(BaseRange As Range, DestinationRange As Ran
         End If
     Next Index
 End Sub
+
 
