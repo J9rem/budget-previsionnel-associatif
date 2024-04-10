@@ -305,7 +305,7 @@ Public Function Provisions_Extract(wb As Workbook, Data As Data, Revision As WbR
     Else
         ReDim Provisions(0)
         NBYears = 5
-        FirstYear = Provisions_Main_Year_Get(wb) - 5
+        FirstYear = Provisions_Main_Year_Get(wb) - NBYears + 1
     End If
     Data.Provisions = Provisions
 
