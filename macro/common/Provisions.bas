@@ -1,4 +1,4 @@
-﻿Attribute VB_Name = "Provisions"
+Attribute VB_Name = "Provisions"
 ' SPDX-License-Identifier: EUPL-1.2
 ' Pour forcer la declaration de toutes les variables
 Option Explicit
@@ -477,16 +477,26 @@ Public Sub Provisions_Import( _
 
     Dim ExtractedData As Data
     Dim InputData As Data
+    Dim Provision As Provision
+    Dim Provisions() As Provision
     Dim ProvisionsSheet As Worksheet
     Dim rev As WbRevision
 
     ' ReScan data
     rev = DetecteVersion(wb)
+    ' update formulas and values before new scan
+    Application.Calculate
     ExtractedData = Extract_Data_From_Table(wb, rev, True, Not DataFurnished)
     If DataFurnished Then
         InputData = Data
         ' update Chantiers with new values to obtain updated basecells
         InputData.Chantiers = ExtractedData.Chantiers
+        ' update range in provision
+        Provisions = InputData.Provisions
+        If UBound(Provisions) > 0 Then
+            Provision = Provisions(1)
+            InputData = Provisions_Data_Update_Index(InputData, Provision.NBYears, Provision.FirstYear)
+        End If
     Else
         InputData = ExtractedData
     End If
@@ -499,7 +509,7 @@ Public Sub Provisions_Import( _
         ' clean Sheet
         If Provisions_Clean_Sheet(ProvisionsSheet) Then
             ' add new content
-            Provisions_NewContent_Add ProvisionsSheet, Data, AddOneYear
+            Provisions_NewContent_Add ProvisionsSheet, InputData, AddOneYear
         End If
     End If
 End Sub
