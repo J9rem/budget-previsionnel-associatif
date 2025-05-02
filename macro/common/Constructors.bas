@@ -62,7 +62,7 @@ Public Function TypesDeCharges() As TypesCharges
     ArrayTmp(6) = GetNewTypeDeCharge("Autres charges de gestion courante", 65)
     ArrayTmp(7) = GetNewTypeDeCharge("Charges financières", 66)
     ArrayTmp(8) = GetNewTypeDeCharge("Charges exceptionnelles", 67)
-    ArrayTmp(9) = GetNewTypeDeCharge("Dotation aux amortissements", 68)
+    ArrayTmp(9) = GetNewTypeDeCharge("Dotations aux amortissements", 68)
     ArrayTmp(10) = GetNewTypeDeCharge("Les impôts sur les bénéfices et assimilés", 69)
     
     TmpTypesCharges.Values = ArrayTmp
