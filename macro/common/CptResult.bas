@@ -1032,8 +1032,8 @@ Public Function CptResult_FindEndOfHeaderTable(BaseCell As Range) As Range
     While WorkingCell.Row < 1000 And ( _
             WorkingCell.Value = "" _
             Or Len(WorkingCell.Value) = 0 _
-            Or CInt(WorkingCell.Value) < 60 _
-            Or CInt(WorkingCell.Value) > 69 _
+            Or CDec(WorkingCell.Value) < 60 _
+            Or CDec(WorkingCell.Value) > 69 _
         )
         Set WorkingCell = WorkingCell.Cells(2, 1)
     Wend

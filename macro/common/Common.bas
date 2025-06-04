@@ -160,7 +160,7 @@ Public Function Common_InputBox_Get_Line_Between( _
     Common_InputBox_Get_Line_Between = 0
     If Value <> "" Then
         If Value > 0 Then
-            FormatValue = CInt(Value)
+            FormatValue = CDec(Value)
             If FormatValue <= MaxLine _
                 And FormatValue >= MinLine Then
                 Common_InputBox_Get_Line_Between = FormatValue
@@ -262,7 +262,7 @@ ImportValueInsteadOfFormula:
     On Error GoTo 0
     If SetEmptyStrIfNul _
         And ( _
-            CInt(CurrentValue) = 0 _
+            CDec(CurrentValue) = 0 _
             Or CStr(CurrentValue) = "" _
         ) Then
         CurrentCell.Value = ""
