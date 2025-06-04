@@ -505,23 +505,9 @@ Public Function Chantiers_Depenses_Extract( _
             If NewFormatForAutofinancement > 1 Then
                 ChantierTmp.AutoFinancementAutres = BaseCellLocal.Cells(-2, 1 + IndexChantiers).Value
                 ChantierTmp.AutoFinancementAutresFormula = Common_GetFormula(BaseCellLocal.Cells(-2, 1 + IndexChantiers))
-                ChantierTmp.AutoFinancementStructureAnneesPrecedentes = BaseCellLocal.Cells(5, 1 + IndexChantiers).Value
-                ChantierTmp.AutoFinancementStructureAnneesPrecedentesFormula = Common_GetFormula(BaseCellLocal.Cells(5, 1 + IndexChantiers))
-                ChantierTmp.AutoFinancementAutresAnneesPrecedentes = BaseCellLocal.Cells(4, 1 + IndexChantiers).Value
-                ChantierTmp.AutoFinancementAutresAnneesPrecedentesFormula = Common_GetFormula(BaseCellLocal.Cells(4, 1 + IndexChantiers))
-                ChantierTmp.CAanneesPrecedentes = BaseCellLocal.Cells(6, 1 + IndexChantiers).Value
-                ChantierTmp.CAanneesPrecedentesFormula = Common_GetFormula(BaseCellLocal.Cells(6, 1 + IndexChantiers))
             Else
                 ChantierTmp.AutoFinancementAutres = BaseCellLocal.Cells(2, 1 + IndexChantiers).Value
                 ChantierTmp.AutoFinancementAutresFormula = ""
-                ChantierTmp.AutoFinancementStructureAnneesPrecedentesFormula = ""
-                ChantierTmp.AutoFinancementAutresAnneesPrecedentesFormula = ""
-                ChantierTmp.CAanneesPrecedentesFormula = ""
-                If NewFormatForAutofinancement > 0 Then
-                    ChantierTmp.AutoFinancementStructureAnneesPrecedentes = BaseCellLocal.Cells(6, 1 + IndexChantiers).Value
-                    ChantierTmp.AutoFinancementAutresAnneesPrecedentes = BaseCellLocal.Cells(7, 1 + IndexChantiers).Value
-                    ChantierTmp.CAanneesPrecedentes = BaseCellLocal.Cells(8, 1 + IndexChantiers).Value
-                End If
             End If
             Chantiers(IndexChantiers) = ChantierTmp
         Next IndexChantiers
@@ -1992,18 +1978,6 @@ Public Sub Chantiers_Import_Autofinancements( _
                 SetOfRange.ResultCell.Cells(2, 1 + IndexChantier), _
                 TmpChantier.AutoFinancementAutres, _
                 TmpChantier.AutoFinancementAutresFormula
-            Common_SetFormula _
-                SetOfRange.ResultCell.Cells(10, 1 + IndexChantier), _
-                TmpChantier.AutoFinancementStructureAnneesPrecedentes, _
-                TmpChantier.AutoFinancementStructureAnneesPrecedentesFormula
-            Common_SetFormula _
-                SetOfRange.ResultCell.Cells(9, 1 + IndexChantier), _
-                TmpChantier.AutoFinancementAutresAnneesPrecedentes, _
-                TmpChantier.AutoFinancementAutresAnneesPrecedentesFormula
-            Common_SetFormula _
-                SetOfRange.ResultCell.Cells(11, 1 + IndexChantier), _
-                TmpChantier.CAanneesPrecedentes, _
-                TmpChantier.CAanneesPrecedentesFormula
         Next IndexChantier
     End If
 End Sub
