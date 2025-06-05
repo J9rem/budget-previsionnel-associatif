@@ -54,6 +54,14 @@ Public Type Chantier
     AutoFinancementStructureFormula As String
     AutoFinancementAutres As Double
     AutoFinancementAutresFormula As String
+    LivrablesL1 As String
+    LivrablesL2 As String
+    LivrablesL3 As String
+    LivrablesL4 As String
+    DetailsL1 As String
+    DetailsL2 As String
+    DetailsL3 As String
+    DetailsL4 As String
 End Type
 
 Public Type SetOfChantiers
@@ -246,6 +254,14 @@ Public Function getDefaultChantier(NbDefaultDepenses As Integer) As Chantier
     Chantier.AutoFinancementStructureFormula = ""
     Chantier.AutoFinancementAutres = 0
     Chantier.AutoFinancementAutresFormula = ""
+    Chantier.LivrablesL1 = ""
+    Chantier.LivrablesL2 = ""
+    Chantier.LivrablesL3 = ""
+    Chantier.LivrablesL4 = ""
+    Chantier.DetailsL1 = ""
+    Chantier.DetailsL2 = ""
+    Chantier.DetailsL3 = ""
+    Chantier.DetailsL4 = ""
     getDefaultChantier = Chantier
 End Function
 

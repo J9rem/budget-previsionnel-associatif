@@ -417,6 +417,7 @@ Public Function Chantiers_Depenses_Extract( _
         BaseCellChantier As Range, _
         NBSalaries As Integer, _
         NBChantiers As Integer, _
+        Revision As WbRevision, _
         Optional BaseCell As Range _
     ) As SetOfChantiers
         
@@ -433,6 +434,7 @@ Public Function Chantiers_Depenses_Extract( _
     Dim IndexDepense As Integer
     Dim NBDepenses As Integer
     Dim NewFormatForAutofinancement As Integer
+    Dim OffSet As Integer
     Dim SetOfChantiers As SetOfChantiers
     Dim SetOfRange As SetOfRange
     Dim TestedValue As String
@@ -508,6 +510,17 @@ Public Function Chantiers_Depenses_Extract( _
             Else
                 ChantierTmp.AutoFinancementAutres = BaseCellLocal.Cells(2, 1 + IndexChantiers).Value
                 ChantierTmp.AutoFinancementAutresFormula = ""
+            End If
+            If Revision.Majeure >= 3 Then
+                OffSet = 6
+                ChantierTmp.LivrablesL1 = BaseCellLocal.Cells(OffSet, 1 + IndexChantiers).Value
+                ChantierTmp.LivrablesL2 = BaseCellLocal.Cells(OffSet + 1, 1 + IndexChantiers).Value
+                ChantierTmp.LivrablesL3 = BaseCellLocal.Cells(OffSet + 2, 1 + IndexChantiers).Value
+                ChantierTmp.LivrablesL4 = BaseCellLocal.Cells(OffSet + 3, 1 + IndexChantiers).Value
+                ChantierTmp.DetailsL1 = BaseCellLocal.Cells(OffSet + 4, 1 + IndexChantiers).Value
+                ChantierTmp.DetailsL2 = BaseCellLocal.Cells(OffSet + 5, 1 + IndexChantiers).Value
+                ChantierTmp.DetailsL3 = BaseCellLocal.Cells(OffSet + 6, 1 + IndexChantiers).Value
+                ChantierTmp.DetailsL4 = BaseCellLocal.Cells(OffSet + 7, 1 + IndexChantiers).Value
             End If
             Chantiers(IndexChantiers) = ChantierTmp
         Next IndexChantiers
@@ -1965,6 +1978,7 @@ Public Sub Chantiers_Import_Autofinancements( _
     Dim IndexChantier As Integer
     Dim SetOfRange As SetOfRange
     Dim TmpChantier As Chantier
+    Dim OffSet As Integer
 
     Chantiers = Data.Chantiers
 
@@ -1978,6 +1992,24 @@ Public Sub Chantiers_Import_Autofinancements( _
                 SetOfRange.ResultCell.Cells(2, 1 + IndexChantier), _
                 TmpChantier.AutoFinancementAutres, _
                 TmpChantier.AutoFinancementAutresFormula
+            ' Update Goals and Details
+            OffSet = 6 + 4
+            SetOfRange.ResultCell.Cells(OffSet, 1 + IndexChantier).Value = _
+                TmpChantier.LivrablesL1
+            SetOfRange.ResultCell.Cells(OffSet + 1, 1 + IndexChantier).Value = _
+                TmpChantier.LivrablesL2
+            SetOfRange.ResultCell.Cells(OffSet + 2, 1 + IndexChantier).Value = _
+                TmpChantier.LivrablesL3
+            SetOfRange.ResultCell.Cells(OffSet + 3, 1 + IndexChantier).Value = _
+                TmpChantier.LivrablesL4
+            SetOfRange.ResultCell.Cells(OffSet + 4, 1 + IndexChantier).Value = _
+                TmpChantier.DetailsL1
+            SetOfRange.ResultCell.Cells(OffSet + 5, 1 + IndexChantier).Value = _
+                TmpChantier.DetailsL2
+            SetOfRange.ResultCell.Cells(OffSet + 6, 1 + IndexChantier).Value = _
+                TmpChantier.DetailsL3
+            SetOfRange.ResultCell.Cells(OffSet + 7, 1 + IndexChantier).Value = _
+                TmpChantier.DetailsL4
         Next IndexChantier
     End If
 End Sub
@@ -2326,7 +2358,7 @@ Public Sub Charges_Add_One_From_Button()
     Dim CodeIndex As Integer
     Dim ExtractedValue As Integer
     Dim FormattedValue As String
-    Dim Offset As Integer
+    Dim OffSet As Integer
     Dim SetOfRange As SetOfRange
     Dim SetOfCellsCategories As SetOfCellsCategories
     Dim Value
@@ -2359,11 +2391,11 @@ Public Sub Charges_Add_One_From_Button()
         SetOfRange = Charges_Categories_GetNext_Cell(SetOfCellsCategories, ExtractedValue)
         If SetOfRange.Status Then
             If SetOfRange.EndCell.Cells(0, 1) = Empty Then
-                Offset = -1
+                OffSet = -1
             Else
-                Offset = 0
+                OffSet = 0
             End If
-            Charges_Add_One_Line SetOfRange.EndCell.Cells(Offset, 1), False, FormattedValue, 0, 0, 0, 0, 1
+            Charges_Add_One_Line SetOfRange.EndCell.Cells(OffSet, 1), False, FormattedValue, 0, 0, 0, 0, 1
             Charges_UpdateFormula SetOfRange
         Else
             MsgBox T_Error_Not_Possible_To_Found_Type
@@ -2404,7 +2436,7 @@ End Sub
 
 Public Function Charges_Add_Line_Insert(CurrentCell As Range) As Range
 
-    Dim Offset As Integer
+    Dim OffSet As Integer
     Dim ColumnOffset As Integer
 
     ' insert line
@@ -2417,24 +2449,24 @@ Public Function Charges_Add_Line_Insert(CurrentCell As Range) As Range
     Range(CurrentCell.Cells(1, ColumnOfSecondPartInCharge), CurrentCell.Cells(1, ColumnOfSecondPartInCharge + NBCatOfCharges * 2)).Copy
     Range(CurrentCell.Cells(2, ColumnOfSecondPartInCharge), CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges * 2)).PasteSpecial Paste:=xlPasteFormats
     ' Create formulae
-    For Offset = 0 To 1
-        CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges * Offset + 1).FormulaLocal = "=SI(" _
+    For OffSet = 0 To 1
+        CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges * OffSet + 1).FormulaLocal = "=SI(" _
             & "ET(" _
                 & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "<>2;" _
                 & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "<>3" _
             & ");" _
-            & CurrentCell.Cells(2, 4 + Offset).address(False, False, xlA1, False) _
+            & CurrentCell.Cells(2, 4 + OffSet).address(False, False, xlA1, False) _
             & ";0" _
         & ")"
         For ColumnOffset = 2 To 3
-        CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges * Offset + ColumnOffset).FormulaLocal = "=SI(" _
+        CurrentCell.Cells(2, ColumnOfSecondPartInCharge + NBCatOfCharges * OffSet + ColumnOffset).FormulaLocal = "=SI(" _
                 & CurrentCell.Cells(2, ColumnOfSecondPartInCharge).address(False, False, xlA1, False) & "=" _
                 & ColumnOffset & ";" _
-                & CurrentCell.Cells(2, 4 + Offset).address(False, False, xlA1, False) _
+                & CurrentCell.Cells(2, 4 + OffSet).address(False, False, xlA1, False) _
                 & ";0" _
             & ")"
         Next ColumnOffset
-    Next Offset
+    Next OffSet
     ' Validation for first cell
     With CurrentCell.Cells(2, ColumnOfSecondPartInCharge).Validation
         .Delete
@@ -2456,7 +2488,7 @@ Public Function Charges_Add_One(SetOfCellsCategories As SetOfCellsCategories, Ch
 
     Dim CatIndex As Integer
     Dim CurrentCell As Range
-    Dim Offset As Integer
+    Dim OffSet As Integer
     Dim SetOfRange As SetOfRange
     Dim TypeCharge As TypeCharge
 
@@ -2468,12 +2500,12 @@ Public Function Charges_Add_One(SetOfCellsCategories As SetOfCellsCategories, Ch
             SetOfRange = Charges_Categories_GetNext_Cell(SetOfCellsCategories, TypeCharge.Index)
             If SetOfRange.Status Then
                 If SetOfRange.EndCell.Cells(0, 1) = Empty Then
-                    Offset = -1
+                    OffSet = -1
                 Else
-                    Offset = 0
+                    OffSet = 0
                 End If
                 Charges_Add_One_Line _
-                    SetOfRange.EndCell.Cells(Offset, 1), _
+                    SetOfRange.EndCell.Cells(OffSet, 1), _
                     False, _
                     Charge.Nom, _
                     Charge.PreviousN2YearValue, _

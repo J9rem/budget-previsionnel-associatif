@@ -466,7 +466,7 @@ Public Function Extract_Data_From_Table( _
                     End If
                     
                     If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
-                        Data.Chantiers = Chantiers_Depenses_Extract(BaseCellChantier, NBSalaries, NBChantiers).Chantiers
+                        Data.Chantiers = Chantiers_Depenses_Extract(BaseCellChantier, NBSalaries, NBChantiers, Revision).Chantiers
                         Data.Chantiers = Chantiers_Names_Extract(BaseCellChantier, NBChantiers, Data).Chantiers
                         Data.Chantiers = Chantiers_Financements_Extract(BaseCellChantier, NBChantiers, Data).Chantiers
                     End If
@@ -531,7 +531,7 @@ Public Function Extract_Data_From_Revision_0(oldWorkbook As Workbook, Revision A
             
             If (Not BaseCellChantier Is Nothing) And (NBChantiers > 0) Then
                 Set BaseCell = BaseCellChantier.Cells(4 + NBSalaries, 0)
-                Data.Chantiers = Chantiers_Depenses_Extract(BaseCellChantier, NBSalaries, NBChantiers, BaseCell).Chantiers
+                Data.Chantiers = Chantiers_Depenses_Extract(BaseCellChantier, NBSalaries, NBChantiers, Revision, BaseCell).Chantiers
                 Data.Chantiers = Chantiers_Names_Extract(BaseCellChantier, NBChantiers, Data).Chantiers
                 Data.Chantiers = Chantiers_Financements_Extract(BaseCellChantier, NBChantiers, Data, ForV0:=True).Chantiers
             End If
