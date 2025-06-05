@@ -521,6 +521,7 @@ Public Function Chantiers_Depenses_Extract( _
                 ChantierTmp.DetailsL2 = BaseCellLocal.Cells(OffSet + 5, 1 + IndexChantiers).Value
                 ChantierTmp.DetailsL3 = BaseCellLocal.Cells(OffSet + 6, 1 + IndexChantiers).Value
                 ChantierTmp.DetailsL4 = BaseCellLocal.Cells(OffSet + 7, 1 + IndexChantiers).Value
+                ChantierTmp.DetailsL5 = BaseCellLocal.Cells(OffSet + 8, 1 + IndexChantiers).Value
             End If
             Chantiers(IndexChantiers) = ChantierTmp
         Next IndexChantiers
@@ -2010,6 +2011,8 @@ Public Sub Chantiers_Import_Autofinancements( _
                 TmpChantier.DetailsL3
             SetOfRange.ResultCell.Cells(OffSet + 7, 1 + IndexChantier).Value = _
                 TmpChantier.DetailsL4
+            SetOfRange.ResultCell.Cells(OffSet + 8, 1 + IndexChantier).Value = _
+                TmpChantier.DetailsL5
         Next IndexChantier
     End If
 End Sub

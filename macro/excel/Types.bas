@@ -62,6 +62,7 @@ Public Type Chantier
     DetailsL2 As String
     DetailsL3 As String
     DetailsL4 As String
+    DetailsL5 As String
 End Type
 
 Public Type SetOfChantiers
@@ -262,6 +263,7 @@ Public Function getDefaultChantier(NbDefaultDepenses As Integer) As Chantier
     Chantier.DetailsL2 = ""
     Chantier.DetailsL3 = ""
     Chantier.DetailsL4 = ""
+    Chantier.DetailsL5 = ""
     getDefaultChantier = Chantier
 End Function
 
